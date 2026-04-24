@@ -1,6 +1,6 @@
 # Agent Roles Hub
 
-Status: active
+Status: [[status-settled]]
 Parent: [[Workflow Hub]]
 Related:
 Created: 2026-04-14

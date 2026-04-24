@@ -1,6 +1,6 @@
 # {{title}}
 
-Status: draft
+Status: 
 Parent: 
 Related:
 Created:  {{date:DD-MM-YYYY}}

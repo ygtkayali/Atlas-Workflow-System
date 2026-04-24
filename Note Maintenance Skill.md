@@ -1,13 +1,13 @@
 # Note Maintenance Skill
 
-Status: draft
+Status: [[status-pending]]
 Parent: [[Idea Hub]]
 Related: [[Local Note Search Script]]
 Created: 14-04-2026
 
 ## Summary
 
-Create a dedicated note maintenance skill for existing notes. This skill is separate from `note-creation`: `note-creation` remains focused on a single note and its immediate context, while note maintenance may operate across a much broader note space and therefore must prioritize efficiency.
+Create a dedicated note maintenance skill for existing notes. This skill is separate from `note-manager`: `note-manager` remains focused on a single note and its immediate context, while note maintenance may operate across a much broader note space and therefore must prioritize efficiency.
 
 ## Details
 

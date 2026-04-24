@@ -1,6 +1,6 @@
 # Workflow Hub
 
-Status: active
+Status: [[status-settled]]
 Parent:
 Related: [[Idea Hub]]
 Created: 2026-04-14
@@ -15,3 +15,6 @@ It is not the top note for the vault and does not need to register every workflo
 
 `AGENTS.md` remains the root operating contract outside the note graph.
 
+## Notes
+
+- [[Starter Project Vault/Start A New Project]]

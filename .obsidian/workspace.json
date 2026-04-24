@@ -4,16 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "37f4ebf4d8e63554",
+        "id": "b02a7b3354b82282",
         "type": "tabs",
         "children": [
           {
-            "id": "e01e81e7f8ec5299",
+            "id": "03e3324f9d5f683d",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "note-ready-handoff.md",
+                "file": "tool-policy.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -28,8 +28,53 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "note-ready-handoff"
-            }
+              "title": "tool-policy"
+            },
+            "group": "def5dd6001506c69"
+          }
+        ]
+      },
+      {
+        "id": "d405f343a3d4304d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "304fefd67355ebe1",
+            "type": "leaf",
+            "state": {
+              "type": "localgraph",
+              "state": {
+                "file": "tool-policy.md",
+                "options": {
+                  "collapse-filter": true,
+                  "search": "",
+                  "localJumps": 1,
+                  "localBacklinks": true,
+                  "localForelinks": true,
+                  "localInterlinks": false,
+                  "showTags": false,
+                  "showAttachments": false,
+                  "hideUnresolved": false,
+                  "collapse-color-groups": true,
+                  "colorGroups": [],
+                  "collapse-display": true,
+                  "showArrow": false,
+                  "textFadeMultiplier": 0,
+                  "nodeSizeMultiplier": 1,
+                  "lineSizeMultiplier": 1,
+                  "collapse-forces": true,
+                  "centerStrength": 0.518713248970312,
+                  "repelStrength": 10,
+                  "linkStrength": 1,
+                  "linkDistance": 250,
+                  "scale": 1,
+                  "close": false
+                }
+              },
+              "icon": "lucide-git-fork",
+              "title": "Graph of tool-policy"
+            },
+            "group": "def5dd6001506c69"
           }
         ]
       }
@@ -88,7 +133,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "d6fea5398d8974c6",
@@ -193,43 +239,53 @@
       "bases:Create new base": false
     }
   },
-  "active": "e01e81e7f8ec5299",
+  "active": "03e3324f9d5f683d",
   "lastOpenFiles": [
-    "Knowledge Collector Skill.md",
-    "note-creation.md",
-    "Note Maintenance Skill.md",
-    "Agent Roles Hub.md",
-    "clarify-intent.md",
+    "Note Manager.md",
     "note-ready-handoff.md",
-    "review-agent.md",
-    "AGENTS.md",
-    "planning-brief.md",
-    "planner-agent.md",
-    "Main Hubs/Workflow Hub.md",
-    "Main Hubs/Idea Hub.md",
-    "project-agents-template.md",
-    "Local Note Search Script.md",
-    "project-vault-phase-1-roadmap.md",
-    "Workflow Schemas Hub.md",
-    "tool-policy.md",
-    "Note Maintance.md",
+    "Planner As Note Manager Owner.md",
+    "Note Search Skill.md",
     "implementer-agent.md",
     "implementation-report-schema.md",
-    "Templates/General Note Template.md",
-    "Untitled.md",
-    "Untitled 2.md",
-    "Untitled 1.md",
-    "Templates/Idea Note Template.md",
+    "Durable Notes Follow Accepted Implementation.md",
+    "clarify-intent.md",
+    "Analyze Current Notes For Candidate Tag Ideas.md",
+    "Tags/status-archived.md",
+    "Tags/status-pending.md",
+    "Tags/status-settled.md",
+    "Main Hubs/Idea Hub.md",
+    "clarified-context-handoff.md",
+    "Local Note Search Future Development Options.md",
     "Templates/Sub Hub Template.md",
-    "Full Notes",
-    "Index notes/Untitled",
-    "Main Hubs",
-    "Tags/Note Types",
-    "Tags",
-    "Templates",
-    "home/yigit-kayali/Documents/notes/Project Planning Workflow/Project Plans",
-    "home/yigit-kayali/Documents/notes/Project Planning Workflow",
-    "home/yigit-kayali/Documents/notes",
-    "home/yigit-kayali/Documents"
+    "Templates/Idea Note Template.md",
+    "Templates/General Note Template.md",
+    "Local Note Search Script.md",
+    "Note Maintenance Skill.md",
+    "Agent Roles Hub.md",
+    "Tags/status-setteled.md",
+    "Tags/status-archieved.md",
+    "Tags/status-draft.md",
+    "Status Tag Registry.md",
+    "Note Maintance.md",
+    "Special Image Of My Brain/2- Source Materials/Books/Yorumlanabilir Makine Öğrenmesi/YapayZekaBuyukVeriKitapSerisi_4.pdf",
+    "Special Image Of My Brain/2- Source Materials/Books/Thinking Fast and slow/Daniel-Kahneman-Thinking-Fast-and-Slow-.pdf",
+    "Special Image Of My Brain/2- Source Materials/Books/The voices within/(Wellcome) Charles Fernyhough - The Voices Within_ The History and Science of How We Talk to Ourselves-PROFILE BOOKS (2017).pdf",
+    "Special Image Of My Brain/2- Source Materials/Books/Yorumlanabilir Makine Öğrenmesi",
+    "Special Image Of My Brain/2- Source Materials/Books/Thinking Fast and slow",
+    "Special Image Of My Brain/2- Source Materials/Books/The voices within",
+    "Special Image Of My Brain/2- Source Materials/Books/The feeling of what happens",
+    "Special Image Of My Brain/2- Source Materials/Books/Gladwell, Malcolm - Blink_ the power of thinking without thinking-Little, Brown and Company (2007).pdf",
+    "Special Image Of My Brain/2- Source Materials/Books/Finished",
+    "Special Image Of My Brain/Attachments/image.png",
+    "Special Image Of My Brain/Attachments/image 3.png",
+    "Special Image Of My Brain/Attachments/image 2.png",
+    "Special Image Of My Brain/Attachments/image 1.png",
+    "Special Image Of My Brain/Attachments/Screenshot from 2025-09-22 23-32-00.png",
+    "Special Image Of My Brain/Attachments/Pasted image 20250930154724.png",
+    "Special Image Of My Brain/Attachments/Pasted image 20250925211349.png",
+    "Special Image Of My Brain/Attachments/Pasted image 20250925205214.png",
+    "Special Image Of My Brain/Attachments/Pasted image 20250925204850.png",
+    "Special Image Of My Brain/Attachments/Pasted image 20250925203723.png",
+    "Special Image Of My Brain/3- Tags/Authors"
   ]
 }

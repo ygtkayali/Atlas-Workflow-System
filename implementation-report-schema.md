@@ -1,9 +1,9 @@
 # Implementation Report Schema
 
-Status: draft
+Status: [[status-settled]]
 Parent: [[Workflow Schemas Hub]]
-Related: [[note-ready-handoff]], [[review-agent]]
-Created:
+Related: [[task-packet-schema]], [[implementer-agent]], [[review-agent]]
+Created: 2026-04-15
 Last Reviewed:
 Source:
 Decisions:
@@ -16,6 +16,7 @@ Tasks:
 This schema defines the minimum structure for reporting completed implementation work back into the workflow.
 
 The report exists to make changes explainable, reviewable, and synchronizable with project documentation.
+It should preserve clear traceability back to the approved packet or equivalent approved artifact that authorized the implementation.
 
 ---
 
@@ -26,7 +27,8 @@ The report exists to make changes explainable, reviewable, and synchronizable wi
 - report type: `implementation-report`
 - status
 - implementation date
-- related task packet
+- related approved task packet or equivalent approved artifact
+- packet revision when known
 - implementer or implementing role if known
 
 ### 2. Summary of Change
@@ -45,15 +47,19 @@ The report exists to make changes explainable, reviewable, and synchronizable wi
 - result of each check
 - limitations when checks were not run
 
-### 6. Assumptions Introduced
+### 6. Outcome Against Acceptance Criteria
+- whether acceptance criteria were met, partially met, or blocked
+- any notable deviation from the approved packet
+
+### 7. Assumptions Introduced
 - new assumptions added during implementation that were not already explicit in the packet
 
-### 7. Unresolved Issues
+### 8. Unresolved Issues
 - remaining gaps
 - known limitations
 - items that need follow-up or human review
 
-### 8. Documentation Impact
+### 9. Documentation Impact
 - notes updated
 - notes that should be updated next
 - stale docs or missing decisions discovered during implementation
@@ -100,6 +106,7 @@ Use them especially for assumptions, unresolved issues, and documentation impact
 Before considering the report complete, check:
 - Does it explain what changed?
 - Does it explain why the touched files changed?
+- Does it state the outcome against the acceptance criteria?
 - Does it show what was verified?
 - Does it surface assumptions and unresolved issues?
 - Does it identify documentation impact?
@@ -117,6 +124,7 @@ If any answer is no, refine the report before handoff to review.
 - Type: implementation-report
 - Status: <completed | partial | blocked>
 - Related packet: <link or identifier>
+- Packet revision: <v1>
 - Date: YYYY-MM-DD
 
 ## Summary of Change
@@ -124,6 +132,8 @@ If any answer is no, refine the report before handoff to review.
 ## Files Touched
 
 ## Why These Changes Were Made
+
+## Outcome Against Acceptance Criteria
 
 ## Checks Run
 

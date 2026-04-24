@@ -1,8 +1,9 @@
 # {{title}}
 
-Status: pending
+Status: 
 Parent: [[Idea Hub]]
 Related:
 Created: {{date:DD-MM-YYYY}}
 
+---
 

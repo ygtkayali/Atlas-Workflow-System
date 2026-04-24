@@ -1,6 +1,6 @@
 # Tool Policy
 
-Status: draft
+Status: [[status-settled]]
 Parent: [[Workflow Hub]]
 Related: [[planner-agent]], [[implementer-agent]], [[review-agent]]
 Created:

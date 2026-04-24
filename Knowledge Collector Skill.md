@@ -1,6 +1,6 @@
 # Knowledge Collector Skill
 
-Status: pending
+Status: [[status-pending]]
 Parent: [[Idea Hub]]
 Related: [[clarify-intent]]
 Created: 14-04-2026
@@ -50,8 +50,3 @@ It supports the repository's confidence-based workflow by helping the user learn
 - whether project-context relevance should always be included when context exists
 - whether a future version should allow optional handoff back into `clarify-intent`
 
-## Follow-up Idea
-
-A separate note-oriented workflow may later capture learned concepts as durable notes, such as notes on `Qwen` architecture or `FlashAttention`.
-
-That should remain separate from this skill by default so research output and durable note creation do not blur together.

@@ -1,11 +1,14 @@
 # {{title}}
 
-Status: active
+Status: 
 Parent: 
 Related:
 Created: {{date:DD-MM-YYYY}}
 Last Reviewed:
 Scope:
+
+---
+
 
 ## Overview
 
@@ -13,6 +16,4 @@ Scope:
 
 
 
-
-## Notes
 
