@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent: [[Workflow Hub]]
-Related: [[clarify-intent]], [[clarified-context-handoff]], [[note-ready-handoff]], [[Two-Phase Workflow Boundary]], [[Durable Notes Follow Accepted Implementation]]
+Related: [[clarify-intent]], [[clarified-context-handoff]], [[Two-Phase Workflow Boundary]], [[Durable Notes Follow Accepted Implementation]]
 Created: 2026-04-14
 Last Reviewed: 2026-04-24
 Source:
@@ -49,7 +49,7 @@ For the current workflow, `Note Manager` should support these owners:
   uses a [[clarified-context-handoff]] as the upstream artifact for ideation-stage note creation or note updates
 
 - `review-sync`
-  uses accepted implementation context such as a task packet, implementation report, review outcome, or note-change handoff to update durable notes after implementation has been accepted
+  routes accepted implementation context through `clarify-intent` first, then uses the resulting [[clarified-context-handoff]] for durable note updates
 
 Additional owners may be introduced later, but this note should describe only the owners that are part of the current workflow.
 
@@ -76,9 +76,10 @@ It should not guess through missing upstream context.
 
 Examples:
 - from `clarify-intent`: a [[clarified-context-handoff]]
-- from `review-sync`: implementation-backed context that makes the requested durable note update explicit
+- from `review-sync`: a [[clarified-context-handoff]] produced by `clarify-intent` from implementation-backed review context
 
-If the owner, target note, or intended note mutation is still unclear, `Note Manager` should stop and return the work to the upstream role rather than improvising structure.
+If the owner sends raw implementation context, review output, or a note-change proposal that has not passed through `clarify-intent`, `Note Manager` should route that input to `clarify-intent` first.
+If the owner, target note, or intended note mutation is still unclear after clarification, `Note Manager` should stop and return the work to the upstream role rather than improvising structure.
 
 For `clarify-intent` input, the upstream artifact should preserve clarified context, not prescribe final note structure.
 `Note Manager` is responsible for deciding whether that context becomes a new note, an update to an existing note, or a request for more clarification.
@@ -126,6 +127,7 @@ Within the current workflow:
 - `planner` produces execution artifacts such as task packets
 - `implementer` produces implementation reports
 - `review-sync` determines whether durable notes should change after accepted implementation
-- `Note Manager` performs those bounded durable note updates when they are explicitly requested by the upstream review result
+- `review-sync` sends implementation-backed note-sync context through `clarify-intent`
+- `Note Manager` performs bounded durable note updates from the resulting clarified context handoff
 
 This keeps note mutation logic centralized while preserving separate authority for clarification, planning, implementation, and review.

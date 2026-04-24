@@ -18,6 +18,7 @@ This schema defines the minimum structure for the clarified context artifact pro
 
 The clarified context handoff preserves the result of clarification without designing the durable note.
 It exists to give `Note Manager` enough settled context to decide whether to create or update notes, which note type to use, which target note should change, and what exact content should be drafted.
+It may clarify either user intent from ideation or implementation-backed context from review/sync.
 
 It is not:
 - a durable note draft,
@@ -39,31 +40,35 @@ It is not:
 - the subject that survived clarification in compact form
 - enough context to distinguish it from the original rough idea when needed
 
-### 3. User Goal
+### 3. Source Context
+- whether the handoff came from user intent clarification, review/sync, or another upstream workflow context
+- the upstream artifact, request, packet, report, or review context that clarification is preserving
+
+### 4. User Goal
 - the outcome the user is trying to achieve
 - why this subject matters now if known
 
-### 4. Decided
+### 5. Decided
 - decisions worth preserving from clarification
 - narrowed scope or direction that should not be silently broadened later
 
-### 5. Proposed
+### 6. Proposed
 - optional direction that seems plausible but is not yet durable fact
 - options that `Note Manager` may consider without treating them as binding structure
 
-### 6. Unclear / Blocked
+### 7. Unclear / Blocked
 - unresolved questions that may remain visible in the downstream note action
 - missing information that should return the work to clarification if it would force note-structure guesswork
 
-### 7. Boundaries / Non-goals
+### 8. Boundaries / Non-goals
 - adjacent areas that should not be folded into `Note Manager` by default
 - limits on what the next note action should try to capture
 
-### 8. Relevant Context Already Known
+### 9. Relevant Context Already Known
 - specific user-supplied note paths, related notes, or known constraints
 - context the user has already provided that `Note Manager` may use
 
-### 9. Readiness For Note Manager
+### 10. Readiness For Note Manager
 - whether to continue clarification, proceed to `Note Manager`, or defer
 - why the current state is or is not ready for bounded note work
 
@@ -90,7 +95,7 @@ The clarified context handoff must not:
 - or act as a substitute for `Note Manager`.
 
 The clarified context handoff may:
-- preserve the clarified idea state for durable note work,
+- preserve the clarified idea state or implementation-backed review context for durable note work,
 - challenge weak assumptions,
 - preserve surfaced inconsistencies and important uncertainty,
 - narrow scope,
@@ -102,6 +107,7 @@ The clarified context handoff may:
 
 Before handoff, check:
 - Is the clarified subject clear?
+- Is the source context explicit?
 - Is the user goal distinct from the proposed solution shape?
 - Are decided points separate from proposed or unclear points?
 - Are boundaries or non-goals visible?
@@ -123,6 +129,8 @@ If any answer is no, refine the handoff or mark it `needs_clarification`.
 - Created: YYYY-MM-DD
 
 ## Clarified Subject
+
+## Source Context
 
 ## User Goal
 

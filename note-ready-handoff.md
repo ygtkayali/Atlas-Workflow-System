@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent: [[Workflow Schemas Hub]]
-Related: [[clarified-context-handoff]], [[implementation-report-schema]], [[Note Manager]], [[Durable Notes Follow Accepted Implementation]]
+Related: [[clarified-context-handoff]], [[implementation-report-schema]]
 Created: 2026-04-14
 Last Reviewed: 2026-04-24
 Source:
@@ -14,13 +14,15 @@ Tasks:
 
 ## Purpose
 
-This schema is retained as a legacy / review-sync-oriented note-change handoff reference.
+This schema is retained as a legacy note-change handoff reference.
 
 It is no longer the default successful output of `clarify-intent`.
 For Phase 1 clarification, use [[clarified-context-handoff]].
+It is also no longer the active review/sync handoff path.
+For post-implementation documentation sync, route review/sync context through `clarify-intent` and use [[clarified-context-handoff]] before `Note Manager`.
 
-The note-ready handoff exists to propose or carry a bounded durable note change when an upstream role already has enough implementation-backed or review-backed context to identify the note mutation.
-It exists to support `Note Manager`, not planner or implementation handoff.
+The note-ready handoff previously existed to propose or carry a bounded durable note change when an upstream role already had enough context to identify the note mutation.
+It is kept for historical compatibility, not as the current handoff contract.
 It is not an implementation packet and it must not be treated as approval to implement.
 
 The handoff should make it clear what durable note change is being proposed and what evidence or accepted review context supports it.
@@ -93,13 +95,12 @@ The note-ready handoff must not:
 - decide durable note placement when the target is unclear,
 - or act as a substitute for planner output.
 
-For clarification-stage work, this artifact must not replace [[clarified-context-handoff]] or push note-structure decisions back into `clarify-intent`.
+For clarification-stage or review-sync work, this artifact must not replace [[clarified-context-handoff]] or push note-structure decisions outside the current clarification path.
 
 The note-ready handoff may:
-- preserve implementation-backed or review-backed note-change context,
-- record why a durable note change is being proposed,
-- identify a bounded note mutation for `Note Manager` to evaluate,
-- and recommend the next `Note Manager` step.
+- preserve old note-change context for historical reference,
+- help migrate older artifacts into [[clarified-context-handoff]],
+- and explain why older workflow notes may still mention `note-ready-handoff`.
 
 ---
 

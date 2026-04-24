@@ -221,7 +221,8 @@ Current expectations:
 - it should begin from the approved task packet, implementation report, and touched files or diff when needed,
 - it may use `note-search` when a known note can anchor a bounded documentation-sync context,
 - it should keep the basis for note selection explicit,
-- it should create or propose note-change artifacts when durable note mutation remains behind a separate gate such as `Note Manager`,
+- it should route implementation-backed documentation-sync context through `clarify-intent` before durable note mutation,
+- it should create or propose context handoffs for clarification when durable note mutation remains behind a separate gate such as `Note Manager`,
 - and it should recommend `keep`, `revise`, or `reject` rather than silently normalizing mismatches.
 
 ### `note-search`
@@ -239,6 +240,9 @@ Planning is no longer the default direct output of clarification.
 
 The active workflow is:
 `idea -> clarify-intent -> clarified context handoff -> Note Manager`
+
+The post-implementation documentation-sync workflow is:
+`review/sync -> clarify-intent -> clarified context handoff -> Note Manager`
 
 Planning remains downstream, but it should consume note-backed project state rather than relying on a planner-oriented clarification artifact by default.
 `note-search` is a shared bounded retrieval aid that may be used during clarification, planning, or review when a known note can anchor better local context selection.
@@ -597,6 +601,7 @@ Current repository state:
 - `clarify-intent` produces a `clarified context handoff` by default when clarification succeeds,
 - `Note Manager` is the bounded durable note step before planner work,
 - `Note Manager` owns note action, note type, target note, title, links, metadata, and durable note structure decisions from the clarified context plus supplied note paths,
+- review/sync documentation updates route through `clarify-intent` before `Note Manager`,
 - `Note Manager` refreshes dynamic metadata on create or update rather than preserving stale template values,
 - planning should begin from note-backed project state when implementation is actually needed,
 - `project-planner`, `clarify-intent`, and `project-review-sync` may use `note-search` as a bounded retrieval helper when a known seed note can improve local context selection,

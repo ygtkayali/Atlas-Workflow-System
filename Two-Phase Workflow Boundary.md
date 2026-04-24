@@ -28,7 +28,7 @@ This boundary exists to prevent implementation requests from being forced throug
 The intended split is:
 
 - Phase 1: `idea -> clarify-intent -> clarified context handoff -> Note Manager`
-- Phase 2: `existing notes or request -> planner -> task packet -> approval -> implementer -> implementation report -> review/sync -> note-ready handoff -> Note Manager`
+- Phase 2: `existing notes or request -> planner -> task packet -> approval -> implementer -> implementation report -> review/sync -> clarify-intent -> clarified context handoff -> Note Manager`
 
 In this model:
 
@@ -39,8 +39,9 @@ In this model:
 - `planner` consumes notes and request context, then produces a `task packet`
 - `implementer` produces an `implementation report`
 - `review/sync` decides whether durable notes should change after accepted implementation
-- `review/sync` proposes those durable note changes through one or more `note-ready handoff` artifacts
-- `task packet`, `implementation report`, and `note-ready handoff` are workflow artifacts, not durable knowledge notes by themselves
+- `review/sync` passes implementation-backed documentation-sync context to `clarify-intent`
+- `clarify-intent` turns that context into a `clarified context handoff`
+- `task packet`, `implementation report`, and `clarified context handoff` are workflow artifacts, not durable knowledge notes by themselves
 
 This keeps ideation and implementation as separate but connected parts of the system.
 

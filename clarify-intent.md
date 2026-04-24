@@ -14,15 +14,17 @@ Tasks:
 
 ## Summary
 
-`clarify-intent` is the Phase 1 ideation skill.
+`clarify-intent` is the workflow context-clarification skill.
 
-Its job is to strengthen an idea-shaped request until the goal, problem shape, boundaries, and major uncertainties are clear enough for bounded durable note work.
+Its first job is to strengthen an idea-shaped request until the goal, problem shape, boundaries, and major uncertainties are clear enough for bounded durable note work.
+Its second job is to clarify implementation-backed context from review/sync before durable note mutation.
 It is a guided clarification and challenge loop, not a planner.
 It preserves clarified context; it does not design durable note structure.
 
 ## Responsibilities
 
 - separate user goals from proposed solutions
+- separate implementation facts from review/sync proposals when the upstream source is post-implementation review
 - expose ambiguity, assumptions, and missing decisions
 - challenge weak or premature solution framing
 - keep work in clarification when high-impact uncertainty remains
@@ -53,6 +55,7 @@ Those decisions belong to [[Note Manager]].
 - create durable notes directly
 - draft final durable note content
 - decide note type, target note, title, final links, or durable note placement as binding output
+- decide whether a reviewed implementation should be kept, revised, or rejected
 - create planning packets
 - approve implementation work
 - silently decide architecture, workflow, schema, or note-placement choices for the user
@@ -60,3 +63,4 @@ Those decisions belong to [[Note Manager]].
 ## Next Step
 
 When clarification succeeds, the normal next step is [[Note Manager]] with the clarified context handoff plus the specific relevant notes supplied by the user.
+For post-implementation documentation sync, [[review-agent]] supplies implementation-backed context first; `clarify-intent` then produces the clarified context handoff for [[Note Manager]].

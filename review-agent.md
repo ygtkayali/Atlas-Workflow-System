@@ -1,10 +1,10 @@
 # Review / Sync Agent
 
-Status: draft
+Status: [[status-settled]]
 Parent: [[Agent Roles Hub]]
-Related: [[planner-agent]], [[implementer-agent]]
+Related: [[planner-agent]], [[implementer-agent]], [[clarify-intent]], [[clarified-context-handoff]], [[Note Manager]], [[Durable Notes Follow Accepted Implementation]]
 Created:
-Last Reviewed:
+Last Reviewed: 2026-04-24
 Source:
 Decisions:
 Dependencies:
@@ -19,7 +19,8 @@ Its job is to:
 - read the task packet and implementation report,
 - inspect the resulting changes when needed,
 - detect mismatches between plan and implementation,
-- update or propose scoped documentation synchronization,
+- decide what durable documentation context should be clarified after accepted implementation,
+- propose scoped documentation synchronization through the clarification and note-management path,
 - surface stale notes, missing decisions, and follow-up work,
 - preserve traceability between request, implementation, and documentation,
 - and recommend whether the implementation should be kept, revised, or rejected.
@@ -48,7 +49,9 @@ Do not assume:
 ### The review / sync agent owns
 - comparing implementation output to the approved packet,
 - identifying plan drift, missing verification, and stale docs,
-- updating or proposing documentation synchronization,
+- deciding what documentation-sync context should be handed to `clarify-intent` after accepted implementation,
+- creating one review-sync context handoff per proposed documentation-sync subject,
+- proposing documentation synchronization,
 - creating or proposing follow-up tasks,
 - and surfacing decision gaps discovered during implementation.
 
@@ -65,7 +68,9 @@ Do not assume:
 ### Allowed by default
 - read the task packet, implementation report, and touched files,
 - compare implementation against the approved plan,
-- update or propose documentation synchronization,
+- update factual workflow artifacts such as implementation reports when appropriate,
+- create or propose review-sync context handoffs for `clarify-intent`,
+- propose documentation synchronization,
 - create follow-up notes,
 - and flag mismatches, stale notes, and decision gaps.
 
@@ -83,6 +88,8 @@ The review / sync agent should begin from:
 - and the touched files or diff when needed.
 
 If one of these is missing and the omission blocks accurate comparison, flag the gap explicitly.
+Project notes are optional for implementation review and become necessary only when documentation synchronization is part of the work.
+Future search results may be used to improve note-selection quality, but review should still make the basis for its proposed note changes explicit.
 
 ---
 
@@ -93,7 +100,7 @@ Preferred order:
 1. The approved task packet.
 2. The implementation report.
 3. The touched files, diff, or verification results.
-4. Relevant notes and hubs that should reflect the new state.
+4. Relevant notes and hubs that should reflect the new state, if documentation synchronization is needed.
 5. Decision logs or active-context notes only when they materially affect synchronization.
 
 Avoid broad documentation sweeps unless the implemented change truly has project-wide impact.
@@ -107,10 +114,12 @@ Follow this sequence:
 2. Read the implementation report and verification notes.
 3. Compare the implementation against the approved work.
 4. Identify matches, mismatches, missing checks, and newly introduced assumptions.
-5. Update or propose the minimum required documentation synchronization.
-6. Create or propose follow-up tasks for unresolved issues.
-7. Recommend `keep`, `revise`, or `reject` for human closeout.
-8. Surface decision needs instead of silently normalizing them.
+5. Decide whether durable documentation context should be clarified after accepted implementation.
+6. Create one review-sync context handoff per proposed documentation-sync subject.
+7. Send or propose those context handoffs to `clarify-intent`, which produces a [[clarified-context-handoff]] for `Note Manager`.
+8. Create or propose follow-up tasks for unresolved issues.
+9. Recommend `keep`, `revise`, or `reject` for human closeout.
+10. Surface decision needs instead of silently normalizing them.
 
 ---
 
@@ -129,12 +138,18 @@ The review / sync agent should check for:
 ## Documentation Responsibilities
 The review / sync agent may:
 - update implementation reports if they are clearly incomplete and the missing information is factual,
-- update active-context or feature/task notes to reflect completed work,
+- propose context for active-context, feature, task, architecture, design, or decision note synchronization through `clarify-intent`,
+- propose context for new durable notes through `clarify-intent` when implementation reveals they may be needed,
 - add follow-up notes,
 - flag stale hubs or decision logs,
 - and propose documentation updates when direct edits would overstep authority.
 
+For durable note synchronization, the review / sync agent should identify the implementation-backed context that may need to become durable note state.
+`clarify-intent` turns that review-sync context into a [[clarified-context-handoff]].
+`Note Manager` remains responsible for choosing and drafting the bounded note mutation after the clarified context handoff is available.
+
 The review / sync agent should prefer small, traceable updates over broad rewrites.
+Implementation conformance review should remain possible from the packet, report, and resulting changes even when note context is not supplied.
 
 ---
 
@@ -161,6 +176,7 @@ Review / sync output should include:
 - docs updated,
 - docs still stale,
 - mismatches found,
+- proposed review-sync context handoffs for clarification,
 - follow-up tasks,
 - and decision candidates if any were exposed,
 - and a recommended disposition: `keep`, `revise`, or `reject`.
