@@ -183,6 +183,7 @@ Use `note-manager` only after at least one `clarify-intent` pass has produced du
 
 Current expectations:
 - it performs bounded note `create` or `update` work only,
+- it is the required gate for every durable note mutation, including metadata-only edits, status changes, link changes, archival changes, schema/governance note edits, and small corrections,
 - it receives clarified context and decides the concrete note action, note type, target note, title, links, and durable note structure,
 - it should use the local templates when they apply,
 - it should read only the provided relevant notes and avoid broad vault discovery,
@@ -257,6 +258,12 @@ It does not weaken human authority, approval gates, scoped context, or role boun
 Routing helps the agent decide which existing skill should handle the next step.
 It must not be used to silently approve work, collapse phases, bypass clarification, skip `Note Manager`, or begin implementation without an approved packet.
 
+Durable note mutation rule:
+- any durable note create, update, metadata edit, status change, link change, archival change, schema/governance note edit, or correction must route through `note-manager`
+- raw direct durable note edits are not allowed as an independent shortcut
+- file-edit tools may apply the resulting `Note Manager` decision, but they do not replace `Note Manager`
+- this applies even when the requested change appears small, obvious, or purely mechanical
+
 ### Initial routing question
 At the start of every non-trivial request, ask:
 
@@ -285,7 +292,7 @@ When one of these decisions is required, the agent must escalate to the human in
 
 ### Routing checklist
 - If intent is unclear, early-stage, overloaded, or solution-led: use `clarify-intent`.
-- If the next artifact is a durable note create/update: use `note-manager`, only after clarification has produced durable signal and relevant note context is supplied.
+- If the next artifact is any durable note create/update, metadata edit, status change, link change, archival change, schema/governance note edit, or correction: use `note-manager`, only after clarification has produced durable signal and relevant note context is supplied.
 - If implementation planning is needed from note-backed project state: use `project-planner`.
 - If code changes are requested: use `project-implementer` only when an explicitly approved implementation packet or equivalent approved artifact exists.
 - If completed implementation needs comparison against the approved packet and documentation sync decisions: use `project-review-sync`.
@@ -323,11 +330,13 @@ Expected outcome:
 
 ### Phase 2: Create or update durable notes
 The `Note Manager` step turns clarified intent into bounded durable note work.
+All durable note mutations must pass through this step.
 
 Expected outcome:
 - a small set of durable note creates or updates,
 - minimal metadata and intentional links,
 - conservative note typing,
+- refreshed dynamic metadata such as status, review date, related links, decisions, and tasks when applicable,
 - and explicit refusal to proceed when the supplied context is insufficient for responsible note placement or note-type selection.
 
 ### Phase 3: Prepare implementation packet
@@ -424,7 +433,8 @@ When documentation is updated after implementation, the update should be attribu
 ## Tooling Policy
 
 ### Default policy
-- clarification, `Note Manager`, and planning roles: read docs, update docs, inspect relevant repo context
+- clarification and planning roles: read docs, inspect relevant repo context, and prepare context for downstream note work
+- `Note Manager`: read docs, update docs, inspect relevant repo context, and own durable note mutation
 - clarification, planning, and review roles may use `note-search` for bounded local note retrieval when a known seed note can reduce context noise
 - implementation role: edit code, inspect files, run checks, produce report
 - review role: inspect code + docs, suggest or apply scoped doc updates
@@ -433,6 +443,7 @@ When documentation is updated after implementation, the update should be attribu
 Agents should not:
 - delete or rewrite large documentation areas without explicit reason,
 - make broad repo changes outside stated scope,
+- directly mutate durable notes outside `Note Manager`,
 - silently change project conventions,
 - invent missing decisions that should be escalated,
 - claim completion without verification notes.
@@ -531,6 +542,7 @@ State:
 - conservative about note structure,
 - explicit about whether the action is `create` or `update`,
 - based only on the provided relevant notes plus local templates,
+- explicit about dynamic metadata changes such as status, review date, related links, decisions, and tasks,
 - and draft-first unless the user explicitly requests direct writes.
 
 ### Planner / Documentation output should be:
@@ -600,6 +612,7 @@ Current repository state:
 - the active Phase 1 workflow is ideation-first,
 - `clarify-intent` produces a `clarified context handoff` by default when clarification succeeds,
 - `Note Manager` is the bounded durable note step before planner work,
+- all durable note mutations, including metadata-only corrections and archival changes, must route through `Note Manager`,
 - `Note Manager` owns note action, note type, target note, title, links, metadata, and durable note structure decisions from the clarified context plus supplied note paths,
 - review/sync documentation updates route through `clarify-intent` before `Note Manager`,
 - `Note Manager` refreshes dynamic metadata on create or update rather than preserving stale template values,

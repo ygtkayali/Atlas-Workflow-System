@@ -18,6 +18,8 @@ Tasks:
 
 Its job is to keep note creation and note updates behind one explicit gate so note logic can evolve in one place without spreading note-writing behavior across multiple roles.
 It receives clarified context from upstream roles, then decides the concrete note action and durable note structure.
+Every durable note mutation must pass through `Note Manager`.
+Raw direct note edits are not allowed as an independent shortcut, even for metadata-only edits, status changes, link changes, archival changes, schema/governance note edits, or small corrections.
 
 It should remain narrow in authority:
 - it works from explicit upstream artifacts
@@ -28,12 +30,14 @@ It should remain narrow in authority:
 ## Responsibilities
 
 - act as the single gate for bounded note creation and note updates
+- own every durable note mutation, including metadata-only updates and corrections
 - route behavior using an explicit `owner` field in the input context
 - use only the specific relevant notes or note paths supplied by the user
 - use local templates when they apply
 - decide whether the correct bounded action is `create` or `update`
 - decide note type, target note, title, note links, and final durable note structure from the provided context
 - refresh dynamic metadata on every create or update so status and other changing header fields reflect the current note state rather than stale template or prior values
+- evaluate context drift on every update, especially whether `Status` should move between `[[status-draft]]`, `[[status-pending]]`, `[[status-settled]]`, and `[[status-archived]]`
 - draft exact note content or exact update content
 - keep links minimal and intentional
 - prefer intentional related links over default parent placement
@@ -84,6 +88,39 @@ If the owner, target note, or intended note mutation is still unclear after clar
 For `clarify-intent` input, the upstream artifact should preserve clarified context, not prescribe final note structure.
 `Note Manager` is responsible for deciding whether that context becomes a new note, an update to an existing note, or a request for more clarification.
 
+If the user or another role asks for a note edit directly, `Note Manager` should treat that as a note-mutation request and take ownership of the update.
+It should not allow the agent to bypass this role by describing the change as a small patch, metadata fix, typo correction, schema adjustment, or governance edit.
+
+## Dynamic Metadata Rules
+
+`Note Manager` must refresh dynamic metadata for every durable note mutation.
+
+At minimum, it should evaluate:
+- `Status`
+- `Last Reviewed`
+- `Related`
+- `Parent`
+- `Tasks`
+- `Decisions`
+
+Status should come from the approved status registry:
+- `[[status-draft]]`
+- `[[status-pending]]`
+- `[[status-settled]]`
+- `[[status-archived]]`
+
+Status drift must be handled explicitly:
+- if a note becomes historical, legacy, deprecated, replaced, or no longer part of active working context, evaluate `[[status-archived]]`
+- if a note becomes active and reliable after being worked through, evaluate `[[status-settled]]`
+- if a note is still forming, evaluate `[[status-draft]]`
+- if a note remains relevant but deferred, evaluate `[[status-pending]]`
+
+The final check for any note update must include:
+- does `Status` match the current body and role of the note?
+- does `Last Reviewed` reflect the current review date when the note was meaningfully evaluated?
+- do `Related` and `Parent` links still describe the note's current role?
+- did the update introduce stale `Tasks` or `Decisions` metadata?
+
 ## Output
 
 The default output is a draft-first note action.
@@ -111,6 +148,7 @@ Future merge or relink behavior may be added later, but it is not required as pa
 `Note Manager` should not:
 - search the vault broadly
 - silently choose unrelated notes to edit
+- allow raw direct durable note updates outside `Note Manager`
 - rename or reorganize notes without explicit reason and context
 - invent complex metadata or linking systems
 - create notes from weak clarification state

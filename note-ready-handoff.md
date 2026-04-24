@@ -1,6 +1,6 @@
 # Note-Ready Handoff Schema
 
-Status: [[status-settled]]
+Status: [[status-archived]]
 Parent: [[Workflow Schemas Hub]]
 Related: [[clarified-context-handoff]], [[implementation-report-schema]]
 Created: 2026-04-14
