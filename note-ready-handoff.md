@@ -1,10 +1,10 @@
 # Note-Ready Handoff Schema
 
-Status: draft
+Status: [[status-settled]]
 Parent: [[Workflow Schemas Hub]]
-Related: [[implementation-report-schema]], [[project-vault-phase-1-roadmap]], [[clarify-intent]], [[note-creation]]
+Related: [[clarified-context-handoff]], [[implementation-report-schema]], [[Note Manager]], [[Durable Notes Follow Accepted Implementation]]
 Created: 2026-04-14
-Last Reviewed:
+Last Reviewed: 2026-04-24
 Source:
 Decisions:
 Dependencies:
@@ -14,18 +14,17 @@ Tasks:
 
 ## Purpose
 
-This schema defines the minimum structure for a note-ready handoff produced by `clarify-intent` before durable note creation begins.
+This schema is retained as a legacy / review-sync-oriented note-change handoff reference.
 
-The note-ready handoff exists to preserve the clarified idea state once the subject is strong enough for bounded note work.
-It is the default successful output of clarification in this repository's Phase 1 workflow.
-It exists to support note creation, not planner handoff.
+It is no longer the default successful output of `clarify-intent`.
+For Phase 1 clarification, use [[clarified-context-handoff]].
+
+The note-ready handoff exists to propose or carry a bounded durable note change when an upstream role already has enough implementation-backed or review-backed context to identify the note mutation.
+It exists to support `Note Manager`, not planner or implementation handoff.
 It is not an implementation packet and it must not be treated as approval to implement.
 
-The handoff should make it clear whether note creation should:
-- create a new note,
-- update an existing note,
-- consider a broader organizing note such as a `Sub Hub`,
-- or return to clarification because the durable subject is still weak.
+The handoff should make it clear what durable note change is being proposed and what evidence or accepted review context supports it.
+`Note Manager` still evaluates and drafts the final bounded note action.
 
 ---
 
@@ -34,40 +33,40 @@ The handoff should make it clear whether note creation should:
 ### 1. Header
 - handoff title
 - artifact type: `note-ready-handoff`
-- status: `draft`, `needs_clarification`, or `ready_for_note_creation`
+- status: `draft`, `needs_clarification`, or `ready_for_note_manager`
 - created date
 - related idea, request, feature, or note if known
 
-### 2. Idea Summary
-- the surviving idea in compact form
-- enough context to distinguish the current clarified direction from the original rough idea when needed
+### 2. Proposed Durable Note Change
+- the bounded durable note change being proposed
+- whether the proposal is a create, update, or explicit request for `Note Manager` judgment
 
-### 3. User Goal
-- the outcome the user is trying to achieve
-- why this subject matters now if known
+### 3. Basis
+- the accepted implementation, review outcome, decision, or other upstream basis for the proposed note change
+- why the durable documentation should change now
 
-### 4. Confident Decisions
-- decisions worth preserving from clarification
-- narrowed scope or direction that should not be silently broadened later
+### 4. Settled Context
+- facts, decisions, or implementation results worth preserving
+- scope that should not be silently broadened later
 
 ### 5. Boundaries / Non-goals
-- adjacent areas that should not be folded into note creation by default
+- adjacent areas that should not be folded into `Note Manager` by default
 - limits on what the next note action should try to capture
 
 ### 6. Open Questions
 - unresolved questions that may remain visible in the note
-- missing information that does not yet justify another clarification loop
+- missing information that `Note Manager` must not guess through
 
-### 7. Candidate Note Actions
-- likely next action such as `create idea note`, `create general note`, `update existing note`, or `consider sub hub`
-- any note-type uncertainty that note creation must handle explicitly rather than guess through
+### 7. Note Action Context
+- likely note mutation if already known from review or accepted implementation context
+- any target-note, note-type, or placement uncertainty that `Note Manager` must handle explicitly rather than guess through
 
-### 8. Provided Context Needed For Note Creation
-- the notes or note paths that should be supplied to `note-creation`
+### 8. Provided Context For Note Manager
+- the notes or note paths that should be supplied to `note-manager`
 - any required parent or related-note context already known
 
 ### 9. Recommended Next Step
-- whether to continue clarification, proceed to note creation, or defer
+- whether to continue clarification, proceed to `Note Manager`, or defer
 - why the current state is or is not ready for bounded note work
 
 ---
@@ -78,10 +77,10 @@ The handoff should make it clear whether note creation should:
 Relevant clarification state has been captured, but the subject is still rough or incomplete.
 
 ### `needs_clarification`
-Important uncertainty, contradiction, or missing decisions would force note creation to guess through durable subject, note type, or note placement.
+Important uncertainty, contradiction, or missing decisions would force `Note Manager` to guess through durable subject, note type, target note, or note placement.
 
-### `ready_for_note_creation`
-The clarified subject is stable enough that `note-creation` can draft a bounded create or update action without silently deciding major intent.
+### `ready_for_note_manager`
+The upstream note-change context is stable enough that `Note Manager` can draft a bounded create or update action without silently deciding major intent.
 
 ---
 
@@ -94,28 +93,27 @@ The note-ready handoff must not:
 - decide durable note placement when the target is unclear,
 - or act as a substitute for planner output.
 
+For clarification-stage work, this artifact must not replace [[clarified-context-handoff]] or push note-structure decisions back into `clarify-intent`.
+
 The note-ready handoff may:
-- preserve the clarified idea state for durable note work,
-- challenge weak assumptions,
-- preserve surfaced inconsistencies and important uncertainty,
-- narrow scope,
-- separate goals from non-goals,
-- record confident decisions worth preserving,
-- and recommend the next note-creation step.
+- preserve implementation-backed or review-backed note-change context,
+- record why a durable note change is being proposed,
+- identify a bounded note mutation for `Note Manager` to evaluate,
+- and recommend the next `Note Manager` step.
 
 ---
 
 ## Handoff Quality Bar
 
 Before handoff, check:
-- Is the idea summary clear?
-- Is the user goal distinct from the proposed solution shape?
-- Are the confident decisions explicit?
+- Is the proposed durable note change clear?
+- Is the upstream basis explicit?
+- Is settled context explicit?
 - Are boundaries or non-goals visible?
 - Are unresolved questions separated from settled points?
-- Is the candidate note action explicit?
+- Is the note action context explicit without replacing `Note Manager`?
 - Is it clear which note context needs to be provided next?
-- Is note creation happening only because the subject is actually durable enough?
+- Is `Note Manager` happening only because the subject is actually durable enough?
 - Is status accurate?
 
 If any answer is no, refine the handoff or mark it `needs_clarification`.
@@ -128,23 +126,23 @@ If any answer is no, refine the handoff or mark it `needs_clarification`.
 # <Handoff Title>
 
 - Type: note-ready-handoff
-- Status: <draft | needs_clarification | ready_for_note_creation>
+- Status: <draft | needs_clarification | ready_for_note_manager>
 - Related to: <idea / request / feature / note>
 - Created: YYYY-MM-DD
 
-## Idea Summary
+## Proposed Durable Note Change
 
-## User Goal
+## Basis
 
-## Confident Decisions
+## Settled Context
 
 ## Boundaries / Non-goals
 
 ## Open Questions
 
-## Candidate Note Actions
+## Note Action Context
 
-## Provided Context Needed For Note Creation
+## Provided Context For Note Manager
 
 ## Recommended Next Step
 ```

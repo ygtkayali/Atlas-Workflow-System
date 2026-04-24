@@ -191,7 +191,7 @@ Current expectations:
 - it should treat the note space as interconnected rather than strictly hierarchical and should not default new notes into a top-level hub,
 - it should draft first and wait for confirmation before writing unless the user explicitly asks for direct writes,
 - it must not take note action unless the current request has passed through `clarify-intent` at least once,
-- and it should return work to `clarify-intent` when the durable subject, note type, or target placement is still unclear.
+- and it should return work to `clarify-intent` when the durable subject or supplied context is too unclear for it to choose note type, target note, or placement responsibly.
 
 ### `project-planner`
 Use `project-planner` after note-backed project state exists and implementation planning is actually needed.
@@ -324,7 +324,7 @@ Expected outcome:
 - a small set of durable note creates or updates,
 - minimal metadata and intentional links,
 - conservative note typing,
-- and explicit refusal to proceed when note placement or note type is still unclear.
+- and explicit refusal to proceed when the supplied context is insufficient for responsible note placement or note-type selection.
 
 ### Phase 3: Prepare implementation packet
 The planner/documentation agent creates a task packet from note-backed project state when implementation planning is actually needed.
