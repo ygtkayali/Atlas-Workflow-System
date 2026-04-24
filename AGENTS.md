@@ -169,33 +169,139 @@ Responsible for:
 ## Active Skill State
 
 ### `clarify-intent`
-Use `clarify-intent` for early-stage ideas and ambiguous requests before durable note creation or planning begins.
+Use `clarify-intent` for early-stage ideas and ambiguous requests before durable note work or planning begins.
 
 Current expectations:
 - it acts as a guided clarification and challenge loop, not as a planner,
 - it should separate user goals from proposed solutions,
 - it should surface hidden inconsistencies, missing decisions, weak assumptions, and high-impact uncertainty,
-- it should keep work in clarification when note creation or planning would still require guesswork,
-- and its default successful output for this repository is a `note-ready handoff`, not a planning brief by default.
+- it should keep work in clarification when `Note Manager` or planning would still require guesswork,
+- and its default successful output for this repository is a `clarified context handoff`, not a note draft or planning brief by default.
 
-### `note-creation`
-Use `note-creation` after clarification has produced durable signal and the user has supplied the relevant note paths or notes needed for the change.
+### `note-manager`
+Use `note-manager` only after at least one `clarify-intent` pass has produced durable signal and the user has supplied the relevant note paths or notes needed for the change.
 
 Current expectations:
 - it performs bounded note `create` or `update` work only,
+- it receives clarified context and decides the concrete note action, note type, target note, title, links, and durable note structure,
 - it should use the local templates when they apply,
 - it should read only the provided relevant notes and avoid broad vault discovery,
+- it should refresh dynamic metadata such as status and other changing header fields instead of preserving stale template or prior values,
 - it should work conservatively with `Idea Note`, `General Note`, and `Sub Hub`,
+- it should treat the note space as interconnected rather than strictly hierarchical and should not default new notes into a top-level hub,
 - it should draft first and wait for confirmation before writing unless the user explicitly asks for direct writes,
+- it must not take note action unless the current request has passed through `clarify-intent` at least once,
 - and it should return work to `clarify-intent` when the durable subject, note type, or target placement is still unclear.
+
+### `project-planner`
+Use `project-planner` after note-backed project state exists and implementation planning is actually needed.
+
+Current expectations:
+- it should begin from durable notes rather than rough chat alone,
+- it should gather the minimum relevant planning context rather than broad vault context,
+- it may use `note-search` when a known seed note can anchor a smaller relevant note neighborhood,
+- it should make uncertainty and approval state explicit,
+- it should produce scoped implementation packets for human approval,
+- and it should escalate when documentation is missing, contradictory, or insufficient for safe planning.
+
+### `project-implementer`
+Use `project-implementer` only from an explicitly human-approved implementation packet or equivalent approved artifact.
+
+Current expectations:
+- it is packet-bound and should inspect only the files and artifacts explicitly allowed by the approved packet,
+- it should not begin from informal requests alone,
+- it should escalate when the approved packet does not provide enough allowed context for safe implementation,
+- it should run the strongest practical verification available for the changed area,
+- and it should return a structured implementation report with checks, assumptions, unresolved issues, and documentation impact.
+
+### `project-review-sync`
+Use `project-review-sync` after implementation to compare results to the approved packet and decide what durable documentation changes should follow.
+
+Current expectations:
+- it should begin from the approved task packet, implementation report, and touched files or diff when needed,
+- it may use `note-search` when a known note can anchor a bounded documentation-sync context,
+- it should keep the basis for note selection explicit,
+- it should create or propose note-change artifacts when durable note mutation remains behind a separate gate such as `Note Manager`,
+- and it should recommend `keep`, `revise`, or `reject` rather than silently normalizing mismatches.
+
+### `note-search`
+Use `note-search` as the shared retrieval interface when a role needs nearby note context from a known seed note without broad vault reads.
+
+Current expectations:
+- it wraps the shared local search script rather than owning retrieval logic itself,
+- it should return candidate note paths from a local markdown vault,
+- it should remain bounded, deterministic, and local-first,
+- it should not perform free-text, semantic, or embedding-based retrieval in the current version,
+- and it should act as a reusable context-retrieval helper for clarification, planning, and review rather than as a separate planning or note-mutation role.
 
 ### Downstream implication
 Planning is no longer the default direct output of clarification.
 
 The active workflow is:
-`idea -> clarify-intent -> note-ready handoff -> note-creation`
+`idea -> clarify-intent -> clarified context handoff -> Note Manager`
 
 Planning remains downstream, but it should consume note-backed project state rather than relying on a planner-oriented clarification artifact by default.
+`note-search` is a shared bounded retrieval aid that may be used during clarification, planning, or review when a known note can anchor better local context selection.
+
+---
+
+## Skill Routing Procedure
+
+Skill routing exists to make the existing workflow easier to apply in real tasks.
+It does not weaken human authority, approval gates, scoped context, or role boundaries.
+
+Routing helps the agent decide which existing skill should handle the next step.
+It must not be used to silently approve work, collapse phases, bypass clarification, skip `Note Manager`, or begin implementation without an approved packet.
+
+### Initial routing question
+At the start of every non-trivial request, ask:
+
+Which skill or skills does this prompt require, and in what order?
+
+Route by:
+- the next required artifact,
+- current uncertainty,
+- available note-backed context,
+- and the active approval gate.
+
+Do not route by convenience or by the agent's desire to finish the whole workflow in one response.
+
+### Human authority preservation
+Dynamic routing does not give the agent authority to decide:
+- project intent,
+- architecture direction,
+- note ownership or placement when unclear,
+- implementation scope,
+- schema or API changes,
+- dependency additions,
+- security or privacy behavior,
+- or whether an implementation packet is approved.
+
+When one of these decisions is required, the agent must escalate to the human instead of continuing through the skill chain.
+
+### Routing checklist
+- If intent is unclear, early-stage, overloaded, or solution-led: use `clarify-intent`.
+- If the next artifact is a durable note create/update: use `note-manager`, only after clarification has produced durable signal and relevant note context is supplied.
+- If implementation planning is needed from note-backed project state: use `project-planner`.
+- If code changes are requested: use `project-implementer` only when an explicitly approved implementation packet or equivalent approved artifact exists.
+- If completed implementation needs comparison against the approved packet and documentation sync decisions: use `project-review-sync`.
+- If nearby note context is needed from a known seed note: use `note-search` as a helper, not as the primary role.
+
+### Skill ordering rule
+When multiple skills apply, choose the smallest valid sequence that preserves workflow gates.
+
+Do not skip required upstream gates for convenience.
+Do not call downstream skills merely because they may eventually be useful.
+If routing is ambiguous, prefer the earlier workflow phase and make the uncertainty explicit.
+
+### Real-task handling
+Before invoking a skill, briefly state:
+- the selected skill or skill sequence,
+- why it applies,
+- what artifact or decision it should produce,
+- and what gate prevents further downstream work.
+
+If a request spans multiple phases, stop at the first unresolved gate instead of simulating the whole pipeline.
 
 ---
 
@@ -209,10 +315,10 @@ Expected outcome:
 - relevant constraints,
 - known uncertainties,
 - initial scope,
-- and either a continued clarification state or a note-ready handoff.
+- and either a continued clarification state or a clarified context handoff.
 
 ### Phase 2: Create or update durable notes
-The note-creation step turns clarified intent into bounded durable note work.
+The `Note Manager` step turns clarified intent into bounded durable note work.
 
 Expected outcome:
 - a small set of durable note creates or updates,
@@ -222,6 +328,7 @@ Expected outcome:
 
 ### Phase 3: Prepare implementation packet
 The planner/documentation agent creates a task packet from note-backed project state when implementation planning is actually needed.
+For v1, the planner may rely on manually prepared task, architecture, or implementation notes as the durable planning context.
 
 The packet should include:
 - objective,
@@ -241,6 +348,7 @@ Implementation must not begin until the user explicitly approves the current pac
 
 ### Phase 5: Implementation
 The implementer agent performs only the explicitly approved work from the approved packet.
+Implementation should be packet-bound: the implementer should inspect and edit only the files or artifacts explicitly allowed by the approved packet unless a revised packet is approved.
 
 ### Phase 6: Implementation report
 The implementer agent returns a structured report.
@@ -312,7 +420,8 @@ When documentation is updated after implementation, the update should be attribu
 ## Tooling Policy
 
 ### Default policy
-- clarification, note-creation, and planning roles: read docs, update docs, inspect relevant repo context
+- clarification, `Note Manager`, and planning roles: read docs, update docs, inspect relevant repo context
+- clarification, planning, and review roles may use `note-search` for bounded local note retrieval when a known seed note can reduce context noise
 - implementation role: edit code, inspect files, run checks, produce report
 - review role: inspect code + docs, suggest or apply scoped doc updates
 
@@ -331,6 +440,55 @@ When possible, verify with:
 - command output,
 - file diffs,
 - explicit note updates.
+
+---
+
+## Git Governance
+
+Git is the default review and change-boundary mechanism for this vault.
+Agents may inspect git state, prepare commits, write commit messages, and create commits when the user explicitly asks for a commit or an approved task packet permits committing.
+
+Agents must:
+- check `git status` before editing, staging, or committing,
+- avoid reverting or staging unrelated user changes,
+- stage only files related to the current task,
+- review the staged diff before committing,
+- summarize staged changes before or during the final report,
+- run the strongest practical checks for the changed area before committing when checks exist,
+- ask whether to commit at the end of a task unless the user has already authorized committing,
+- and report the commit hash after a commit is created.
+
+Agents must not:
+- use destructive git commands without explicit approval,
+- amend commits unless explicitly requested,
+- commit unrelated worktree changes,
+- combine unrelated documentation, governance, and implementation work when separate commits would make review clearer,
+- or hide missing verification inside a clean commit message.
+
+Preferred commit message shape:
+
+```text
+<type>: <short imperative summary>
+
+Context:
+- <why this change exists>
+
+Changes:
+- <main change>
+- <main change>
+
+Verification:
+- <check run or "Not run: <reason>">
+```
+
+Useful commit types:
+- `docs`
+- `workflow`
+- `governance`
+- `planning`
+- `implementation`
+- `review`
+- `chore`
 
 ---
 
@@ -362,9 +520,9 @@ State:
 - structured,
 - explicit about what is `decided`, `proposed`, `unclear`, or `blocked`,
 - challenge-oriented rather than planner-shaped by default,
-- and explicit about whether the next step is more clarification, note creation, or planning.
+- and explicit about whether the next step is more clarification, `Note Manager`, or planning.
 
-### Note-creation output should be:
+### Note Manager output should be:
 - bounded,
 - conservative about note structure,
 - explicit about whether the action is `create` or `update`,
@@ -436,7 +594,12 @@ Use this charter as the root operating policy for the repository.
 
 Current repository state:
 - the active Phase 1 workflow is ideation-first,
-- `clarify-intent` produces a `note-ready handoff` by default when clarification succeeds,
-- `note-creation` is the bounded durable note step before planner work,
+- `clarify-intent` produces a `clarified context handoff` by default when clarification succeeds,
+- `Note Manager` is the bounded durable note step before planner work,
+- `Note Manager` owns note action, note type, target note, title, links, metadata, and durable note structure decisions from the clarified context plus supplied note paths,
+- `Note Manager` refreshes dynamic metadata on create or update rather than preserving stale template values,
 - planning should begin from note-backed project state when implementation is actually needed,
+- `project-planner`, `clarify-intent`, and `project-review-sync` may use `note-search` as a bounded retrieval helper when a known seed note can improve local context selection,
+- `project-implementer` is packet-bound and should not self-discover beyond the files and artifacts explicitly allowed by the approved packet,
+- `note-search` is the shared local retrieval interface backed by the global note search script,
 - and the existing governance, role, and schema notes should remain consistent with this charter.
