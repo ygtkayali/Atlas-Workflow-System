@@ -1,55 +1,87 @@
-# Planner As Note Manager Owner
+# Planner Produces Planning Context, Not Durable Notes
 
-Status: [[status-pending]]
+Status: [[status-settled]]
 Parent: [[Idea Hub]]
-Related: [[Note Manager]], [[planner-agent]], [[Two-Phase Workflow Boundary]]
+Related: [[Note Manager]], [[planner-agent]], [[clarify-intent]], [[clarified-context-handoff]], [[Two-Phase Workflow Boundary]]
 Created: 15-04-2026
+Last Reviewed: 2026-04-24
+Source:
+Decisions:
+Dependencies:
+Tasks:
+
+---
 
 ## Summary
 
-Possible long-term direction: allow `planner` to become an `owner` that can send bounded note actions through `Note Manager`.
+The planner should not become a direct `Note Manager` owner.
 
-This should remain an idea, not current workflow truth. The motivation is that some long-running or high-context features may need controlled note mutation before implementation is fully finished, especially when the planner is the role that sees the structure problem first.
+The settled direction is that planner may evolve in its planning role by improving context gathering, reasoning, scope analysis, contradiction detection, and task packet preparation.
+It may identify documentation gaps and propose that note work is needed, but it should not directly create or update durable notes.
 
-## Details
+Durable note creation and updates should continue through:
 
-The current preferred workflow keeps `planner` out of the active `Note Manager` owner list. That is still the source of truth.
+`clarify-intent -> clarified context handoff -> Note Manager`
 
-This idea exists because some feature work may be too large or iterative for a strict model where note mutation only happens from `clarify-intent` or after accepted implementation through `review-sync`.
+This keeps planner focused on planning reasoning while keeping durable note mutation centralized.
 
-If introduced later, planner ownership should still stay bounded:
-- planner would not mutate notes directly
-- planner would send explicit note actions through `Note Manager`
-- planner-owned note mutation would need narrow authority and clear traceability
-- durable architecture or design truth should still not be overwritten just because planning produced a plausible direction
+## Current Decision
 
-The strongest use case is not ordinary tasks. It is larger feature work where implementation planning exposes a note-structure problem that cannot be safely ignored until the very end.
+The earlier idea of `Planner As Note Manager Owner` is superseded.
 
-## User Stories Where It Helps
+Planner should not send explicit note actions directly to `Note Manager`.
+Instead, when planning exposes a documentation gap that must become durable note state, planner should route the relevant planning context through `clarify-intent`.
 
-- `Long-running feature decomposition`
-  A feature spans multiple implementation packets over time. The planner sees that the existing feature note is too broad and that task context will fragment unless a bounded organizing note is created early. Planner-as-owner could ask `Note Manager` to create that organizing note without pretending the whole feature is already implemented.
+`clarify-intent` separates durable subjects and preserves the relevant decisions, evidence, uncertainty, and boundaries.
+`Note Manager` then decides whether to create, update, defer, or return the work to clarification.
 
-- `Cross-cutting implementation planning`
-  A planned change affects several existing notes across one domain. The planner identifies that the current note links make packet preparation noisy and ambiguous. A bounded planner-owned note update could improve traceability before implementation begins, while still preserving packet-bound execution.
+## Task Packets And Reports
 
-- `Documenting approved pre-implementation structure`
-  The human explicitly approves a workflow or design structuring choice before coding starts. Planner-as-owner could route that approved structural note update through `Note Manager` instead of leaving the vault in an intentionally outdated state until later.
+Task packets and implementation reports are workflow artifacts, not durable notes.
 
-## User Stories Where It Goes Bad
+Planner may produce task packet artifacts directly.
+Implementer may produce implementation report artifacts directly.
 
-- `Speculative feature planning`
-  The planner proposes one direction, implementation fails or changes course, and now early note updates have recorded structure that never survived contact with the code. This creates churn and weakens trust in durable notes.
+These artifacts can later become evidence for durable note synchronization, but their creation does not itself require `Note Manager`.
+If a task packet or implementation report implies a durable note update, that update must still route through `clarify-intent -> Note Manager`.
 
-- `Small task overhead`
-  A small feature or bugfix does not need any pre-implementation note mutation. Allowing planner ownership by default would encourage unnecessary note changes and make the workflow feel heavier than the work justifies.
+## Planner Responsibilities
 
-- `Authority creep`
-  Planner-owned note mutation starts as a narrow exception, then gradually becomes a way to update durable notes before implementation has actually validated the plan. That would blur the boundary between planning artifacts and durable knowledge.
+Planner may:
+- gather bounded planning context
+- compare relevant notes
+- detect stale, missing, or contradictory documentation
+- reason about scope, constraints, risks, and implementation readiness
+- prepare task packets
+- identify planning-stage documentation gaps
+- recommend that durable note work is needed before implementation
 
-## Open Questions
+Planner must not:
+- create or update durable notes directly
+- choose final durable note targets
+- draft final durable note content
+- use task packet preparation as a shortcut around `Note Manager`
+- treat speculative planning conclusions as durable project truth
 
-- What exact threshold should justify planner as an owner: feature size, duration, cross-cutting scope, or explicit human approval?
-- Should planner ownership be limited to creating or reshaping provisional notes rather than updating durable source-of-truth notes?
-- If enabled later, what note actions should remain disallowed even when planner is the owner?
-- How would `review-sync` decide whether a planner-originated note change should be kept, merged, revised, or superseded after implementation?
+## When Planner Should Route To Clarification
+
+Planner should route planning-stage documentation gaps to `clarify-intent` when:
+- durable note-backed planning context is missing, stale, or contradictory
+- the gap blocks safe task packet creation
+- the human has approved a pre-implementation structural or documentation decision
+- a planning discovery needs to become durable project knowledge
+- the planner can state the documentation-sync subject without deciding note structure
+
+Planner should not route ordinary small tasks or speculative planning ideas into durable note mutation by default.
+
+## Reasoning
+
+This model preserves the useful part of the old idea without giving planner note-mutation authority.
+
+Planner can become better at planning through stronger context handling and reasoning.
+`clarify-intent` remains responsible for durable subject clarification.
+`Note Manager` remains responsible for note action mapping, metadata, links, structure, drafting, and approval gates.
+
+This avoids both failure modes:
+- planner becoming too weak to handle real planning complexity
+- planner quietly turning into a durable note editor

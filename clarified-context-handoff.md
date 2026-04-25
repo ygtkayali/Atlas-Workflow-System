@@ -20,6 +20,10 @@ The clarified context handoff preserves the result of clarification without desi
 It exists to give `Note Manager` enough settled context to decide whether to create or update notes, which note type to use, which target note should change, and what exact content should be drafted.
 It may clarify either user intent from ideation or implementation-backed context from review/sync.
 
+A clarified context handoff may preserve one durable subject or multiple durable subjects.
+When multiple subjects are present, the handoff should separate them by semantic coherence, not by expected target note.
+Subject-to-note mapping belongs to `Note Manager`.
+
 It is not:
 - a durable note draft,
 - a note structure proposal,
@@ -36,9 +40,11 @@ It is not:
 - created date
 - related idea, request, feature, or note if known
 
-### 2. Clarified Subject
-- the subject that survived clarification in compact form
-- enough context to distinguish it from the original rough idea when needed
+### 2. Clarified Subject / Subjects
+- the subject or subjects that survived clarification in compact form
+- enough context to distinguish each subject from the original rough idea when needed
+- when multiple subjects are present, each subject should have a stable label or id
+- each subject should keep its own relevant facts, affected files or evidence, decisions, uncertainty, and boundaries
 
 ### 3. Source Context
 - whether the handoff came from user intent clarification, review/sync, or another upstream workflow context
@@ -92,6 +98,8 @@ The clarified context handoff must not:
 - draft final durable note content,
 - decide note type as a binding instruction,
 - decide target note or placement when the target is unclear,
+- split subjects by target note, note type, or final note action,
+- decide subject-to-note mapping,
 - or act as a substitute for `Note Manager`.
 
 The clarified context handoff may:
@@ -128,7 +136,7 @@ If any answer is no, refine the handoff or mark it `needs_clarification`.
 - Related to: <idea / request / feature / note>
 - Created: YYYY-MM-DD
 
-## Clarified Subject
+## Clarified Subject / Subjects
 
 ## Source Context
 

@@ -91,6 +91,37 @@ For `clarify-intent` input, the upstream artifact should preserve clarified cont
 If the user or another role asks for a note edit directly, `Note Manager` should treat that as a note-mutation request and take ownership of the update.
 It should not allow the agent to bypass this role by describing the change as a small patch, metadata fix, typo correction, schema adjustment, or governance edit.
 
+## Bundled Intake
+
+`Note Manager` may receive a bundle of clarified durable subjects from upstream context.
+
+A bundle is allowed for intake efficiency, but it must not collapse note-action approval.
+Before drafting note content from a bundle, `Note Manager` must produce a subject-to-note action manifest.
+
+The manifest should include one row per proposed note action:
+- subject id or subject label
+- target note, if known
+- action: `create`, `update`, `defer`, or `return-to-clarification`
+- why this note is the right target
+- source basis from the clarified context
+- relevant context for this note action
+- excluded or non-applicable context when separation matters
+- status: `ready`, `needs_clarification`, or `deferred`
+
+The relationship between clarified subjects and note actions is not one-to-one:
+- one clarified subject may produce zero, one, or many note actions
+- one note action must target exactly one durable note
+- multiple subjects may support one note action only when that relationship is explicit in the manifest
+
+`clarify-intent` owns semantic subject separation.
+`Note Manager` owns subject-to-note mapping, note action choice, target note choice, note type, metadata, links, and final draft structure.
+
+Only manifest rows marked `ready` may become note drafts.
+Each resulting note draft must be presented and approved separately before writing.
+Approval for one note action does not approve any other note action in the same bundle.
+
+If `Note Manager` cannot map a clarified subject to note actions without mixing unrelated context, guessing target notes, or relying on raw implementation evidence, it must return that subject to clarification instead of drafting.
+
 ## Dynamic Metadata Rules
 
 `Note Manager` must refresh dynamic metadata for every durable note mutation.

@@ -29,6 +29,8 @@ It preserves clarified context; it does not design durable note structure.
 - challenge weak or premature solution framing
 - keep work in clarification when high-impact uncertainty remains
 - produce a structured clarified context artifact only when downstream note work will not require guesswork
+- when upstream context contains multiple possible durable subjects, separate them by semantic subject rather than by target note or note action
+- preserve each subject's relevant facts, affected files or evidence, decisions, uncertainty, and boundaries so `Note Manager` can map subjects to note actions later
 - separate `decided`, `proposed`, `unclear`, and `blocked` points so downstream note work does not have to infer them from chat
 
 ## Expected Output
@@ -46,6 +48,10 @@ That handoff should preserve:
 - recommended next step
 - status
 
+When a handoff contains multiple durable subjects, `clarify-intent` should label each subject separately and keep the relevant context attached to that subject.
+
+A durable subject is one coherent piece of project knowledge, decision, workflow rule, or implementation-backed fact that could be preserved independently.
+
 It should not choose note type, target note, title, final links, or durable note structure as binding output.
 Those decisions belong to [[Note Manager]].
 
@@ -55,6 +61,8 @@ Those decisions belong to [[Note Manager]].
 - create durable notes directly
 - draft final durable note content
 - decide note type, target note, title, final links, or durable note placement as binding output
+- split context by target note, note type, or final note action
+- decide subject-to-note mapping
 - decide whether a reviewed implementation should be kept, revised, or rejected
 - create planning packets
 - approve implementation work

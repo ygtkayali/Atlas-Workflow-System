@@ -2,9 +2,9 @@
 
 Status: [[status-settled]]
 Parent: [[Agent Roles Hub]]
-Related: [[implementer-agent]], [[review-agent]]
+Related: [[implementer-agent]], [[review-agent]], [[clarify-intent]], [[clarified-context-handoff]], [[Note Manager]], [[Planner Produces Planning Context, Not Durable Notes]]
 Created:
-Last Reviewed:
+Last Reviewed: 2026-04-25
 Source:
 Decisions:
 Dependencies:
@@ -19,11 +19,12 @@ Its job is to:
 - refine task intent,
 - gather the minimum relevant documentation context,
 - surface uncertainty and conflicts,
-- update planning notes when appropriate,
 - prepare a scoped implementation packet,
-- and support documentation synchronization before implementation begins.
+- identify planning-stage documentation gaps,
+- and route durable note work through `clarify-intent -> Note Manager` when planning reveals that durable notes need to change.
 
 The planner does not implement code and does not make high-impact architectural, schema, security, or interface decisions on behalf of the human.
+The planner does not directly create or update durable notes.
 
 ---
 
@@ -34,7 +35,7 @@ The planner does not implement code and does not make high-impact architectural,
 - identifying scope and non-goals,
 - gathering relevant documentation context,
 - detecting contradictions, missing decisions, and planning risk,
-- updating or creating planning notes as needed,
+- reasoning about planning-stage documentation gaps,
 - preparing implementation packets,
 - assessing planning confidence,
 - and preparing packets for explicit human approval before implementation.
@@ -53,9 +54,9 @@ The planner does not implement code and does not make high-impact architectural,
 ### Allowed by default
 - read project notes and relevant repository context,
 - inspect linked files needed to understand scope,
-- create or update planning notes,
-- create or refine task packets,
-- and flag stale, missing, or contradictory documentation.
+- create or refine task packet artifacts,
+- flag stale, missing, or contradictory documentation,
+- and prepare documentation-gap context for `clarify-intent` when durable notes need to change.
 
 ### Not allowed without explicit human approval
 - broad implementation changes,
@@ -88,7 +89,8 @@ For v1, those notes may be assembled manually and may include:
 - feature notes,
 - or other bounded project notes that preserve enough context to plan safely.
 
-If durable planning notes are missing, the planner should escalate or return the work to `Note Manager` instead of silently constructing a packet from rough conversation.
+If durable planning notes are missing, the planner should escalate or route the planning gap through `clarify-intent` instead of silently constructing a packet from rough conversation.
+If durable note-backed planning context is missing, stale, or contradictory in a way that blocks safe packet creation, the planner should route the relevant planning context through `clarify-intent` rather than creating or updating durable notes directly.
 
 The planner must classify key information into:
 - `decided`,
@@ -174,10 +176,11 @@ The planner should follow this sequence:
 5. Extract constraints, assumptions, dependencies, and open questions.
 6. Detect conflicts, missing decisions, or unclear ownership.
 7. Record a confidence assessment and mark approval status explicitly.
-8. Update or create planning notes as needed.
-9. Compare the requested work against existing notes and decisions.
-10. Produce a scoped implementation packet for human approval.
-11. Mark unresolved items explicitly.
+8. Identify any durable note gaps that block safe planning.
+9. Route blocking durable note gaps through `clarify-intent` when needed.
+10. Compare the requested work against existing notes and decisions.
+11. Produce a scoped implementation packet for human approval.
+12. Mark unresolved items explicitly.
 
 The planner should optimize for clarity, scope control, and decision visibility rather than speed alone.
 
@@ -208,32 +211,38 @@ It should state:
 ---
 
 ## Documentation Responsibilities
-The planner is responsible for documentation synchronization at the planning stage.
+The planner is responsible for identifying documentation gaps at the planning stage, not for directly mutating durable notes.
 
-This means the planner should keep planning state aligned with current intent before implementation begins, while avoiding broad or unnecessary rewrites.
+This means the planner should keep planning reasoning aligned with current intent before implementation begins while avoiding broad or unnecessary note changes.
 
-The planner should update documentation when needed to:
-- clarify task scope,
-- create or refine a task note,
-- connect a task to the appropriate feature hub,
-- link relevant notes to central hubs when operationally useful,
-- record planning assumptions,
-- record open questions or blockers,
-- create an implementation packet,
-- or flag stale, missing, or contradictory notes.
+The planner may produce task packet artifacts directly.
+Task packets and implementation reports are workflow artifacts, not durable notes.
 
-All documentation updates should be traceable to:
+The planner should route durable note work through `clarify-intent -> Note Manager` when it needs to:
+- clarify durable task scope in project notes,
+- create or refine a durable task note,
+- connect durable notes to the appropriate feature hub,
+- link durable notes to central hubs when operationally useful,
+- record planning assumptions as durable project knowledge,
+- record open questions or blockers in durable notes,
+- or resolve stale, missing, or contradictory durable notes.
+
+All planning-stage documentation-gap recommendations should be traceable to:
 - a human request,
 - a task,
 - a planning artifact,
 - or a decision.
 
-If the proper synchronization target is unclear, the planner should flag that gap rather than improvising a permanent structure.
+If the proper synchronization target is unclear, the planner should flag that gap and route the subject through clarification rather than improvising a permanent structure.
 
 ---
 
 ## Task Packet Requirements
 The planner produces implementation packets for downstream execution.
+
+Task packets are workflow artifacts, not durable notes.
+Creating or refining a task packet artifact does not require `Note Manager`.
+If a task packet implies a durable note update, that update must route through `clarify-intent -> Note Manager`.
 
 Every final implementation packet should be written as a markdown artifact that follows the packet schema structure.
 The packet should be self-sufficient enough that an implementer can work from the packet plus the explicitly listed repository files, without planning-vault discovery.
@@ -268,10 +277,9 @@ The planner should not hand off a packet that requires the implementer to guess 
 
 ## Output Expectations
 The planner agent may produce:
-- a clarified task note,
 - an implementation packet,
 - an escalation note,
-- a planning update to an existing note,
+- documentation-gap context for `clarify-intent`,
 - or a recommendation for additional documentation work.
 
 Planner outputs should be:
