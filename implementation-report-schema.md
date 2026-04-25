@@ -2,9 +2,9 @@
 
 Status: [[status-settled]]
 Parent: [[Workflow Schemas Hub]]
-Related: [[task-packet-schema]], [[implementer-agent]], [[review-agent]]
+Related: [[task-packet-schema]], [[implementer-agent]], [[review-agent]], [[clarify-intent]], [[Note Manager]]
 Created: 2026-04-15
-Last Reviewed:
+Last Reviewed: 2026-04-25
 Source:
 Decisions:
 Dependencies:
@@ -60,9 +60,10 @@ It should preserve clear traceability back to the approved packet or equivalent 
 - items that need follow-up or human review
 
 ### 9. Documentation Impact
-- notes updated
-- notes that should be updated next
+- candidate durable subjects discovered during implementation
+- likely affected notes, when known, as non-binding hints for review/sync
 - stale docs or missing decisions discovered during implementation
+- recommended review/sync follow-up
 
 ---
 
@@ -88,6 +89,10 @@ Do not mix in a broad retrospective unless it materially affects review.
 
 ### Preserve traceability
 Every report should point back to a request, task, packet, or decision when possible.
+
+### Do not imply durable note mutation
+The implementation report may identify documentation impact, candidate durable subjects, and likely affected notes.
+It should not present durable notes as updated unless that note update was separately approved and performed through the configured note-management workflow.
 
 ---
 

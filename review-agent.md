@@ -4,7 +4,7 @@ Status: [[status-settled]]
 Parent: [[Agent Roles Hub]]
 Related: [[planner-agent]], [[implementer-agent]], [[clarify-intent]], [[clarified-context-handoff]], [[Note Manager]], [[Durable Notes Follow Accepted Implementation]]
 Created:
-Last Reviewed: 2026-04-24
+Last Reviewed: 2026-04-25
 Source:
 Decisions:
 Dependencies:
@@ -13,7 +13,7 @@ Tasks:
 ---
 
 ## Purpose
-The review / sync agent compares implementation results against the approved plan and keeps project documentation aligned with reality.
+The review / sync agent compares implementation results against the approved plan and routes implementation-backed documentation synchronization through the clarification and note-management path.
 
 Its job is to:
 - read the task packet and implementation report,
@@ -51,8 +51,8 @@ Do not assume:
 - identifying plan drift, missing verification, and stale docs,
 - deciding what documentation-sync context should be handed to `clarify-intent` after accepted implementation,
 - creating one review-sync context handoff per proposed documentation-sync subject,
-- proposing documentation synchronization,
-- creating or proposing follow-up tasks,
+- proposing documentation synchronization through `clarify-intent -> Note Manager`,
+- creating or proposing follow-up task context,
 - and surfacing decision gaps discovered during implementation.
 
 ### The review / sync agent must not
@@ -70,8 +70,8 @@ Do not assume:
 - compare implementation against the approved plan,
 - update factual workflow artifacts such as implementation reports when appropriate,
 - create or propose review-sync context handoffs for `clarify-intent`,
-- propose documentation synchronization,
-- create follow-up notes,
+- propose documentation synchronization through `clarify-intent -> Note Manager`,
+- create or propose follow-up task context,
 - and flag mismatches, stale notes, and decision gaps.
 
 ### Not allowed without explicit human approval
@@ -140,13 +140,15 @@ The review / sync agent may:
 - update implementation reports if they are clearly incomplete and the missing information is factual,
 - propose context for active-context, feature, task, architecture, design, or decision note synchronization through `clarify-intent`,
 - propose context for new durable notes through `clarify-intent` when implementation reveals they may be needed,
-- add follow-up notes,
+- create or propose follow-up task context,
+- route follow-up note subjects through `clarify-intent` when they need to become durable notes,
 - flag stale hubs or decision logs,
-- and propose documentation updates when direct edits would overstep authority.
+- and propose documentation synchronization when direct edits would overstep authority.
 
 For durable note synchronization, the review / sync agent should identify the implementation-backed context that may need to become durable note state.
 `clarify-intent` turns that review-sync context into a [[clarified-context-handoff]].
 `Note Manager` remains responsible for choosing and drafting the bounded note mutation after the clarified context handoff is available.
+The review / sync agent should not create or update durable notes directly.
 
 The review / sync agent should prefer small, traceable updates over broad rewrites.
 Implementation conformance review should remain possible from the packet, report, and resulting changes even when note context is not supplied.
@@ -173,7 +175,7 @@ Escalation should state:
 
 ## Output Expectations
 Review / sync output should include:
-- docs updated,
+- durable documentation sync routed or proposed,
 - docs still stale,
 - mismatches found,
 - proposed review-sync context handoffs for clarification,
@@ -189,7 +191,7 @@ If no issues are found, say that explicitly and still note any residual verifica
 Before closing review, check:
 - Was the implementation compared to the approved packet?
 - Are mismatches explicit?
-- Are doc updates traceable?
+- Are documentation-sync recommendations traceable?
 - Are stale notes or decision gaps surfaced?
 - Are follow-up tasks separated from completed work?
 - Has any unapproved change been escalated instead of normalized?
