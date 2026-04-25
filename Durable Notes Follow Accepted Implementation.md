@@ -4,7 +4,7 @@ Status: [[status-settled]]
 Parent:
 Related: [[Two-Phase Workflow Boundary]], [[planner-agent]], [[implementer-agent]], [[review-agent]], [[task-packet-schema]], [[implementation-report-schema]], [[clarify-intent]], [[clarified-context-handoff]], [[Note Manager]]
 Created: 15-04-2026
-Last Reviewed:
+Last Reviewed: 2026-04-25
 Source:
 Decisions:
 Dependencies:
@@ -51,6 +51,20 @@ That future retrieval support should improve proposal quality, but it does not c
 This does not mean every implementation result should create a new durable note. In many cases the right action will be to update an existing architecture, design, feature, active-context, or decision note.
 
 Idea-stage notes may later be merged into existing durable notes or relinked from idea context into architecture, design, or feature context. That merge behavior is part of the larger note lifecycle, but this note does not define all of those rules.
+
+## Packet And Report Cleanup
+
+Task packets and implementation reports are workflow artifacts, not long-term durable knowledge notes.
+
+After review, these artifacts may be removed only when:
+- the related implementation has been committed in git,
+- review has consumed the packet and report,
+- architectural, design, implementation-state, decision, or other durable notes have been updated or routed for update,
+- and the packet or report is no longer the only useful record of the change.
+
+If the implementation is uncommitted, the packet and report should remain available as review evidence.
+
+If durable notes are stale or incomplete, review should route a maintenance or documentation-sync report through `clarify-intent -> Note Manager` before artifact cleanup is treated as complete.
 
 ## Open Questions
 

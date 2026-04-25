@@ -158,11 +158,13 @@ It must not begin from an unapproved packet or an informal request alone.
 ### Review / Sync Agent
 Responsible for:
 - comparing implementation results to the task packet,
-- updating or proposing documentation updates,
+- analyzing bounded maintenance review tasks when given a scoped maintenance request,
+- routing documentation or maintenance findings through clarification and note management,
 - surfacing mismatches,
 - suggesting follow-up tasks,
 - marking stale notes or decision gaps,
-- and recommending whether the implementation should be kept, revised, or rejected.
+- producing review or maintenance reports,
+- and recommending whether the implementation should be kept, revised, rejected, synchronized, followed up, or left unchanged.
 
 ---
 
@@ -216,15 +218,17 @@ Current expectations:
 - and it should return a structured implementation report with checks, assumptions, unresolved issues, and documentation impact.
 
 ### `project-review-sync`
-Use `project-review-sync` after implementation to compare results to the approved packet and decide what durable documentation changes should follow.
+Use `project-review-sync` after implementation to compare results to the approved packet and decide what durable documentation changes should follow. Also use it for bounded maintenance review tasks that need analysis of stale notes, missing links, outdated implementation or design state, obsolete artifacts, lint, health, or vault consistency issues.
 
 Current expectations:
 - it should begin from the approved task packet, implementation report, and touched files or diff when needed,
+- for maintenance review, it should begin from the user-provided maintenance task and bounded scope,
 - it may use `note-search` when a known note can anchor a bounded documentation-sync context,
 - it should keep the basis for note selection explicit,
-- it should route implementation-backed documentation-sync context through `clarify-intent` before durable note mutation,
+- it should route implementation-backed documentation-sync context or maintenance review reports through `clarify-intent` before durable note mutation,
 - it should create or propose context handoffs for clarification when durable note mutation remains behind a separate gate such as `Note Manager`,
-- and it should recommend `keep`, `revise`, or `reject` rather than silently normalizing mismatches.
+- it should not directly create, update, archive, delete, or relink durable notes,
+- and it should recommend `keep`, `revise`, `reject`, `sync-needed`, `follow-up-needed`, or `no-action` rather than silently normalizing mismatches or stale state.
 
 ### `note-search`
 Use `note-search` as the shared retrieval interface when a role needs nearby note context from a known seed note without broad vault reads.
@@ -367,7 +371,7 @@ Implementation should be packet-bound: the implementer should inspect and edit o
 The implementer agent returns a structured report.
 
 ### Phase 7: Review and sync
-The review/sync agent compares the implementation to the approved packet, updates or proposes documentation changes, flags mismatches, and produces a recommendation for human closeout.
+The review/sync agent compares the implementation to the approved packet, analyzes scoped maintenance requests when asked, routes documentation or maintenance findings through clarification and note management, flags mismatches, and produces a recommendation for human closeout.
 
 ### Phase 8: Human closeout
 The human decides whether to keep the implementation, reject it, request revisions, or reopen the task.
@@ -563,12 +567,13 @@ State:
 - docs to update.
 
 ### Review / Sync output should include:
-- docs updated,
+- durable documentation sync routed or proposed,
 - docs still stale,
 - new decision candidates,
 - follow-up tasks,
 - priority changes if warranted,
-- and a recommended disposition: `keep`, `revise`, or `reject`.
+- maintenance review reports when the task is maintenance-oriented,
+- and a recommended disposition: `keep`, `revise`, `reject`, `sync-needed`, `follow-up-needed`, or `no-action`.
 
 ---
 
@@ -614,7 +619,7 @@ Current repository state:
 - `Note Manager` is the bounded durable note step before planner work,
 - all durable note mutations, including metadata-only corrections and archival changes, must route through `Note Manager`,
 - `Note Manager` owns note action, note type, target note, title, links, metadata, and durable note structure decisions from the clarified context plus supplied note paths,
-- review/sync documentation updates route through `clarify-intent` before `Note Manager`,
+- review/sync documentation updates and maintenance review reports route through `clarify-intent` before `Note Manager`,
 - `Note Manager` refreshes dynamic metadata on create or update rather than preserving stale template values,
 - planning should begin from note-backed project state when implementation is actually needed,
 - `project-planner`, `clarify-intent`, and `project-review-sync` may use `note-search` as a bounded retrieval helper when a known seed note can improve local context selection,

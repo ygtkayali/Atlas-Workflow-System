@@ -4,7 +4,7 @@ Status: [[status-settled]]
 Parent: [[Workflow Hub]]
 Related: [[clarify-intent]], [[Note Manager]], [[planner-agent]], [[review-agent]]
 Created: 15-04-2026
-Last Reviewed: 2026-04-24
+Last Reviewed: 2026-04-25
 Source:
 Decisions:
 Dependencies:
@@ -39,6 +39,7 @@ In this model:
 - `planner` consumes notes and request context, then produces a `task packet`
 - `implementer` produces an `implementation report`
 - `review/sync` decides whether durable notes should change after accepted implementation
+- `review/sync` may also analyze bounded maintenance review tasks and produce maintenance review reports
 - `review/sync` passes implementation-backed documentation-sync context to `clarify-intent`
 - `clarify-intent` turns that context into a `clarified context handoff`
 - `task packet`, `implementation report`, and `clarified context handoff` are workflow artifacts, not durable knowledge notes by themselves
@@ -49,6 +50,7 @@ It also preserves a clearer rule for role boundaries:
 - ideation should not be overloaded with implementation planning
 - implementation should not rely on planner-oriented clarification briefs as the default handoff
 - durable notes remain the long-term project knowledge layer, while packet and report artifacts support delivery work
+- maintenance review reports are analysis artifacts that route stale state, link, health, or artifact-cleanup findings toward clarification and note management
 - planner-owned planning notes may exist, but durable note mutation should stay bounded behind the current note-management path unless a later workflow decision explicitly changes that
 
 ## Open Questions

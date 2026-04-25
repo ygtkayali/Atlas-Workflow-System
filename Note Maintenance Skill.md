@@ -1,21 +1,30 @@
 # Note Maintenance Skill
 
-Status: [[status-pending]]
+Status: [[status-archived]]
 Parent: [[Idea Hub]]
-Related: [[Local Note Search Script]]
+Related: [[Local Note Search Script]], [[review-agent]]
 Created: 14-04-2026
+Last Reviewed: 2026-04-25
 
 ## Summary
 
-Create a dedicated note maintenance skill for existing notes. This skill is separate from `note-manager`: `note-manager` remains focused on a single note and its immediate context, while note maintenance may operate across a much broader note space and therefore must prioritize efficiency.
+This separate maintenance-skill direction has been archived. The current direction is to merge bounded maintenance review into [[review-agent]] instead of creating a separate maintenance skill.
+
+`note-manager` remains focused on bounded durable note mutation from clarified context and supplied notes. Maintenance review now belongs to review/sync as an analysis and routing responsibility, not as direct note mutation authority.
+
+## Archive Note
+
+The current direction is that `project-review-sync` remains the named skill and acts as the analysis and routing layer for both implementation review and bounded maintenance review tasks.
+
+Maintenance review produces a structured report, usually in conversation rather than as a durable file by default. That report is routed through `clarify-intent -> Note Manager` when durable note decisions or note mutations are needed.
 
 ## Details
 
-The skill is intended for cleaning and restructuring existing notes when the user provides a maintenance task. It should support broader vault maintenance work without forcing manual review of the entire vault.
+The earlier idea was to create a dedicated skill for cleaning and restructuring existing notes when the user provides a maintenance task. It would support broader vault maintenance work without forcing manual review of the entire vault.
 
-This skill is expected to become more important as vault size grows, but it is not yet decided whether it belongs in v1. That timing should remain open until later iterations make the need and impact clearer.
+That separate-skill direction is no longer active for now. Broader vault maintenance still needs governance, but the review/sync role is the better middle layer because it can analyze state, produce findings, and route the result to clarification and note management without taking direct ownership of durable note changes.
 
-The skill should default to an analyze-first approach.
+The merged review direction keeps the analyze-first approach.
 
 Current operating model:
 - analysis/report mode for broader, riskier, or more ambiguous maintenance tasks
@@ -32,7 +41,7 @@ A critical unresolved decision remains:
 - which actions may be auto-applied
 - which actions must remain proposal-only
 
-This boundary must be defined explicitly later. It should not be guessed or normalized implicitly, because vault-wide maintenance can easily turn into unauthorized structural reorganization.
+This boundary is handled by keeping review as analysis and routing only. Durable note changes still go through `clarify-intent -> Note Manager`, because vault-wide maintenance can easily turn into unauthorized structural reorganization.
 
 ## Open Questions
 
