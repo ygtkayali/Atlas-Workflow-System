@@ -5,6 +5,7 @@
 Full Notes/
 
 # Runtime/cache files
+.codex-note-search/
 __pycache__/
 *.py[cod]
 .DS_Store

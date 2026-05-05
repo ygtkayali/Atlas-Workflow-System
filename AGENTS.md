@@ -181,8 +181,12 @@ Current expectations:
 - it acts as a guided clarification and challenge loop, not as a planner,
 - it should separate user goals from proposed solutions,
 - it should surface hidden inconsistencies, missing decisions, weak assumptions, and high-impact uncertainty,
+- it should split complex prompts into provisional subject bundles before downstream work,
+- it should ask or answer the highest-value clarification points first rather than repeatedly restating the whole handoff,
+- it should use bounded note context through `note-search` when a known seed note, semantic query, or local retrieval anchor can materially improve clarification,
 - it should keep work in clarification when `Note Manager` or planning would still require guesswork,
-- and its default successful output for this repository is a `clarified context handoff`, not a note draft or planning brief by default.
+- it should end as continued clarification, an end-of-clarification recommendation, or a note-ready handoff depending on task readiness,
+- and its default downstream-ready output for this repository is a `clarified context handoff`, not a note draft or planning brief by default.
 
 ### `note-manager`
 Use `note-manager` only after at least one `clarify-intent` pass has produced durable signal and the user has supplied the relevant note paths or notes needed for the change.
@@ -195,8 +199,10 @@ Current expectations:
 - it should read only the provided relevant notes and avoid broad vault discovery,
 - it should refresh dynamic metadata such as status and other changing header fields instead of preserving stale template or prior values,
 - it should work conservatively with `Idea Note`, `General Note`, and `Sub Hub`,
+- it should preserve the question-based nature of `Idea Note` content when the handoff is exploratory,
+- it must not convert unresolved ideas into recommendations, policy, decisions, or settled direction unless the handoff explicitly marks those points as decided,
 - it should treat the note space as interconnected rather than strictly hierarchical and should not default new notes into a top-level hub,
-- it should draft first and wait for confirmation before writing unless the user explicitly asks for direct writes,
+- it should draft first and wait for confirmation before writing unless the prompt and current workflow state clearly authorize direct writes,
 - it must not take note action unless the current request has passed through `clarify-intent` at least once,
 - and it should return work to `clarify-intent` when the durable subject or supplied context is too unclear for it to choose note type, target note, or placement responsibly.
 
@@ -206,7 +212,7 @@ Use `project-planner` after note-backed project state exists and implementation 
 Current expectations:
 - it should begin from durable notes rather than rough chat alone,
 - it should gather the minimum relevant planning context rather than broad vault context,
-- it may use `note-search` when a known seed note can anchor a smaller relevant note neighborhood,
+- it may use `note-search` when a known seed note or semantic query can anchor a smaller relevant note context set,
 - it should make uncertainty and approval state explicit,
 - it should produce scoped implementation packets for human approval,
 - and it should escalate when documentation is missing, contradictory, or insufficient for safe planning.
@@ -229,7 +235,7 @@ Use `project-review-sync` after implementation to compare results to the approve
 Current expectations:
 - it should begin from the approved task packet, implementation report, and touched files or diff when needed,
 - for maintenance review, it should begin from the user-provided maintenance task and bounded scope,
-- it may use `note-search` when a known note can anchor a bounded documentation-sync context,
+- it may use `note-search` when a known note or semantic query can anchor a bounded documentation-sync context,
 - it should keep the basis for note selection explicit,
 - it should route implementation-backed documentation-sync context or maintenance review reports through `clarify-intent` before durable note mutation,
 - it should create or propose context handoffs for clarification when durable note mutation remains behind a separate gate such as `Note Manager`,
@@ -237,13 +243,14 @@ Current expectations:
 - and it should recommend `keep`, `revise`, `reject`, `sync-needed`, `follow-up-needed`, or `no-action` rather than silently normalizing mismatches or stale state.
 
 ### `note-search`
-Use `note-search` as the shared retrieval interface when a role needs nearby note context from a known seed note without broad vault reads.
+Use `note-search` as the shared retrieval interface when a role needs bounded note context without broad vault reads.
 
 Current expectations:
-- it wraps the shared local search script rather than owning retrieval logic itself,
-- it should return candidate note paths from a local markdown vault,
+- it wraps the shared graph and semantic local search scripts rather than owning retrieval logic itself,
+- it should return candidate note paths or a semantic context capsule from a local markdown vault,
 - it should remain bounded, deterministic, and local-first,
-- it should not perform free-text, semantic, or embedding-based retrieval in the current version,
+- it should route known-seed retrieval to graph search and concept-level discovery to semantic search,
+- caller roles should prefer semantic note-search over manual broad note discovery for "does this exist", "what is similar", and concept-only retrieval questions,
 - and it should act as a reusable context-retrieval helper for clarification, planning, and review rather than as a separate planning or note-mutation role.
 
 ### Downstream implication
@@ -256,7 +263,32 @@ The post-implementation documentation-sync workflow is:
 `review/sync -> clarify-intent -> clarified context handoff -> Note Manager`
 
 Planning remains downstream, but it should consume note-backed project state rather than relying on a planner-oriented clarification artifact by default.
-`note-search` is a shared bounded retrieval aid that may be used during clarification, planning, or review when a known note can anchor better local context selection.
+`note-search` is a shared bounded retrieval aid that may be used during clarification, planning, or review when a known note or semantic query can anchor better local context selection.
+
+---
+
+## Dynamic Skills, Hard Gates
+
+Skills may reason dynamically inside their own role.
+Phase transitions are strict gates.
+
+Private reasoning does not satisfy a gate.
+When a gate requires a clarification state, context handoff, draft, review report, packet, or approval, that artifact or decision must be visible in the conversation or in an approved workflow file before the next phase begins.
+
+Hard gate sequence:
+- raw idea, complex prompt, or ambiguous request -> `clarify-intent`
+- clarified context handoff -> `note-manager` draft
+- approved note-manager draft and clear workflow authorization -> durable note write
+- note-backed implementation need -> `project-planner`
+- approved packet or sufficiently specific direct coding request -> `project-implementer`
+- completed implementation or bounded maintenance task -> `project-review-sync`
+
+Dynamic routing should improve the quality of the current phase.
+It must not be used to complete multiple phases silently.
+
+Durable writes are never inferred from isolated wording.
+The agent must evaluate the full prompt, current workflow state, user intent, risk, and whether required upstream gates are satisfied.
+If direct-write authorization is ambiguous, default to draft-only output.
 
 ---
 
@@ -273,6 +305,18 @@ Durable note mutation rule:
 - raw direct durable note edits are not allowed as an independent shortcut
 - file-edit tools may apply the resulting `Note Manager` decision, but they do not replace `Note Manager`
 - this applies even when the requested change appears small, obvious, or purely mechanical
+
+### Complex prompt intake
+
+When a prompt contains multiple domains, areas, or branching ideas, split it into provisional subject bundles before downstream work.
+
+Each bundle should contain one domain or area.
+Branching ideas inside one area may stay together only when they are closely related.
+If a branch can become its own durable subject, split it and preserve the connection instead of blending it into a broader note or handoff.
+
+This bundle split is an intake step, not final note structure.
+`clarify-intent` uses it to ask better questions and preserve ambiguity.
+`Note Manager` later decides concrete note actions from the clarified handoff and supplied context.
 
 ### Initial routing question
 At the start of every non-trivial request, ask:
@@ -306,7 +350,7 @@ When one of these decisions is required, the agent must escalate to the human in
 - If implementation planning is needed from note-backed project state: use `project-planner`.
 - If code changes are requested: use `project-implementer`. If the request is ambiguous, cross-cutting, or likely to require explicit architecture or scope decisions before coding, route to `clarify-intent` or `project-planner` first instead of guessing.
 - If completed implementation needs comparison against the approved packet and documentation sync decisions: use `project-review-sync`.
-- If nearby note context is needed from a known seed note: use `note-search` as a helper, not as the primary role.
+- If nearby note context or concept-level note discovery is needed: use `note-search` as a helper, not as the primary role.
 
 ### Skill ordering rule
 When multiple skills apply, choose the smallest valid sequence that preserves workflow gates.
@@ -445,7 +489,7 @@ When documentation is updated after implementation, the update should be attribu
 ### Default policy
 - clarification and planning roles: read docs, inspect relevant repo context, and prepare context for downstream note work
 - `Note Manager`: read docs, update docs, inspect relevant repo context, and own durable note mutation
-- clarification, planning, and review roles may use `note-search` for bounded local note retrieval when a known seed note can reduce context noise
+- clarification, planning, and review roles may use `note-search` for bounded local note retrieval when a known seed note or semantic query can reduce context noise
 - implementation role: edit code, inspect files, run checks, produce report
 - review role: inspect code + docs, suggest or apply scoped doc updates
 
@@ -545,7 +589,9 @@ State:
 - structured,
 - explicit about what is `decided`, `proposed`, `unclear`, or `blocked`,
 - challenge-oriented rather than planner-shaped by default,
-- and explicit about whether the next step is more clarification, `Note Manager`, or planning.
+- efficient about the next highest-value questions instead of repeating a full handoff on every turn,
+- explicit about whether it is continuing clarification, ending clarification with a next-step recommendation, or producing a note-ready handoff,
+- and task-relative about confidence: idea capture may only need clear uncertainty, while architecture or workflow decisions need stronger resolution.
 
 ### Note Manager output should be:
 - bounded,
@@ -553,7 +599,8 @@ State:
 - explicit about whether the action is `create` or `update`,
 - based only on the provided relevant notes plus local templates,
 - explicit about dynamic metadata changes such as status, review date, related links, decisions, and tasks,
-- and draft-first unless the user explicitly requests direct writes.
+- protective of unresolved idea-note content when the source is exploratory,
+- and draft-first unless the prompt and current workflow state clearly authorize direct writes.
 
 ### Planner / Documentation output should be:
 - structured,
@@ -621,14 +668,14 @@ Use this charter as the root operating policy for the repository.
 
 Current repository state:
 - the active Phase 1 workflow is ideation-first,
-- `clarify-intent` produces a `clarified context handoff` by default when clarification succeeds,
+- `clarify-intent` continues clarification, ends clarification with a recommended next step, or produces a `clarified context handoff` when note work is ready,
 - `Note Manager` is the bounded durable note step before planner work,
 - all durable note mutations, including metadata-only corrections and archival changes, must route through `Note Manager`,
 - `Note Manager` owns note action, note type, target note, title, links, metadata, and durable note structure decisions from the clarified context plus supplied note paths,
 - review/sync documentation updates and maintenance review reports route through `clarify-intent` before `Note Manager`,
 - `Note Manager` refreshes dynamic metadata on create or update rather than preserving stale template values,
 - planning should begin from note-backed project state when implementation is actually needed,
-- `project-planner`, `clarify-intent`, and `project-review-sync` may use `note-search` as a bounded retrieval helper when a known seed note can improve local context selection,
+- `project-planner`, `clarify-intent`, and `project-review-sync` may use `note-search` as a bounded retrieval helper when a known seed note or semantic query can improve local context selection,
 - `project-implementer` is operation-scoped, may begin from a sufficiently specific direct coding request, should edit only the relevant notebook cells when possible, and does not own stale-note updates,
-- `note-search` is the shared local retrieval interface backed by the repository-local note search script,
+- `note-search` is the shared local retrieval interface backed by graph and semantic local search scripts,
 - and the existing governance, role, and schema notes should remain consistent with this charter.

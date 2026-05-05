@@ -4,7 +4,7 @@ Status: [[status-settled]]
 Parent: [[Workflow Hub]]
 Related: [[clarify-intent]], [[clarified-context-handoff]], [[Two-Phase Workflow Boundary]], [[Durable Notes Follow Accepted Implementation]]
 Created: 2026-04-14
-Last Reviewed: 2026-04-24
+Last Reviewed: 2026-05-05
 Source:
 Decisions:
 Dependencies:
@@ -24,6 +24,7 @@ Raw direct note edits are not allowed as an independent shortcut, even for metad
 It should remain narrow in authority:
 - it works from explicit upstream artifacts
 - it uses only the provided note context
+- it may consume search results supplied by upstream roles, including semantic `note-search` context capsules
 - it does not turn into autonomous vault management
 - it does not silently impose hierarchy or broader structure on the note space
 
@@ -33,17 +34,20 @@ It should remain narrow in authority:
 - own every durable note mutation, including metadata-only updates and corrections
 - route behavior using an explicit `owner` field in the input context
 - use only the specific relevant notes or note paths supplied by the user
+- consume supplied `note-search` context capsules as upstream context when they are provided
 - use local templates when they apply
 - decide whether the correct bounded action is `create` or `update`
 - decide note type, target note, title, note links, and final durable note structure from the provided context
 - refresh dynamic metadata on every create or update so status and other changing header fields reflect the current note state rather than stale template or prior values
 - evaluate context drift on every update, especially whether `Status` should move between `[[status-draft]]`, `[[status-pending]]`, `[[status-settled]]`, and `[[status-archived]]`
 - draft exact note content or exact update content
+- preserve the question-based nature of `Idea Note` content when the handoff is exploratory
 - keep links minimal and intentional
 - prefer intentional related links over default parent placement
 - treat `Main Hub` as an explicit lightweight index role rather than the default destination for new notes
 - avoid silently broadening note scope beyond the supplied context
 - return work to clarification or review when the note mutation target is still unclear
+- default to draft-only output when durable-write authorization is ambiguous in the prompt and workflow state
 
 ## Current Upstream Owners
 
@@ -68,6 +72,10 @@ For the current system, `Note Manager` should work with:
 The default emphasis remains on `Sub Hub`, `General Note`, and bounded updates to existing durable notes already present in the system.
 
 `Main Hub` remains a lightweight index role and should be chosen only when the clarified subject explicitly calls for an index note rather than a normal durable knowledge note.
+
+`Idea Note` preserves live thinking.
+When the source handoff is exploratory, unresolved questions, tensions, candidate options, branching thoughts, assumptions to test, and unresolved decisions are first-class note content.
+`Note Manager` must not convert them into recommendations, policy, or settled direction unless the handoff explicitly marks those points as decided.
 
 ## Input Expectations
 
@@ -97,6 +105,10 @@ It should not allow the agent to bypass this role by describing the change as a 
 
 A bundle is allowed for intake efficiency, but it must not collapse note-action approval.
 Before drafting note content from a bundle, `Note Manager` must produce a subject-to-note action manifest.
+
+If the upstream artifact contains provisional subject bundles from complex-prompt intake, `Note Manager` should treat them as input evidence rather than final note structure.
+Each bundle should contain one domain or area; branching ideas should remain together only when they are closely related.
+If a branch can become its own durable subject, split it and preserve the connection instead of blending it into a broader note action.
 
 The manifest should include one row per proposed note action:
 - subject id or subject label
@@ -155,6 +167,9 @@ The final check for any note update must include:
 ## Output
 
 The default output is a draft-first note action.
+Direct durable writes require satisfied upstream gates and clear authorization from the full prompt and current workflow state.
+Durable writes should not be inferred from isolated wording.
+If authorization is ambiguous, remain draft-only.
 
 When the action is `create`, it should provide:
 - note action
@@ -178,8 +193,10 @@ Future merge or relink behavior may be added later, but it is not required as pa
 
 `Note Manager` should not:
 - search the vault broadly
+- run semantic search as its own discovery step
 - silently choose unrelated notes to edit
 - allow raw direct durable note updates outside `Note Manager`
+- convert unresolved ideas into recommendations, policy, decisions, or settled direction unless the handoff explicitly marks those points as decided
 - rename or reorganize notes without explicit reason and context
 - invent complex metadata or linking systems
 - create notes from weak clarification state

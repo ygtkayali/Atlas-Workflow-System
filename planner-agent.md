@@ -108,10 +108,11 @@ The planner must work from the smallest relevant context set instead of scanning
 Context should be gathered in layers:
 
 1. The triggering request or note.
-2. The directly linked feature note or feature hub, if one exists.
-3. The relevant central hubs.
-4. Current decisions, constraints, active context, and recent implementation reports.
-5. Related notes discovered through metadata, backlinks, or explicit links only when needed.
+2. `note-search` results when a known seed note or semantic query can retrieve a smaller useful context set than manual note discovery.
+3. The directly linked feature note or feature hub, if one exists.
+4. The relevant central hubs.
+5. Current decisions, constraints, active context, and recent implementation reports.
+6. Related notes discovered through metadata, backlinks, or explicit links only when needed.
 
 The planner should stop gathering context when there is enough information to:
 - define the task clearly,
@@ -120,6 +121,7 @@ The planner should stop gathering context when there is enough information to:
 - and produce a scoped implementation packet.
 
 If additional context does not materially change planning quality, it should not be loaded.
+For concept-level note discovery, the planner should use semantic `note-search` before manual broad note search so retrieval behavior can be observed and improved centrally.
 
 ---
 

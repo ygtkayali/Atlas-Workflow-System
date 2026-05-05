@@ -102,7 +102,8 @@ For implementation review, the review / sync agent should begin from:
 
 If one of these is missing and the omission blocks accurate comparison, flag the gap explicitly.
 Project notes are optional for implementation review and become necessary only when documentation synchronization is part of the work.
-Future search results may be used to improve note-selection quality, but review should still make the basis for its proposed note changes explicit.
+`note-search` results may be used to improve note-selection quality, but review should still make the basis for its proposed note changes explicit.
+For concept-level documentation-sync discovery, review should use semantic `note-search` before manual broad note search so retrieval behavior can be observed and improved centrally.
 
 For maintenance review, the review / sync agent should begin from the user-provided maintenance task and the bounded scope named by that task. If the scope is too broad or unclear to inspect responsibly, escalate before beginning a vault-wide sweep.
 
@@ -115,8 +116,9 @@ Preferred order:
 1. The approved task packet.
 2. The implementation report.
 3. The touched files, diff, or verification results.
-4. Relevant notes and hubs that should reflect the new state, if documentation synchronization is needed.
-5. Decision logs or active-context notes only when they materially affect synchronization.
+4. `note-search` results when a known note or semantic query can anchor a bounded documentation-sync context.
+5. Relevant notes and hubs that should reflect the new state, if documentation synchronization is needed.
+6. Decision logs or active-context notes only when they materially affect synchronization.
 
 For implementation review, avoid broad documentation sweeps unless the implemented change truly has project-wide impact.
 

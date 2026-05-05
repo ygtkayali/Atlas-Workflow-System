@@ -10,7 +10,8 @@ Last Reviewed: 18-04-2026
 
 Create a reusable local script that agents can call with a known seed note to retrieve candidate related note paths without reading the entire vault.
 
-The v1 repository includes the script at `tools/local_note_search.py`.
+The v1 repository includes the graph script at `tools/local_note_search.py`.
+The semantic-search companion lives at `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py` and is routed through [[Note Search Skill]] rather than replacing this graph script.
 
 ## Current V1 Intent
 
@@ -89,10 +90,11 @@ Initial evaluation:
 - tag-role separation such as operational tags vs semantic tags
 - strict mode in addition to expanded mode
 - BM25-based retrieval
-- semantic / embedding-based retrieval
 - richer ranking or explanation layers
 
 The script should support the documentation-centered workflow by reducing unnecessary vault-wide reading while still giving agents enough nearby context to make linking decisions.
+Semantic and embedding-based query discovery is handled by the separate semantic script through [[Note Search Skill]].
+Keep this graph script focused on known-seed graph neighborhoods.
 
 ## Open Questions
 
