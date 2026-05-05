@@ -60,6 +60,7 @@ Those decisions belong to [[Note Manager]].
 `clarify-intent` should not:
 - create durable notes directly
 - draft final durable note content
+- move to [[Note Manager]] before producing a visible clarified context handoff, showing it to the user, and receiving approval to switch phases
 - decide note type, target note, title, final links, or durable note placement as binding output
 - split context by target note, note type, or final note action
 - decide subject-to-note mapping
