@@ -183,7 +183,7 @@ Current expectations:
 - it should surface hidden inconsistencies, missing decisions, weak assumptions, and high-impact uncertainty,
 - it should split complex prompts into provisional subject bundles before downstream work,
 - it should ask or answer the highest-value clarification points first rather than repeatedly restating the whole handoff,
-- it should use bounded note context through `note-search` when a known seed note, semantic query, or local retrieval anchor can materially improve clarification,
+- all note-related search or retrieval steps should be delegated to `note-search`; `note-search` decides whether to use graph or semantic mode and formulates the semantic query from the current context,
 - it should keep work in clarification when `Note Manager` or planning would still require guesswork,
 - it should end as continued clarification, an end-of-clarification recommendation, or a note-ready handoff depending on task readiness,
 - when a durable note change is required and the handoff is ready, its default next action is to call `Note Manager` immediately with the visible `clarified context handoff` and supplied note context instead of stopping for a separate phase-switch approval,
@@ -213,7 +213,7 @@ Use `project-planner` after note-backed project state exists and implementation 
 Current expectations:
 - it should begin from durable notes rather than rough chat alone,
 - it should gather the minimum relevant planning context rather than broad vault context,
-- it may use `note-search` when a known seed note or semantic query can anchor a smaller relevant note context set,
+- all note-related search or retrieval steps should be delegated to `note-search`; `note-search` decides whether to use graph or semantic mode and formulates the semantic query from the current planning context,
 - it should make uncertainty and approval state explicit,
 - it should produce scoped implementation packets for human approval,
 - and it should escalate when documentation is missing, contradictory, or insufficient for safe planning.
@@ -236,7 +236,7 @@ Use `project-review-sync` after implementation to compare results to the approve
 Current expectations:
 - it should begin from the approved task packet, implementation report, and touched files or diff when needed,
 - for maintenance review, it should begin from the user-provided maintenance task and bounded scope,
-- it may use `note-search` when a known note or semantic query can anchor a bounded documentation-sync context,
+- all note-related search or retrieval steps should be delegated to `note-search`; `note-search` decides whether to use graph or semantic mode and formulates the semantic query from the current review or sync context,
 - it should keep the basis for note selection explicit,
 - it should route implementation-backed documentation-sync context or maintenance review reports through `clarify-intent` before durable note mutation,
 - it should create or propose context handoffs for clarification when durable note mutation remains behind a separate gate such as `Note Manager`,
@@ -250,8 +250,9 @@ Current expectations:
 - it wraps the shared graph and semantic local search scripts rather than owning retrieval logic itself,
 - it should return candidate note paths or a semantic context capsule from a local markdown vault,
 - it should remain bounded, deterministic, and local-first,
-- it should route known-seed retrieval to graph search and concept-level discovery to semantic search,
-- caller roles should prefer semantic note-search over manual broad note discovery for "does this exist", "what is similar", and concept-only retrieval questions,
+- it owns the choice between graph and semantic retrieval modes for every note-related search step,
+- it should formulate semantic search queries from the caller's current context instead of requiring caller roles to preselect the exact semantic query,
+- caller roles must not run manual broad note discovery or choose separate note-search modes when the work is note-related,
 - and it should act as a reusable context-retrieval helper for clarification, planning, and review rather than as a separate planning or note-mutation role.
 
 ### Downstream implication
@@ -264,7 +265,7 @@ The post-implementation documentation-sync workflow is:
 `review/sync -> clarify-intent -> visible clarified context handoff -> Note Manager draft`
 
 Planning remains downstream, but it should consume note-backed project state rather than relying on a planner-oriented clarification artifact by default.
-`note-search` is a shared bounded retrieval aid that may be used during clarification, planning, or review when a known note or semantic query can anchor better local context selection.
+`note-search` is the shared bounded retrieval aid for all note-related search steps during clarification, planning, or review. Caller roles provide task context; `note-search` chooses the retrieval mode and semantic query when semantic mode is appropriate.
 
 ---
 
@@ -353,7 +354,7 @@ When one of these decisions is required, the agent must escalate to the human in
 - If implementation planning is needed from note-backed project state: use `project-planner`.
 - If code changes are requested: use `project-implementer`. If the request is ambiguous, cross-cutting, or likely to require explicit architecture or scope decisions before coding, route to `clarify-intent` or `project-planner` first instead of guessing.
 - If completed implementation needs comparison against the approved packet and documentation sync decisions: use `project-review-sync`.
-- If nearby note context or concept-level note discovery is needed: use `note-search` as a helper, not as the primary role.
+- If any note-related search, nearby note context, or concept-level note discovery is needed: use `note-search` as a helper, not as the primary role; let it choose graph or semantic mode and formulate any semantic query from context.
 
 ### Skill ordering rule
 When multiple skills apply, choose the smallest valid sequence that preserves workflow gates.
@@ -493,7 +494,7 @@ When documentation is updated after implementation, the update should be attribu
 ### Default policy
 - clarification and planning roles: read docs, inspect relevant repo context, and prepare context for downstream note work
 - `Note Manager`: read docs, update docs, inspect relevant repo context, and own durable note mutation
-- clarification, planning, and review roles may use `note-search` for bounded local note retrieval when a known seed note or semantic query can reduce context noise
+- clarification, planning, and review roles must use `note-search` for note-related retrieval; they provide task context while `note-search` chooses graph or semantic mode and formulates any semantic query
 - implementation role: edit code, inspect files, run checks, produce report
 - review role: inspect code + docs, suggest or apply scoped doc updates
 
@@ -680,7 +681,7 @@ Current repository state:
 - review/sync documentation updates and maintenance review reports route through `clarify-intent` before `Note Manager`,
 - `Note Manager` refreshes dynamic metadata on create or update rather than preserving stale template values,
 - planning should begin from note-backed project state when implementation is actually needed,
-- `project-planner`, `clarify-intent`, and `project-review-sync` may use `note-search` as a bounded retrieval helper when a known seed note or semantic query can improve local context selection,
+- `project-planner`, `clarify-intent`, and `project-review-sync` must use `note-search` for note-related retrieval; they provide task context while `note-search` chooses graph or semantic mode and formulates any semantic query,
 - `project-implementer` is operation-scoped, may begin from a sufficiently specific direct coding request, should edit only the relevant notebook cells when possible, and does not own stale-note updates,
 - `note-search` is the shared local retrieval interface backed by graph and semantic local search scripts,
 - and the existing governance, role, and schema notes should remain consistent with this charter.
