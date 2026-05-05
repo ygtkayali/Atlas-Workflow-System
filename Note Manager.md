@@ -95,6 +95,8 @@ If the owner, target note, or intended note mutation is still unclear after clar
 
 For `clarify-intent` input, the upstream artifact should preserve clarified context, not prescribe final note structure.
 `Note Manager` is responsible for deciding whether that context becomes a new note, an update to an existing note, or a request for more clarification.
+When `clarify-intent` produces a visible `ready_for_note_manager` handoff for a required note change and the relevant note context is supplied, `Note Manager` should be called by default without waiting for separate phase-switch approval.
+The required approval gate is the `Note Manager` draft or durable-write decision.
 
 If the user or another role asks for a note edit directly, `Note Manager` should treat that as a note-mutation request and take ownership of the update.
 It should not allow the agent to bypass this role by describing the change as a small patch, metadata fix, typo correction, schema adjustment, or governance edit.

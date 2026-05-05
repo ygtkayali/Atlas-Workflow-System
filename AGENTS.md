@@ -186,7 +186,8 @@ Current expectations:
 - it should use bounded note context through `note-search` when a known seed note, semantic query, or local retrieval anchor can materially improve clarification,
 - it should keep work in clarification when `Note Manager` or planning would still require guesswork,
 - it should end as continued clarification, an end-of-clarification recommendation, or a note-ready handoff depending on task readiness,
-- and its default downstream-ready output for this repository is a `clarified context handoff`, not a note draft or planning brief by default.
+- when a durable note change is required and the handoff is ready, its default next action is to call `Note Manager` immediately with the visible `clarified context handoff` and supplied note context instead of stopping for a separate phase-switch approval,
+- and its default downstream-ready artifact for this repository is a `clarified context handoff`, not a note draft or planning brief.
 
 ### `note-manager`
 Use `note-manager` only after at least one `clarify-intent` pass has produced durable signal and the user has supplied the relevant note paths or notes needed for the change.
@@ -257,10 +258,10 @@ Current expectations:
 Planning is no longer the default direct output of clarification.
 
 The active workflow is:
-`idea -> clarify-intent -> clarified context handoff -> Note Manager`
+`idea -> clarify-intent -> visible clarified context handoff -> Note Manager draft`
 
 The post-implementation documentation-sync workflow is:
-`review/sync -> clarify-intent -> clarified context handoff -> Note Manager`
+`review/sync -> clarify-intent -> visible clarified context handoff -> Note Manager draft`
 
 Planning remains downstream, but it should consume note-backed project state rather than relying on a planner-oriented clarification artifact by default.
 `note-search` is a shared bounded retrieval aid that may be used during clarification, planning, or review when a known note or semantic query can anchor better local context selection.
@@ -274,10 +275,12 @@ Phase transitions are strict gates.
 
 Private reasoning does not satisfy a gate.
 When a gate requires a clarification state, context handoff, draft, review report, packet, or approval, that artifact or decision must be visible in the conversation or in an approved workflow file before the next phase begins.
+For the clarification-to-note-management boundary, a visible `ready_for_note_manager` handoff satisfies the phase-transition artifact requirement.
+When the user has requested or accepted a durable note change and the supplied note context is sufficient, the agent should invoke `Note Manager` in the same turn by default; separate user approval is required for the resulting `Note Manager` draft or durable write, not merely for calling `Note Manager`.
 
 Hard gate sequence:
 - raw idea, complex prompt, or ambiguous request -> `clarify-intent`
-- clarified context handoff -> `note-manager` draft
+- visible `ready_for_note_manager` clarified context handoff -> `note-manager` draft
 - approved note-manager draft and clear workflow authorization -> durable note write
 - note-backed implementation need -> `project-planner`
 - approved packet or sufficiently specific direct coding request -> `project-implementer`
@@ -367,6 +370,7 @@ Before invoking a skill, briefly state:
 - and what gate prevents further downstream work.
 
 If a request spans multiple phases, stop at the first unresolved gate instead of simulating the whole pipeline.
+The `clarify-intent` to `Note Manager` transition is not an unresolved gate when the handoff is visible, marked ready for note management, the note change is required, and the relevant note context has been supplied.
 
 ---
 
@@ -380,7 +384,7 @@ Expected outcome:
 - relevant constraints,
 - known uncertainties,
 - initial scope,
-- and either a continued clarification state or a clarified context handoff.
+- and either a continued clarification state or a visible clarified context handoff that is immediately routed to `Note Manager` when bounded note work is required and ready.
 
 ### Phase 2: Create or update durable notes
 The `Note Manager` step turns clarified intent into bounded durable note work.
@@ -668,7 +672,8 @@ Use this charter as the root operating policy for the repository.
 
 Current repository state:
 - the active Phase 1 workflow is ideation-first,
-- `clarify-intent` continues clarification, ends clarification with a recommended next step, or produces a `clarified context handoff` when note work is ready,
+- `clarify-intent` continues clarification, ends clarification with a recommended next step, or produces a visible `clarified context handoff` when note work is ready,
+- when a durable note change is required and relevant note context is supplied, the default flow is to call `Note Manager` immediately after the visible ready handoff rather than waiting for separate approval to switch phases,
 - `Note Manager` is the bounded durable note step before planner work,
 - all durable note mutations, including metadata-only corrections and archival changes, must route through `Note Manager`,
 - `Note Manager` owns note action, note type, target note, title, links, metadata, and durable note structure decisions from the clarified context plus supplied note paths,

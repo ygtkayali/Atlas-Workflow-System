@@ -85,7 +85,7 @@ This bundle split is an intake and clarification tool, not final durable note st
 `clarify-intent` should not:
 - create durable notes directly
 - draft final durable note content
-- move to [[Note Manager]] before producing a visible clarified context handoff, showing it to the user, and receiving approval to switch phases
+- move to [[Note Manager]] before producing a visible clarified context handoff and showing it to the user
 - decide note type, target note, title, final links, or durable note placement as binding output
 - split context by target note, note type, or final note action
 - decide subject-to-note mapping
@@ -98,5 +98,7 @@ This bundle split is an intake and clarification tool, not final durable note st
 ## Next Step
 
 When clarification succeeds and durable note work is appropriate, the normal next step is [[Note Manager]] with the clarified context handoff plus the specific relevant notes supplied by the user.
-The switch to [[Note Manager]] should happen only after the clarified context handoff has been shown to the user and the user approves the phase change.
+When a durable note change is required, the default flow is to call [[Note Manager]] immediately after the visible handoff is ready and the relevant note context has been supplied.
+Do not wait for a separate user approval merely to switch phases.
+The approval gate belongs to the resulting [[Note Manager]] draft or durable-write decision.
 For post-implementation documentation sync, [[review-agent]] supplies implementation-backed context first; `clarify-intent` then produces the clarified context handoff for [[Note Manager]].

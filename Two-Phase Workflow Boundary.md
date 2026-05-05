@@ -4,7 +4,7 @@ Status: [[status-settled]]
 Parent: [[Workflow Hub]]
 Related: [[clarify-intent]], [[Note Manager]], [[planner-agent]], [[review-agent]]
 Created: 15-04-2026
-Last Reviewed: 2026-04-25
+Last Reviewed: 2026-05-05
 Source:
 Decisions:
 Dependencies:
@@ -34,6 +34,7 @@ In this model:
 
 - `clarify-intent` is used when the idea or request itself is still unclear
 - `clarify-intent` produces clarified context, not durable note structure
+- when a durable note change is required and the handoff is ready, `clarify-intent` should route directly into `Note Manager` rather than waiting for a separate approval just to switch phases
 - `Note Manager` decides create vs update, note type, target note, and final note content from that clarified context plus supplied note paths
 - `planner` is used when the goal is understood but implementation needs technical shaping
 - `planner` consumes notes and request context, then produces a `task packet`
@@ -43,6 +44,7 @@ In this model:
 - `review/sync` passes implementation-backed documentation-sync context to `clarify-intent`
 - `clarify-intent` turns that context into a `clarified context handoff`
 - `task packet`, `implementation report`, and `clarified context handoff` are workflow artifacts, not durable knowledge notes by themselves
+- the approval gate after clarification applies to the `Note Manager` draft or durable-write decision, not to the mechanical act of invoking `Note Manager`
 
 This keeps ideation and implementation as separate but connected parts of the system.
 
