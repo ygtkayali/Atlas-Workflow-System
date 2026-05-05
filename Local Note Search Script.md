@@ -1,14 +1,16 @@
 # Local Note Search Script
 
 Status: [[status-settled]]
-Parent: [[Idea Hub]]
-Related: [[Local Note Search Future Development Options]]
+Parent: [[Workflow Hub]]
+Related: [[Note Search Skill]]
 Created: 14-04-2026
 Last Reviewed: 18-04-2026
 
 ## Summary
 
 Create a reusable local script that agents can call with a known seed note to retrieve candidate related note paths without reading the entire vault.
+
+The v1 repository includes the script at `tools/local_note_search.py`.
 
 ## Current V1 Intent
 
@@ -51,6 +53,15 @@ Secondary use case:
 - no tag-based filtering in the initial version
 - does not decide which links should actually be added
 - does not modify notes automatically
+
+## Usage
+
+```bash
+python3 tools/local_note_search.py \
+  --vault-root . \
+  --seed-path "Note Manager.md" \
+  --format json
+```
 
 ## Why Tags Are Deferred
 

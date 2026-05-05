@@ -1,5 +1,0 @@
-- Review/sync should be updated to allow note management call. 
-- Note update need more clarity. After creating a note the current state might not a reevaluation which could fire new updates. This should be adjusted. We already have review sync in the future when I have [[Local Note Search Script]] it could evolve into a better state manager rather than just post implementation check. 
-- Keep workflow truth in concrete role, schema, and boundary notes instead of a single roadmap note. 
-- I don't want to call review sync because I don't want to bother with the context it needs?
-- Maybe switch to tags instead of main hubs. Use the note based tags as usual. 

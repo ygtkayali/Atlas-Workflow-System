@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent:
-Related: [[Idea Hub]]
+Related: [[Idea Hub]], [[Agent Roles Hub]], [[Workflow Schemas Hub]]
 Created: 2026-04-14
 Last Reviewed:
 Scope: Index note for the workflow-system component.
@@ -17,4 +17,12 @@ It is not the top note for the vault and does not need to register every workflo
 
 ## Notes
 
-- [[Starter Project Vault/Start A New Project]]
+- [[Two-Phase Workflow Boundary]]
+- [[Note Manager]]
+- [[clarify-intent]]
+- [[planner-agent]]
+- [[implementer-agent]]
+- [[review-agent]]
+- [[Note Search Skill]]
+- [[Local Note Search Script]]
+- [[Workflow Schemas Hub]]

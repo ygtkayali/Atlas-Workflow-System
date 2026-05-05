@@ -14,20 +14,20 @@ Tasks:
 
 ## Summary
 
-Note Search Skill` is the shared note-retrieval interface intended for reuse across other Codex skills.
+`Note Search Skill` is the shared note-retrieval interface intended for reuse across other Codex skills.
 
 Its current role is narrow:
 - provide one stable skill entry point for note retrieval
-- call the global local search script
+- call the repository-local search script
 - keep retrieval access centralized so future search changes do not require every caller skill to change independently
 
 ## Details
 
 The current version of this skill does not implement retrieval logic itself.
 
-Instead, it wraps the global script at:
+Instead, it wraps the repository-local script at:
 
-`~/.codex/tools/local_note_search.py`
+`tools/local_note_search.py`
 
 Current expectations:
 - accept the retrieval need from another skill
@@ -53,9 +53,9 @@ The current version of `Local Note Search Skill` should not:
 
 ## Current Dependency
 
-The current skill depends on the global script:
+The current skill depends on the repository-local script:
 
-- `~/.codex/tools/local_note_search.py`
+- `tools/local_note_search.py`
 
 If the script interface changes later, the skill should absorb that change so other skills can continue using one stable search entry point.
 

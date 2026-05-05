@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent: [[Agent Roles Hub]]
-Related: [[implementer-agent]], [[review-agent]], [[clarify-intent]], [[clarified-context-handoff]], [[Note Manager]], [[Planner Produces Planning Context, Not Durable Notes]]
+Related: [[implementer-agent]], [[review-agent]], [[clarify-intent]], [[clarified-context-handoff]], [[Note Manager]]
 Created:
 Last Reviewed: 2026-04-25
 Source:

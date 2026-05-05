@@ -1,0 +1,10 @@
+# Local editor and vault state
+.obsidian/
+
+# Private scratch space
+Full Notes/
+
+# Runtime/cache files
+__pycache__/
+*.py[cod]
+.DS_Store

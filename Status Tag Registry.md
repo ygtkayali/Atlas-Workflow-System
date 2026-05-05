@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent:
-Related: [[Tag Notes Instead Of Hierarchical Hubs]], [[Note Manager]], [[Local Note Search Script]]
+Related: [[Note Manager]], [[Local Note Search Script]]
 Created: 15-04-2026
 Last Reviewed:
 Source: note-manager draft from clarified lifecycle/status discussion

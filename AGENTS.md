@@ -101,6 +101,8 @@ Every meaningful implementation step must produce a structured explanation of:
 ### 7. Confidence-based gating
 Every implementation task must pass through an explicit approval gate before coding begins.
 
+For routine direct coding requests, the user's explicit request may itself serve as that approval artifact when the objective, scope, constraints, and intended behavior are already clear enough for safe implementation.
+
 Planner output should make confidence visible so the human can decide whether to approve, revise, defer, or reject the packet.
 
 Confidence does not replace approval.
@@ -145,15 +147,17 @@ This role should optimize for clarity, constraint adherence, and decision visibi
 
 ### Implementer Agent
 Responsible for:
-- reading the approved task packet,
+- reading the approved task packet or a sufficiently specific direct coding request,
 - inspecting code and relevant files,
-- making scoped changes,
+- making operation-scoped changes,
 - running checks,
 - producing a structured implementation report.
 
 This role should optimize for correct, limited execution.
 It should not redefine project goals or silently rewrite architecture.
-It must not begin from an unapproved packet or an informal request alone.
+It may begin from a direct user coding request when scope and constraints are already clear.
+It must escalate instead of guessing when the request would force architecture, schema, API, dependency, or other high-impact decisions.
+It does not own stale-note updates or durable note synchronization.
 
 ### Review / Sync Agent
 Responsible for:
@@ -208,14 +212,16 @@ Current expectations:
 - and it should escalate when documentation is missing, contradictory, or insufficient for safe planning.
 
 ### `project-implementer`
-Use `project-implementer` only from an explicitly human-approved implementation packet or equivalent approved artifact.
+Use `project-implementer` for coding tasks.
+An explicitly approved task packet remains valid input, but a sufficiently specific direct user coding request may also be the execution artifact when it already makes the change scope and constraints clear.
 
 Current expectations:
-- it is packet-bound and should inspect only the files and artifacts explicitly allowed by the approved packet,
-- it should not begin from informal requests alone,
-- it should escalate when the approved packet does not provide enough allowed context for safe implementation,
+- it should stay operation-scoped and inspect only the files and artifacts needed for the requested coding change,
+- it may begin from a direct coding request when the objective, scope, constraints, and intended behavior are clear enough,
+- it should escalate when a direct request or approved packet does not provide enough context for safe implementation,
+- it should edit only the relevant notebook cells when working in notebooks rather than broadly rewriting notebook files,
 - it should run the strongest practical verification available for the changed area,
-- and it should return a structured implementation report with checks, assumptions, unresolved issues, and documentation impact.
+- and it should return a structured implementation report with checks, assumptions, unresolved issues, and review/sync follow-up.
 
 ### `project-review-sync`
 Use `project-review-sync` after implementation to compare results to the approved packet and decide what durable documentation changes should follow. Also use it for bounded maintenance review tasks that need analysis of stale notes, missing links, outdated implementation or design state, obsolete artifacts, lint, health, or vault consistency issues.
@@ -298,7 +304,7 @@ When one of these decisions is required, the agent must escalate to the human in
 - If intent is unclear, early-stage, overloaded, or solution-led: use `clarify-intent`.
 - If the next artifact is any durable note create/update, metadata edit, status change, link change, archival change, schema/governance note edit, or correction: use `note-manager`, only after clarification has produced durable signal and relevant note context is supplied.
 - If implementation planning is needed from note-backed project state: use `project-planner`.
-- If code changes are requested: use `project-implementer` only when an explicitly approved implementation packet or equivalent approved artifact exists.
+- If code changes are requested: use `project-implementer`. If the request is ambiguous, cross-cutting, or likely to require explicit architecture or scope decisions before coding, route to `clarify-intent` or `project-planner` first instead of guessing.
 - If completed implementation needs comparison against the approved packet and documentation sync decisions: use `project-review-sync`.
 - If nearby note context is needed from a known seed note: use `note-search` as a helper, not as the primary role.
 
@@ -623,6 +629,6 @@ Current repository state:
 - `Note Manager` refreshes dynamic metadata on create or update rather than preserving stale template values,
 - planning should begin from note-backed project state when implementation is actually needed,
 - `project-planner`, `clarify-intent`, and `project-review-sync` may use `note-search` as a bounded retrieval helper when a known seed note can improve local context selection,
-- `project-implementer` is packet-bound and should not self-discover beyond the files and artifacts explicitly allowed by the approved packet,
-- `note-search` is the shared local retrieval interface backed by the global note search script,
+- `project-implementer` is operation-scoped, may begin from a sufficiently specific direct coding request, should edit only the relevant notebook cells when possible, and does not own stale-note updates,
+- `note-search` is the shared local retrieval interface backed by the repository-local note search script,
 - and the existing governance, role, and schema notes should remain consistent with this charter.

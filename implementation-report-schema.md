@@ -4,7 +4,7 @@ Status: [[status-settled]]
 Parent: [[Workflow Schemas Hub]]
 Related: [[task-packet-schema]], [[implementer-agent]], [[review-agent]], [[clarify-intent]], [[Note Manager]]
 Created: 2026-04-15
-Last Reviewed: 2026-04-25
+Last Reviewed: 2026-04-27
 Source:
 Decisions:
 Dependencies:
@@ -16,7 +16,7 @@ Tasks:
 This schema defines the minimum structure for reporting completed implementation work back into the workflow.
 
 The report exists to make changes explainable, reviewable, and synchronizable with project documentation.
-It should preserve clear traceability back to the approved packet or equivalent approved artifact that authorized the implementation.
+It should preserve clear traceability back to the approved execution artifact that authorized the implementation.
 
 ---
 
@@ -27,7 +27,7 @@ It should preserve clear traceability back to the approved packet or equivalent 
 - report type: `implementation-report`
 - status
 - implementation date
-- related approved task packet or equivalent approved artifact
+- related approved task packet, direct request, or equivalent approved artifact
 - packet revision when known
 - implementer or implementing role if known
 
@@ -40,7 +40,7 @@ It should preserve clear traceability back to the approved packet or equivalent 
 - concise reason each file changed
 
 ### 4. Why These Changes Were Made
-- tie implementation choices back to the approved packet or constraint set
+- tie implementation choices back to the approved execution artifact or constraint set
 
 ### 5. Checks Run
 - tests, lint, typecheck, builds, or focused command checks
@@ -49,7 +49,7 @@ It should preserve clear traceability back to the approved packet or equivalent 
 
 ### 6. Outcome Against Acceptance Criteria
 - whether acceptance criteria were met, partially met, or blocked
-- any notable deviation from the approved packet
+- any notable deviation from the approved execution artifact
 
 ### 7. Assumptions Introduced
 - new assumptions added during implementation that were not already explicit in the packet
@@ -59,10 +59,9 @@ It should preserve clear traceability back to the approved packet or equivalent 
 - known limitations
 - items that need follow-up or human review
 
-### 9. Documentation Impact
-- candidate durable subjects discovered during implementation
-- likely affected notes, when known, as non-binding hints for review/sync
+### 9. Review / Sync Follow-up
 - stale docs or missing decisions discovered during implementation
+- architectural or implementation-state follow-up signals that review should evaluate
 - recommended review/sync follow-up
 
 ---
@@ -91,7 +90,7 @@ Do not mix in a broad retrospective unless it materially affects review.
 Every report should point back to a request, task, packet, or decision when possible.
 
 ### Do not imply durable note mutation
-The implementation report may identify documentation impact, candidate durable subjects, and likely affected notes.
+The implementation report may identify review/sync follow-up, stale docs, and missing decisions.
 It should not present durable notes as updated unless that note update was separately approved and performed through the configured note-management workflow.
 
 ---
@@ -103,7 +102,7 @@ Use these labels when helpful:
 - `unclear`
 - `blocked`
 
-Use them especially for assumptions, unresolved issues, and documentation impact.
+Use them especially for assumptions, unresolved issues, and review/sync follow-up.
 
 ---
 
@@ -114,8 +113,8 @@ Before considering the report complete, check:
 - Does it state the outcome against the acceptance criteria?
 - Does it show what was verified?
 - Does it surface assumptions and unresolved issues?
-- Does it identify documentation impact?
-- Is it traceable to the originating packet?
+- Does it identify review/sync follow-up?
+- Is it traceable to the originating execution artifact?
 
 If any answer is no, refine the report before handoff to review.
 
@@ -128,7 +127,7 @@ If any answer is no, refine the report before handoff to review.
 
 - Type: implementation-report
 - Status: <completed | partial | blocked>
-- Related packet: <link or identifier>
+- Related artifact: <link or identifier>
 - Packet revision: <v1>
 - Date: YYYY-MM-DD
 
@@ -146,5 +145,5 @@ If any answer is no, refine the report before handoff to review.
 
 ## Unresolved Issues
 
-## Documentation Impact
+## Review / Sync Follow-up
 ```
