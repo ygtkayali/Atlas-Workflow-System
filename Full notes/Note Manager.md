@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent: [[Workflow Hub]]
-Related: [[clarify-intent]], [[clarified-context-handoff]], [[Two-Phase Workflow Boundary]], [[Durable Notes Follow Accepted Implementation]]
+Related: [[clarify-intent]], [[clarified-context-handoff]], [[Two-Phase Workflow Boundary]], [[Durable Notes Follow Accepted Implementation]], [[Main Vault Note Structure and Agent Context]]
 Created: 2026-04-14
 Last Reviewed: 2026-05-05
 Source:
@@ -27,6 +27,7 @@ It should remain narrow in authority:
 - it may consume search results supplied by upstream roles, including semantic `note-search` context capsules
 - it does not turn into autonomous vault management
 - it does not silently impose hierarchy or broader structure on the note space
+- it treats folders as human readability aids, while note governance comes from metadata, tags, links, backlinks, and explicit relationships
 
 ## Responsibilities
 
@@ -38,6 +39,7 @@ It should remain narrow in authority:
 - use local templates when they apply
 - decide whether the correct bounded action is `create` or `update`
 - decide note type, target note, title, note links, and final durable note structure from the provided context
+- choose folder placement only from the provided context, local folder policy, or local `AGENTS.md`, treating folder placement as readability rather than governance
 - refresh dynamic metadata on every create or update so status and other changing header fields reflect the current note state rather than stale template or prior values
 - evaluate context drift on every update, especially whether `Status` should move between `[[status-draft]]`, `[[status-pending]]`, `[[status-settled]]`, and `[[status-archived]]`
 - draft exact note content or exact update content
@@ -76,6 +78,34 @@ The default emphasis remains on `Sub Hub`, `General Note`, and bounded updates t
 `Idea Note` preserves live thinking.
 When the source handoff is exploratory, unresolved questions, tensions, candidate options, branching thoughts, assumptions to test, and unresolved decisions are first-class note content.
 `Note Manager` must not convert them into recommendations, policy, or settled direction unless the handoff explicitly marks those points as decided.
+
+## Vault Folder Handling
+
+`Note Manager` should treat vault folders as a readability layer for the human, not as the main governance model for the note system.
+
+The primary governance model is:
+- note metadata
+- status tags
+- intentional links
+- backlinks when relevant
+- explicit one-way or two-way note relationships
+
+Folder placement and note type are separate concepts.
+A note's operational meaning should come from its role, metadata, links, and supplied context, not from its folder alone.
+
+When a vault has a local folder policy, `Note Manager` should follow it only as a placement/readability rule.
+For the main-vault structure, the base folders are:
+- `Fleeting notes` for Idea Notes and early capture
+- `Tags` for note-based tags
+- `Main Hubs` for hub notes
+- `Templates` for note templates
+- `Full notes` for durable notes that do not belong to the other base folders
+
+Project-specific folders may be valid when the project type benefits from them, such as `Tests`, `Features`, or `Reports`.
+Those folders should be proposed or constrained by the project's local `AGENTS.md` or supplied project context.
+
+`Note Manager` should not create domain hierarchy folders such as `Backend notes` just to group related subjects.
+Domain grouping should be handled through links, tags, hubs, and backlinks unless the user or local project policy explicitly approves a readability folder for that project type.
 
 ## Input Expectations
 
@@ -205,6 +235,8 @@ Future merge or relink behavior may be added later, but it is not required as pa
 - act without an explicit upstream artifact
 - default new notes into a top-level hub
 - treat hierarchy as required note structure
+- infer note meaning, ownership, or governance from folders alone
+- create domain hierarchy folders when links, tags, hubs, or backlinks are the intended structure
 - act as autonomous note maintenance for the whole vault
 
 ## Workflow Role

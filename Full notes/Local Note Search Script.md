@@ -60,7 +60,7 @@ Secondary use case:
 ```bash
 python3 tools/local_note_search.py \
   --vault-root . \
-  --seed-path "Note Manager.md" \
+  --seed-path "Full notes/Note Manager.md" \
   --format json
 ```
 

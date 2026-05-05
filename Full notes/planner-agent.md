@@ -269,7 +269,7 @@ At minimum, the final packet should include:
 - confidence assessment,
 - and approval status.
 
-When the project has a `task-packet-schema.md`, the planner should follow it exactly.
+When the project has a `Full notes/task-packet-schema.md`, the planner should follow it exactly.
 When the project does not provide a stronger local schema, the planner should use the local workflow schema and emit the final packet in that section order.
 Unless the human has already approved the exact packet revision during the same workflow, the planner should leave the packet in an approval-pending state for explicit user review.
 

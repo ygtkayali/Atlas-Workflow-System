@@ -39,12 +39,12 @@ The goal is not to add bureaucracy. The goal is to prevent hidden design drift, 
 The workflow is organized around a small set of agent roles and local tools:
 
 - `clarify-intent` turns rough ideas, ambiguous requests, or review/sync proposals into clarified context.
-- `Note Manager.md` owns durable note create/update decisions after clarification.
-- `planner-agent.md` prepares scoped implementation packets from note-backed project state.
-- `implementer-agent.md` performs bounded code changes and returns implementation reports.
-- `review-agent.md` compares implementation results to the approved packet and routes documentation sync.
+- `Full notes/Note Manager.md` owns durable note create/update decisions after clarification.
+- `Full notes/planner-agent.md` prepares scoped implementation packets from note-backed project state.
+- `Full notes/implementer-agent.md` performs bounded code changes and returns implementation reports.
+- `Full notes/review-agent.md` compares implementation results to the approved packet and routes documentation sync.
 - `tools/local_note_search.py` retrieves nearby linked notes from a known seed note without broad vault search.
-- `Note Search Skill.md` is the shared retrieval interface for graph search and Codex-local semantic search.
+- `Full notes/Note Search Skill.md` is the shared retrieval interface for graph search and Codex-local semantic search.
 
 These roles are intentionally gated. A downstream role should not silently absorb work that belongs to an earlier phase.
 
@@ -74,17 +74,19 @@ review/sync -> clarify-intent -> visible clarified context handoff -> Note Manag
 
 - `AGENTS.md` - root operating charter for agents working in this repository.
 - `Main Hubs/` - compact entry points into the note graph.
-- `Full Notes/` - durable project notes that are not top-level governance files.
+- `Fleeting notes/` - idea notes and early capture.
+- `Full notes/` - durable project notes that are not hubs, templates, tags, or fleeting notes.
 - `Templates/` - starter templates for new notes.
-- `Tags/` and `Status Tag Registry.md` - status tags and their intended meanings.
-- `clarify-intent.md`, `Note Manager.md`, `planner-agent.md`, `implementer-agent.md`, `review-agent.md` - role contracts.
-- `clarified-context-handoff.md`, `note-ready-handoff.md`, `task-packet-schema.md`, `implementation-report-schema.md` - reusable workflow schemas.
-- `Two-Phase Workflow Boundary.md` and `Durable Notes Follow Accepted Implementation.md` - core workflow decisions.
-- `tool-policy.md` - tool-use expectations and boundaries.
+- `Tags/` and `Full notes/Status Tag Registry.md` - status tags and their intended meanings.
+- `Full notes/clarify-intent.md`, `Full notes/Note Manager.md`, `Full notes/planner-agent.md`, `Full notes/implementer-agent.md`, `Full notes/review-agent.md` - role contracts.
+- `Full notes/clarified-context-handoff.md`, `Full notes/note-ready-handoff.md`, `Full notes/task-packet-schema.md`, `Full notes/implementation-report-schema.md` - reusable workflow schemas.
+- `Full notes/Two-Phase Workflow Boundary.md` and `Full notes/Durable Notes Follow Accepted Implementation.md` - core workflow decisions.
+- `Full notes/tool-policy.md` - tool-use expectations and boundaries.
 - `tools/local_note_search.py` - deterministic local note-neighborhood retrieval helper.
-- `Note Search Skill.md` - durable contract for routing known-seed graph search and concept-level semantic search.
+- `Full notes/Note Search Skill.md` - durable contract for routing known-seed graph search and concept-level semantic search.
 
-Private idea notes, speculative future-development notes, and local Obsidian workspace state are intentionally excluded from v1.
+Idea notes and early capture belong in `Fleeting notes/`.
+Local Obsidian workspace state remains excluded from v1.
 
 ## Basic Setup
 
@@ -101,7 +103,7 @@ The bundled search helper uses only the Python standard library and can be run w
 ```bash
 python3 tools/local_note_search.py \
   --vault-root . \
-  --seed-path "Note Manager.md" \
+  --seed-path "Full notes/Note Manager.md" \
   --format json
 ```
 
@@ -121,11 +123,11 @@ This keeps the semantic tool as a local installed dependency instead of creating
 
 1. `AGENTS.md`
 2. `Main Hubs/Workflow Hub.md`
-3. `Two-Phase Workflow Boundary.md`
-4. `Note Manager.md`
-5. `clarify-intent.md`
-6. `planner-agent.md`
-7. `implementer-agent.md`
-8. `review-agent.md`
-9. `task-packet-schema.md`
-10. `implementation-report-schema.md`
+3. `Full notes/Two-Phase Workflow Boundary.md`
+4. `Full notes/Note Manager.md`
+5. `Full notes/clarify-intent.md`
+6. `Full notes/planner-agent.md`
+7. `Full notes/implementer-agent.md`
+8. `Full notes/review-agent.md`
+9. `Full notes/task-packet-schema.md`
+10. `Full notes/implementation-report-schema.md`

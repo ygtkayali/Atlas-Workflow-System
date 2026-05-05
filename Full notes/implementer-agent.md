@@ -178,7 +178,7 @@ Review/sync follow-up should be reported as implementation-backed signals, not n
 When relevant, the report may list stale docs, missing decisions, architectural follow-up, or recommended review/sync follow-up.
 Durable note synchronization happens after review through `clarify-intent -> Note Manager`.
 
-When the project has an `implementation-report-schema.md`, the report output should follow that schema directly.
+When the project has a `Full notes/implementation-report-schema.md`, the report output should follow that schema directly.
 If not, preserve the same minimum structure in plain markdown.
 
 ---
