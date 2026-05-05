@@ -68,6 +68,19 @@ Semantic search uses `sentence-transformers/all-MiniLM-L6-v2` through the `base-
 
 If the script interface changes later, the skill should absorb that change so other skills can continue using one stable search entry point.
 
+## Ownership Boundary
+
+Repo-owned:
+- `tools/local_note_search.py`
+- durable notes that define graph and semantic search routing expectations
+
+Codex-local owned:
+- `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py`
+- `/home/yigit-kayali/.codex/skills/note-search/SKILL.md`
+
+When semantic search behavior changes, update the installed skill and update repo notes only when the workflow contract changes.
+Do not copy the semantic script into this repository unless it becomes stable, portable, and intended for clone-level setup.
+
 ## Routing Rules
 
 Use graph search when:

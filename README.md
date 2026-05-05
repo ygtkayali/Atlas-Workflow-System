@@ -1,18 +1,88 @@
 # Project Planning Workflow
 
-A documentation-centered workflow for using AI assistants on software projects.
+A documentation-centered workflow for building software with AI assistance.
 
-The project treats markdown documentation as operational state: intent is clarified, durable notes are updated deliberately, implementation is planned and approved, code changes are reported, and review routes any documentation sync back through clarification and note management.
+This project treats markdown documentation as the control surface for AI-assisted work. Instead of asking an agent to jump straight from a vague request into code, the workflow makes intent, constraints, planning, implementation, review, and documentation sync visible as durable project state.
 
-## What This Repository Contains
+## What This Project Is For
+
+This repository is for teams or solo developers who want AI coding assistance without losing control of project direction.
+
+It provides a practical operating model where:
+
+- humans own intent, architecture, priorities, and irreversible decisions;
+- project notes capture current context, constraints, decisions, and tasks;
+- agents work from compact, relevant context instead of broad repo summaries;
+- implementation begins only from an approved packet or a sufficiently specific direct coding request;
+- completed work returns a structured report; and
+- review routes any documentation changes back through clarification and note management.
+
+The result is a loop between human intent, project documentation, implementation work, and review.
+
+## Problem It Solves
+
+AI coding workflows can become unreliable when agents infer too much from loose prompts, silently change scope, or leave documentation behind after implementation.
+
+This project addresses those failure modes by making the workflow explicit:
+
+- unclear ideas go through clarification before they become durable project state;
+- durable note changes go through `Note Manager`;
+- implementation planning starts from note-backed context;
+- coding work stays scoped to an approved packet or clear direct request;
+- implementation reports explain what changed and what remains unresolved;
+- review/sync identifies stale documentation, mismatches, and follow-up work.
+
+The goal is not to add bureaucracy. The goal is to prevent hidden design drift, stale notes, bloated context, and unclear handoffs.
+
+## Tools And Roles
+
+The workflow is organized around a small set of agent roles and local tools:
+
+- `clarify-intent` turns rough ideas, ambiguous requests, or review/sync proposals into clarified context.
+- `Note Manager.md` owns durable note create/update decisions after clarification.
+- `planner-agent.md` prepares scoped implementation packets from note-backed project state.
+- `implementer-agent.md` performs bounded code changes and returns implementation reports.
+- `review-agent.md` compares implementation results to the approved packet and routes documentation sync.
+- `tools/local_note_search.py` retrieves nearby linked notes from a known seed note without broad vault search.
+- `Note Search Skill.md` is the shared retrieval interface for graph search and Codex-local semantic search.
+
+These roles are intentionally gated. A downstream role should not silently absorb work that belongs to an earlier phase.
+
+## Workflow Summary
+
+The current v1 idea-to-note path is:
+
+```text
+idea -> clarify-intent -> visible clarified context handoff -> Note Manager draft
+```
+
+When a durable note change is required and the handoff is ready, the default is to invoke `Note Manager` immediately after the visible handoff. Approval is required for the resulting draft or durable write, not merely for the phase switch.
+
+Implementation planning remains downstream and should begin from note-backed project state:
+
+```text
+notes or clear direct request -> planner -> task packet -> approval -> implementer -> implementation report -> review/sync
+```
+
+Post-implementation documentation synchronization routes through:
+
+```text
+review/sync -> clarify-intent -> visible clarified context handoff -> Note Manager draft
+```
+
+## Repository Structure
 
 - `AGENTS.md` - root operating charter for agents working in this repository.
-- `clarify-intent.md`, `Note Manager.md`, `planner-agent.md`, `implementer-agent.md`, `review-agent.md` - role contracts for the workflow.
-- `task-packet-schema.md`, `implementation-report-schema.md`, `clarified-context-handoff.md`, `note-ready-handoff.md` - reusable artifact schemas.
+- `Main Hubs/` - compact entry points into the note graph.
+- `Full Notes/` - durable project notes that are not top-level governance files.
+- `Templates/` - starter templates for new notes.
+- `Tags/` and `Status Tag Registry.md` - status tags and their intended meanings.
+- `clarify-intent.md`, `Note Manager.md`, `planner-agent.md`, `implementer-agent.md`, `review-agent.md` - role contracts.
+- `clarified-context-handoff.md`, `note-ready-handoff.md`, `task-packet-schema.md`, `implementation-report-schema.md` - reusable workflow schemas.
 - `Two-Phase Workflow Boundary.md` and `Durable Notes Follow Accepted Implementation.md` - core workflow decisions.
-- `Templates/` - starter markdown templates for new notes.
-- `Tags/` and `Status Tag Registry.md` - note-state tags used by the workflow.
-- `tools/local_note_search.py` - local graph-based note retrieval helper used by the note-search workflow.
+- `tool-policy.md` - tool-use expectations and boundaries.
+- `tools/local_note_search.py` - deterministic local note-neighborhood retrieval helper.
+- `Note Search Skill.md` - durable contract for routing known-seed graph search and concept-level semantic search.
 
 Private idea notes, speculative future-development notes, and local Obsidian workspace state are intentionally excluded from v1.
 
@@ -35,25 +105,9 @@ python3 tools/local_note_search.py \
   --format json
 ```
 
-## Workflow Summary
-
-The current v1 path is:
-
-```text
-idea -> clarify-intent -> clarified context handoff -> Note Manager
-```
-
-Implementation planning remains downstream and should begin from note-backed project state:
-
-```text
-notes or direct request -> planner -> task packet -> approval -> implementer -> implementation report -> review/sync
-```
-
-Post-implementation documentation synchronization routes through:
-
-```text
-review/sync -> clarify-intent -> clarified context handoff -> Note Manager
-```
+Semantic note search is not bundled as a repo-owned script yet.
+It currently depends on the Codex-local helper at `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py`, the installed `note-search` skill, the `base-ml` conda environment, and the vault-local `.codex-note-search/` cache.
+This keeps the semantic tool as a local installed dependency instead of creating a second script copy to synchronize.
 
 ## Operating Rules
 
@@ -66,10 +120,12 @@ review/sync -> clarify-intent -> clarified context handoff -> Note Manager
 ## Recommended First Read
 
 1. `AGENTS.md`
-2. `Two-Phase Workflow Boundary.md`
-3. `Note Manager.md`
-4. `planner-agent.md`
-5. `implementer-agent.md`
-6. `review-agent.md`
-7. `task-packet-schema.md`
-8. `implementation-report-schema.md`
+2. `Main Hubs/Workflow Hub.md`
+3. `Two-Phase Workflow Boundary.md`
+4. `Note Manager.md`
+5. `clarify-intent.md`
+6. `planner-agent.md`
+7. `implementer-agent.md`
+8. `review-agent.md`
+9. `task-packet-schema.md`
+10. `implementation-report-schema.md`
