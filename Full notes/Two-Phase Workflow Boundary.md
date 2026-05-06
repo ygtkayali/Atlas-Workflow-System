@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent: [[Workflow Hub]]
-Related: [[clarify-intent]], [[Note Manager]], [[planner-agent]], [[review-agent]]
+Related: [[clarify-intent]], [[note-manager]], [[planner-agent]], [[review-agent]]
 Created: 15-04-2026
 Last Reviewed: 2026-05-05
 Source:

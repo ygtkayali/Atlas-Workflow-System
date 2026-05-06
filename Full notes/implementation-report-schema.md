@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent: [[Workflow Schemas Hub]]
-Related: [[task-packet-schema]], [[implementer-agent]], [[review-agent]], [[clarify-intent]], [[Note Manager]]
+Related: [[task-packet-schema]], [[implementer-agent]], [[review-agent]], [[clarify-intent]], [[note-manager]]
 Created: 2026-04-15
 Last Reviewed: 2026-04-27
 Source:

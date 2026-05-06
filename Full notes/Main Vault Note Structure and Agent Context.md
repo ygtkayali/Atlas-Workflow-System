@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent: [[Idea Hub]]
-Related: [[Workflow Hub]], [[Note Manager]], [[Main Vault Fleeting Notes and Source Material Workflow]]
+Related: [[Workflow Hub]], [[note-manager]], [[Main Vault Fleeting Notes and Source Material Workflow]]
 Created: 05-05-2026
 Last Reviewed: 2026-05-05
 

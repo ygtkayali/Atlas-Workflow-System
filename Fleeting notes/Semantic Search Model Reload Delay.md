@@ -2,7 +2,7 @@
 
 Status: [[status-draft]]
 Parent: [[Idea Hub]]
-Related: [[Note Search Skill]]
+Related: [[note-search-skill]]
 Created: 05-05-2026
 
 ---

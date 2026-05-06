@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent: [[Workflow Schemas Hub]]
-Related: [[clarify-intent]], [[Note Manager]], [[note-ready-handoff]]
+Related: [[clarify-intent]], [[note-manager]], [[note-ready-handoff]]
 Created: 2026-04-24
 Last Reviewed: 2026-04-24
 Source:

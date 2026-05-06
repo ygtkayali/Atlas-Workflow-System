@@ -16,4 +16,4 @@ This hub groups the durable role notes used by the workflow.
 - [[planner-agent]]
 - [[implementer-agent]]
 - [[review-agent]]
-- [[Note Search Skill]]
+- [[note-search-skill]]

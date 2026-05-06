@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent: [[Agent Roles Hub]]
-Related: [[clarified-context-handoff]], [[Note Manager]], [[Two-Phase Workflow Boundary]]
+Related: [[clarified-context-handoff]], [[note-manager]], [[Two-Phase Workflow Boundary]]
 Created: 2026-04-14
 Last Reviewed: 2026-05-05
 Source:
@@ -43,7 +43,7 @@ It preserves clarified context; it does not design durable note structure.
 
 - `continue_clarification`: keep clarifying with updated questions, corrections, inconsistencies, or context-aware guidance
 - `end_clarification`: state that the idea is clear enough for the current purpose and recommend the next relevant action
-- `note_ready_handoff`: produce a [[clarified-context-handoff]] when the next step is [[Note Manager]]
+- `note_ready_handoff`: produce a [[clarified-context-handoff]] when the next step is [[note-manager]]
 
 The downstream-ready output in this repository is a [[clarified-context-handoff]].
 Clarification should not repeatedly output the full handoff on every turn when the useful next step is a smaller question, correction, or updated understanding.
@@ -65,7 +65,7 @@ When a handoff contains multiple durable subjects, `clarify-intent` should label
 A durable subject is one coherent piece of project knowledge, decision, workflow rule, or implementation-backed fact that could be preserved independently.
 
 It should not choose note type, target note, title, final links, or durable note structure as binding output.
-Those decisions belong to [[Note Manager]].
+Those decisions belong to [[note-manager]].
 
 For idea capture, confidence may mean that the important uncertainty is clearly preserved rather than resolved.
 For architecture, workflow, schema, API, dependency, security, privacy, or public-interface decisions, confidence requires stronger resolution before downstream handoff.
@@ -85,7 +85,7 @@ This bundle split is an intake and clarification tool, not final durable note st
 `clarify-intent` should not:
 - create durable notes directly
 - draft final durable note content
-- move to [[Note Manager]] before producing a visible clarified context handoff and showing it to the user
+- move to [[note-manager]] before producing a visible clarified context handoff and showing it to the user
 - decide note type, target note, title, final links, or durable note placement as binding output
 - split context by target note, note type, or final note action
 - decide subject-to-note mapping
@@ -97,8 +97,8 @@ This bundle split is an intake and clarification tool, not final durable note st
 
 ## Next Step
 
-When clarification succeeds and durable note work is appropriate, the normal next step is [[Note Manager]] with the clarified context handoff plus the specific relevant notes supplied by the user.
-When a durable note change is required, the default flow is to call [[Note Manager]] immediately after the visible handoff is ready and the relevant note context has been supplied.
+When clarification succeeds and durable note work is appropriate, the normal next step is [[note-manager]] with the clarified context handoff plus the specific relevant notes supplied by the user.
+When a durable note change is required, the default flow is to call [[note-manager]] immediately after the visible handoff is ready and the relevant note context has been supplied.
 Do not wait for a separate user approval merely to switch phases.
-The approval gate belongs to the resulting [[Note Manager]] draft or durable-write decision.
-For post-implementation documentation sync, [[review-agent]] supplies implementation-backed context first; `clarify-intent` then produces the clarified context handoff for [[Note Manager]].
+The approval gate belongs to the resulting [[note-manager]] draft or durable-write decision.
+For post-implementation documentation sync, [[review-agent]] supplies implementation-backed context first; `clarify-intent` then produces the clarified context handoff for [[note-manager]].

@@ -2,7 +2,7 @@
 
 Status: [[status-draft]]
 Parent: [[Idea Hub]]
-Related: [[Workflow Hub]], [[Note Manager]]
+Related: [[Workflow Hub]], [[note-manager]]
 Created: 05-05-2026
 
 ---

@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent: [[Agent Roles Hub]]
-Related: [[implementer-agent]], [[review-agent]], [[clarify-intent]], [[clarified-context-handoff]], [[Note Manager]]
+Related: [[implementer-agent]], [[review-agent]], [[clarify-intent]], [[clarified-context-handoff]], [[note-manager]]
 Created:
 Last Reviewed: 2026-04-25
 Source:

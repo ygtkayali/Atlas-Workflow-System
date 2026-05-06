@@ -18,11 +18,11 @@ It is not the top note for the vault and does not need to register every workflo
 ## Notes
 
 - [[Two-Phase Workflow Boundary]]
-- [[Note Manager]]
+- [[note-manager]]
 - [[clarify-intent]]
 - [[planner-agent]]
 - [[implementer-agent]]
 - [[review-agent]]
-- [[Note Search Skill]]
+- [[note-search-skill]]
 - [[Local Note Search Script]]
 - [[Workflow Schemas Hub]]

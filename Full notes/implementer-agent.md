@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent: [[Agent Roles Hub]]
-Related: [[planner-agent]], [[review-agent]], [[implementation-report-schema]], [[clarify-intent]], [[Note Manager]]
+Related: [[planner-agent]], [[review-agent]], [[implementation-report-schema]], [[clarify-intent]], [[note-manager]]
 Created:
 Last Reviewed: 2026-04-27
 Source:
