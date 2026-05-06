@@ -4,9 +4,9 @@ Status: [[status-settled]]
 Parent: [[Agent Roles Hub]]
 Related: [[planner-agent]], [[implementer-agent]], [[clarify-intent]], [[clarified-context-handoff]], [[note-manager]], [[Durable Notes Follow Accepted Implementation]]
 Created:
-Last Reviewed: 2026-04-25
-Source:
-Decisions:
+Last Reviewed: 2026-05-06
+Source: [[LLM Wiki Lossy Compression and Integrity Risks]]
+Decisions: Review/sync should validate durable note output against the handoff's `Interpretation Basis`.
 Dependencies:
 Tasks:
 
@@ -22,6 +22,7 @@ Its job is to:
 - inspect the resulting changes when needed,
 - inspect bounded maintenance scope when the task is maintenance-oriented,
 - detect mismatches between plan and implementation,
+- detect interpretation fidelity drift when durable notes or sync output no longer preserve the handoff's original input, intended tone, uncertainty, or user-intent versus agent-inference boundaries,
 - decide what durable documentation context should be clarified after accepted implementation,
 - decide what maintenance findings should be routed through clarification and note management,
 - propose scoped documentation synchronization through the clarification and note-management path,
@@ -159,6 +160,7 @@ The review / sync agent should check for:
 - stale or contradictory notes,
 - newly implied decisions that were never recorded,
 - broken traceability between task, implementation, and docs,
+- interpretation fidelity drift between a clarified context handoff and the resulting durable note or documentation-sync proposal,
 - and follow-up work that should be queued rather than folded into the original task.
 
 For maintenance review, also check for:
@@ -211,6 +213,7 @@ For stale durable notes, missing links, outdated implementation state, or design
 
 The review / sync agent should prefer small, traceable updates over broad rewrites.
 Implementation conformance review should remain possible from the packet, report, and resulting changes even when note context is not supplied.
+When reviewing durable note changes that came from a clarified context handoff, review should check `Interpretation Fidelity`: whether the note preserves the original input or artifact, interpreted intent, tone or stance, uncertainty, user-intent claims, agent-inference claims, and things not to imply.
 
 ---
 
@@ -252,6 +255,7 @@ Before closing review, check:
 - Was the implementation compared to the approved packet?
 - Are mismatches explicit?
 - Are documentation-sync recommendations traceable?
+- Was interpretation fidelity checked when a clarified context handoff was part of the note-change chain?
 - Are stale notes or decision gaps surfaced?
 - Are follow-up tasks separated from completed work?
 - Has any unapproved change been escalated instead of normalized?

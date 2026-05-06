@@ -4,9 +4,9 @@ Status: [[status-settled]]
 Parent: [[Workflow Schemas Hub]]
 Related: [[clarify-intent]], [[note-manager]], [[note-ready-handoff]]
 Created: 2026-04-24
-Last Reviewed: 2026-04-24
-Source:
-Decisions:
+Last Reviewed: 2026-05-06
+Source: [[LLM Wiki Lossy Compression and Integrity Risks]]
+Decisions: Rename `Source Context` to `Interpretation Basis` so handoffs preserve origin, interpretation, tone, inference boundaries, and validation targets.
 Dependencies:
 Tasks:
 
@@ -46,9 +46,14 @@ It is not:
 - when multiple subjects are present, each subject should have a stable label or id
 - each subject should keep its own relevant facts, affected files or evidence, decisions, uncertainty, and boundaries
 
-### 3. Source Context
-- whether the handoff came from user intent clarification, review/sync, or another upstream workflow context
-- the upstream artifact, request, packet, report, or review context that clarification is preserving
+### 3. Interpretation Basis
+- origin type, such as user prompt, fleeting note, source material, prior note, implementation report, review finding, or mixed context
+- original input or upstream artifact, such as exact prompt text, note path, packet, report, review context, source excerpt, or redacted equivalent
+- relevant context used during clarification, including user-supplied note paths, retrieval results, source material, implementation artifacts, or workflow constraints
+- interpreted intent and the tone or stance that downstream note work should preserve
+- claims treated as user intent versus claims treated as agent inference
+- open ambiguity and things downstream roles should not imply
+- validation target for downstream review, especially what intent, tone, uncertainty, or inference boundary should be checked later
 
 ### 4. User Goal
 - the outcome the user is trying to achieve
@@ -115,7 +120,8 @@ The clarified context handoff may:
 
 Before handoff, check:
 - Is the clarified subject clear?
-- Is the source context explicit?
+- Is the interpretation basis explicit enough to validate the handoff against its origin?
+- Is the original input or upstream artifact preserved, linked, excerpted, or redacted intentionally?
 - Is the user goal distinct from the proposed solution shape?
 - Are decided points separate from proposed or unclear points?
 - Are boundaries or non-goals visible?
@@ -138,7 +144,7 @@ If any answer is no, refine the handoff or mark it `needs_clarification`.
 
 ## Clarified Subject / Subjects
 
-## Source Context
+## Interpretation Basis
 
 ## User Goal
 

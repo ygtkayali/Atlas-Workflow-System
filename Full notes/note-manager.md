@@ -4,9 +4,9 @@ Status: [[status-settled]]
 Parent: [[Workflow Hub]]
 Related: [[clarify-intent]], [[clarified-context-handoff]], [[Two-Phase Workflow Boundary]], [[Durable Notes Follow Accepted Implementation]], [[Main Vault Note Structure and Agent Context]]
 Created: 2026-04-14
-Last Reviewed: 2026-05-05
-Source:
-Decisions:
+Last Reviewed: 2026-05-06
+Source: [[LLM Wiki Lossy Compression and Integrity Risks]]
+Decisions: `Note Manager` must consume and preserve the handoff's `Interpretation Basis`, especially original input, when drafting or updating durable notes.
 Dependencies:
 Tasks:
 
@@ -43,6 +43,8 @@ It should remain narrow in authority:
 - refresh dynamic metadata on every create or update so status and other changing header fields reflect the current note state rather than stale template or prior values
 - evaluate context drift on every update, especially whether `Status` should move between `[[status-draft]]`, `[[status-pending]]`, `[[status-settled]]`, and `[[status-archived]]`
 - draft exact note content or exact update content
+- preserve the handoff's `Interpretation Basis` in the draft or update when it affects intent, tone, uncertainty, or traceability
+- preserve the original input or upstream artifact especially when the clarified context handoff exists only as transient conversation state, using a link, excerpt, concise basis note, or intentional redaction as appropriate
 - preserve the question-based nature of `Idea Note` content when the handoff is exploratory
 - keep links minimal and intentional
 - prefer intentional related links over default parent placement
@@ -125,6 +127,8 @@ If the owner, target note, or intended note mutation is still unclear after clar
 
 For `clarify-intent` input, the upstream artifact should preserve clarified context, not prescribe final note structure.
 `Note Manager` is responsible for deciding whether that context becomes a new note, an update to an existing note, or a request for more clarification.
+When the handoff contains an `Interpretation Basis`, `Note Manager` should use it as source basis for the note action and preserve the parts needed to validate intent later.
+At minimum, it should not discard original input, tone or stance, user-intent versus agent-inference boundaries, open ambiguity, or things not to imply when those fields affect the durable note's meaning.
 When `clarify-intent` produces a visible `ready_for_note_manager` handoff for a required note change and the relevant note context is supplied, `Note Manager` should be called by default without waiting for separate phase-switch approval.
 The required approval gate is the `Note Manager` draft or durable-write decision.
 
@@ -148,6 +152,7 @@ The manifest should include one row per proposed note action:
 - action: `create`, `update`, `defer`, or `return-to-clarification`
 - why this note is the right target
 - source basis from the clarified context
+- interpretation basis that must be preserved or validated
 - relevant context for this note action
 - excluded or non-applicable context when separation matters
 - status: `ready`, `needs_clarification`, or `deferred`

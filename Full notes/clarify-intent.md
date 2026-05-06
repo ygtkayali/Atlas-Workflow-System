@@ -4,9 +4,9 @@ Status: [[status-settled]]
 Parent: [[Agent Roles Hub]]
 Related: [[clarified-context-handoff]], [[note-manager]], [[Two-Phase Workflow Boundary]]
 Created: 2026-04-14
-Last Reviewed: 2026-05-05
-Source:
-Decisions:
+Last Reviewed: 2026-05-06
+Source: [[LLM Wiki Lossy Compression and Integrity Risks]]
+Decisions: Clarified context handoffs use `Interpretation Basis` to preserve original input, interpreted intent, tone, inference boundaries, and downstream validation targets.
 Dependencies:
 Tasks:
 
@@ -24,6 +24,7 @@ It preserves clarified context; it does not design durable note structure.
 ## Responsibilities
 
 - separate user goals from proposed solutions
+- preserve the interpretation basis for downstream handoffs, including original input or artifact, interpreted intent, tone or stance, user-intent claims, agent-inference claims, open ambiguity, things not to imply, and validation target
 - separate implementation facts from review/sync proposals when the upstream source is post-implementation review
 - split complex prompts into provisional subject bundles before downstream work
 - expose ambiguity, assumptions, and missing decisions
@@ -51,6 +52,7 @@ Clarification should not repeatedly output the full handoff on every turn when t
 That handoff should preserve:
 - clarified subject
 - provisional subject bundles when the source prompt was complex
+- interpretation basis, including origin type, original input or artifact, relevant context used, interpreted intent, tone or stance to preserve, user-intent claims, agent-inference claims, open ambiguity, things not to imply, and validation target
 - user goal
 - decided points
 - proposed but unsettled direction
