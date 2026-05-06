@@ -5,12 +5,16 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
+import socket
+import stat
 import sys
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from tempfile import gettempdir
 from typing import Any
 
 
@@ -405,6 +409,33 @@ def semantic_search(
             max_body_chars=max_body_chars,
         )
 
+    model = load_model(model_name)
+    return semantic_search_prepared(
+        vault_root=vault_root,
+        query=query,
+        model_name=model_name,
+        limit=limit,
+        context_limit=context_limit,
+        expand_graph=expand_graph,
+        manifest=manifest,
+        embeddings=embeddings,
+        model=model,
+        index_status=index_status,
+    )
+
+
+def semantic_search_prepared(
+    vault_root: Path,
+    query: str,
+    model_name: str,
+    limit: int,
+    context_limit: int,
+    expand_graph: bool,
+    manifest: dict[str, Any],
+    embeddings: Any,
+    model: Any,
+    index_status: dict[str, int],
+) -> dict[str, Any]:
     if len(embeddings) == 0:
         return {
             "query": query,
@@ -415,7 +446,6 @@ def semantic_search(
             "warnings": ["semantic index is empty"],
         }
 
-    model = load_model(model_name)
     query_vector = encode_texts(model, [query])[0]
     similarities = embeddings @ query_vector
 
@@ -469,6 +499,131 @@ def semantic_search(
     }
 
 
+def default_socket_path(vault_root: Path, model_name: str) -> Path:
+    key = sha256_text(f"{vault_root.as_posix()}\n{model_name}")[:16]
+    return Path(gettempdir()) / f"codex-note-semantic-search-{key}.sock"
+
+
+def resolve_socket_path(vault_root: Path, model_name: str, socket_path: str | None) -> Path:
+    if socket_path:
+        return Path(socket_path).expanduser()
+    env_socket = os.environ.get("CODEX_NOTE_SEARCH_SOCKET")
+    if env_socket:
+        return Path(env_socket).expanduser()
+    return default_socket_path(vault_root, model_name)
+
+
+def socket_available(socket_path: Path) -> bool:
+    return socket_path.exists() and stat_is_socket(socket_path)
+
+
+def stat_is_socket(path: Path) -> bool:
+    try:
+        return stat.S_ISSOCK(path.stat().st_mode)
+    except OSError:
+        return False
+
+
+def request_socket_search(socket_path: Path, request: dict[str, Any], timeout: float) -> dict[str, Any]:
+    try:
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+            client.settimeout(timeout)
+            client.connect(socket_path.as_posix())
+            client.sendall(json.dumps(request).encode("utf-8") + b"\n")
+            chunks: list[bytes] = []
+            while True:
+                chunk = client.recv(65536)
+                if not chunk:
+                    break
+                chunks.append(chunk)
+    except OSError as exc:
+        raise RuntimeError(f"semantic search socket request failed: {exc}") from exc
+
+    raw_response = b"".join(chunks).decode("utf-8").strip()
+    if not raw_response:
+        raise RuntimeError("semantic search socket returned an empty response")
+    response = json.loads(raw_response)
+    if "error" in response:
+        raise RuntimeError(str(response["error"]))
+    return response
+
+
+def serve_socket(
+    vault_root: Path,
+    socket_path: Path,
+    model_name: str,
+    no_refresh: bool,
+    max_body_chars: int,
+) -> int:
+    if socket_path.exists():
+        if socket_available(socket_path):
+            socket_path.unlink()
+        else:
+            return emit_error(f"Socket path exists and is not a socket: {socket_path}", "text")
+
+    if no_refresh:
+        manifest, embeddings = load_existing_index(vault_root, model_name)
+        index_status = {"fresh": len(manifest.get("notes", {})), "updated": 0}
+    else:
+        manifest, embeddings, index_status = build_or_refresh_index(
+            vault_root=vault_root,
+            model_name=model_name,
+            reindex="changed-only",
+            max_body_chars=max(max_body_chars, 0),
+        )
+    model = load_model(model_name)
+
+    socket_path.parent.mkdir(parents=True, exist_ok=True)
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as server:
+        server.bind(socket_path.as_posix())
+        server.listen(16)
+        print(
+            json.dumps(
+                {
+                    "mode": "serve_socket",
+                    "socket": socket_path.as_posix(),
+                    "vault_root": vault_root.as_posix(),
+                    "model": model_name,
+                    "index_status": index_status,
+                },
+                indent=2,
+            ),
+            file=sys.stderr,
+            flush=True,
+        )
+        try:
+            while True:
+                connection, _address = server.accept()
+                with connection:
+                    request_bytes = connection.recv(65536)
+                    try:
+                        request = json.loads(request_bytes.decode("utf-8"))
+                        query = str(request.get("query", "")).strip()
+                        if not query:
+                            raise RuntimeError("request missing query")
+                        payload = semantic_search_prepared(
+                            vault_root=vault_root,
+                            query=query,
+                            model_name=model_name,
+                            limit=int(request.get("limit", 10)),
+                            context_limit=int(request.get("context_limit", 5)),
+                            expand_graph=bool(request.get("expand_graph", False)),
+                            manifest=manifest,
+                            embeddings=embeddings,
+                            model=model,
+                            index_status=index_status,
+                        )
+                    except Exception as exc:  # Keep the service alive on malformed requests.
+                        payload = {"error": str(exc)}
+                    connection.sendall(json.dumps(payload).encode("utf-8") + b"\n")
+        finally:
+            try:
+                socket_path.unlink()
+            except OSError:
+                pass
+    return 0
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Semantic query search for a local markdown note vault.")
     parser.add_argument("--vault-root", required=True, help="Absolute or relative path to the vault root.")
@@ -478,6 +633,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--context-limit", type=int, default=5, help="Maximum graph-expanded context notes to return.")
     parser.add_argument("--expand-graph", action="store_true", help="Add graph neighbors around top semantic hits.")
     parser.add_argument("--no-refresh", action="store_true", help="Use the existing index without refreshing stale notes.")
+    parser.add_argument("--serve-socket", action="store_true", help="Run a long-lived Unix socket service with the model loaded.")
+    parser.add_argument("--socket", help="Unix socket path for service mode or client queries. Defaults to a vault/model-specific path in /tmp.")
+    parser.add_argument("--no-socket", action="store_true", help="Skip the warm socket client path and run the query in this process.")
+    parser.add_argument("--require-socket", action="store_true", help="Fail instead of falling back to cold in-process search when no socket service is available.")
+    parser.add_argument("--socket-timeout", type=float, default=5.0, help="Seconds to wait for a semantic search socket response.")
     parser.add_argument("--max-body-chars", type=int, default=2500, help="Maximum body excerpt chars to embed per note.")
     parser.add_argument(
         "--reindex",
@@ -503,6 +663,16 @@ def main() -> int:
         return emit_error(f"Vault root does not exist or is not a directory: {vault_root}", args.format)
 
     try:
+        socket_path = resolve_socket_path(vault_root, args.model, args.socket)
+        if args.serve_socket:
+            return serve_socket(
+                vault_root=vault_root,
+                socket_path=socket_path,
+                model_name=args.model,
+                no_refresh=args.no_refresh,
+                max_body_chars=max(args.max_body_chars, 0),
+            )
+
         if args.reindex:
             manifest, _embeddings, index_status = build_or_refresh_index(
                 vault_root=vault_root,
@@ -522,6 +692,27 @@ def main() -> int:
 
         if not args.query:
             return emit_error("Provide --query or --reindex.", args.format)
+
+        if not args.no_socket and not args.reindex and socket_available(socket_path):
+            payload = request_socket_search(
+                socket_path=socket_path,
+                request={
+                    "query": args.query,
+                    "limit": args.limit,
+                    "context_limit": args.context_limit,
+                    "expand_graph": args.expand_graph,
+                },
+                timeout=max(args.socket_timeout, 0.1),
+            )
+            if args.format == "text":
+                for item in payload.get("read_first", []):
+                    print(item["path"])
+                return 0
+            print(json.dumps(payload, indent=2))
+            return 0
+
+        if not args.no_socket and not args.reindex and (args.require_socket or args.socket or os.environ.get("CODEX_NOTE_SEARCH_SOCKET")):
+            return emit_error(f"Semantic search socket is not available: {socket_path}", args.format)
 
         payload = semantic_search(
             vault_root=vault_root,
