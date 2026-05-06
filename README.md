@@ -107,9 +107,9 @@ python3 tools/local_note_search.py \
   --format json
 ```
 
-Semantic note search is not bundled as a repo-owned script yet.
-It currently depends on the Codex-local helper at `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py`, the installed `note-search` skill, the `base-ml` conda environment, and the vault-local `.codex-note-search/` cache.
-This keeps the semantic tool as a local installed dependency instead of creating a second script copy to synchronize.
+Semantic note search has a repo-local helper copy for this vault.
+It currently depends on the repo-local helper at `tools/local_note_semantic_search.py`, the installed/deployed helper at `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py`, the installed `note-search` skill, the `base-ml` conda environment, and the vault-local `.codex-note-search/` cache.
+The repo-local semantic helper copy is intentional; keep it synchronized with the installed helper when behavior changes.
 
 ## Operating Rules
 

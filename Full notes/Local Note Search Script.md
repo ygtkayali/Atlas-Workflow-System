@@ -2,7 +2,7 @@
 
 Status: [[status-settled]]
 Parent: [[Workflow Hub]]
-Related: [[Note Search Skill]]
+Related: [[note-search-skill]]
 Created: 14-04-2026
 Last Reviewed: 2026-05-05
 
@@ -11,7 +11,7 @@ Last Reviewed: 2026-05-05
 Create a reusable local script that agents can call with a known seed note to retrieve candidate related note paths without reading the entire vault.
 
 The v1 repository includes the graph script at `tools/local_note_search.py`.
-The semantic-search companion lives at `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py` and is routed through [[Note Search Skill]] rather than replacing this graph script.
+The semantic-search companion lives at `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py` and is routed through [[note-search-skill]] rather than replacing this graph script.
 
 ## Current V1 Intent
 
@@ -93,7 +93,7 @@ Initial evaluation:
 - richer ranking or explanation layers
 
 The script should support the documentation-centered workflow by reducing unnecessary vault-wide reading while still giving agents enough nearby context to make linking decisions.
-Semantic and embedding-based query discovery is handled by the separate semantic script through [[Note Search Skill]].
+Semantic and embedding-based query discovery is handled by the separate semantic script through [[note-search-skill]].
 Keep this graph script focused on known-seed graph neighborhoods.
 
 ## Open Questions
