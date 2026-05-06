@@ -16,12 +16,14 @@ This would let the current Project Planning Workflow become one mode while other
 
 ## Current Direction
 
-- V3 should focus on modes and CLI tooling.
+- V2 should introduce the local mode system.
 - Project Planning Workflow should become a mode, not the entire system.
+- The first mode should be the current PPW workflow, tuned for technical projects.
 - Modes should expose selective skills rather than requiring every user to understand every role.
 - Reading mode should not need planning, implementation, implementation verification, or implementation review skills.
 - Technical-project or project-planning mode can include planner, implementer, verifier, and review skills.
 - Skills can be tuned differently per mode when their identity or behavior meaningfully changes.
+- V3 should focus on mode refinement, additional modes, and mode tests after the first local mode proves useful.
 
 ## Why This Matters
 
@@ -40,6 +42,41 @@ Keeping all expectations inside one universal skill set makes skill tuning harde
 - `article-analysis`
 - `research-brief`
 - `maintenance-review`
+
+## Version Scope
+
+### V2: Local PPW Mode System
+
+V2 should bring most of the mode-system direction forward, but keep it local.
+
+V2 should:
+
+- define the first concrete PPW mode
+- tune that mode for technical-project planning and implementation workflows
+- decide whether `ppw`, `project-planning`, and `technical-project` are one mode or separate mode names
+- define a minimal mode manifest with active skills, disabled skills, templates, gates, and default artifacts
+- make the current workflow easier to install, inspect, and synchronize locally
+- preserve local `AGENTS.md` authority for project-specific behavior
+
+V2 should not require:
+
+- full public packaging
+- PyPI distribution
+- a broad catalog of mature modes
+- generated skill systems
+- formal mode test infrastructure
+
+### V3: Mode Refinement And Expansion
+
+V3 should build on the local PPW mode once it is useful in real work.
+
+V3 may include:
+
+- fine-tuning mode-specific skill behavior
+- adding reading, article-analysis, book-analysis, research, or maintenance modes
+- mode tests or evaluation checks
+- generated skills or base-plus-overlay tooling if duplication becomes painful
+- public packaging after the local version stabilizes
 
 ## Mode-Specific Skill Identity
 
@@ -139,7 +176,9 @@ Mode-specific skills should respect both the selected mode and the local project
 
 ## Open Questions
 
-- Which mode should be developed first after project-planning: reading, research, or technical-project?
+- Should the first mode be named `ppw`, `project-planning`, or `technical-project`?
+- Are `project-planning` and `technical-project` separate modes, or is technical-project tuning part of the initial PPW mode?
+- Which mode should be developed first after the PPW technical-project mode: reading, research, or maintenance-review?
 - Should `clarify-intent` stay mostly shared or become mode-specific immediately?
 - Should `note-search` be shared across modes or tuned for reading versus project retrieval?
 - How much duplicated skill text is acceptable before generation tooling is worth building?
@@ -148,4 +187,4 @@ Mode-specific skills should respect both the selected mode and the local project
 
 ## Next Possible Step
 
-Define the first minimal mode manifest and decide which skills belong to the initial `project-planning` and `reading` modes.
+Define the first minimal local PPW mode manifest and decide which skills, templates, tools, gates, and default artifacts belong to the technical-project tuned version.
