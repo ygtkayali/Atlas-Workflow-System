@@ -31,7 +31,7 @@ Do:
 - decide note type, target note, title, links, and final durable note structure from the provided context,
 - choose folder placement only from the provided context, local folder policy, or local `AGENTS.md`, treating folder placement as readability rather than governance,
 - refresh dynamic metadata on every create or update so status and other changing header fields reflect the current note state rather than stale template or prior values,
-- evaluate context drift on every update, including whether status should become `[[status-draft]]`, `[[status-pending]]`, `[[status-settled]]`, or `[[status-archived]]`,
+- evaluate context drift on every update, including whether status should become `[[status-draft]]`, `[[status-active]]`, `[[status-pending]]`, `[[status-settled]]`, or `[[status-archived]]`,
 - draft exact note content or exact update content,
 - keep note bodies meaningful and durable,
 - consume and preserve the handoff's `Interpretation Basis` when it affects intent, tone, uncertainty, or traceability,
@@ -165,6 +165,7 @@ At minimum, evaluate:
 
 Use only approved status tags:
 - `[[status-draft]]`,
+- `[[status-active]]`,
 - `[[status-pending]]`,
 - `[[status-settled]]`,
 - `[[status-archived]]`.
@@ -172,6 +173,7 @@ Use only approved status tags:
 Status drift must be handled explicitly:
 - use or evaluate `[[status-archived]]` when a note becomes historical, legacy, deprecated, replaced, or no longer part of active working context,
 - use or evaluate `[[status-settled]]` when a note has been worked through and remains active reliable context,
+- use or evaluate `[[status-active]]` when an idea note has been promoted out of draft/backlog and is now active working context but not yet settled,
 - use or evaluate `[[status-draft]]` when a note is still forming,
 - use or evaluate `[[status-pending]]` when a note remains relevant but deferred.
 

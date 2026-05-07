@@ -5,9 +5,9 @@ mode:
 
 source_assets:
   root: modes/dev-workflow
-  files: files
-  templates: templates
-  starter_notes: starter-notes
+  templates: docs/Templates
+  starter_notes: docs/Main Hubs
+  tags: docs/Tags
   skills: skills
   tools: tools
 
@@ -32,50 +32,72 @@ vault:
 
 managed_files:
   - id: atlas-config
-    source: files/atlas.yaml
+    source: atlas.yaml
     target: atlas.yaml
     required: true
     sync: create_if_missing
     protect_existing: true
     purpose: Record the active mode, configured vault path, and managed asset inventory for a project.
   - id: agents-bridge
-    source: files/AGENTS.md
+    source: AGENTS.md
     target: AGENTS.md
     required: false
-    sync: create_if_missing
-    protect_existing: true
-    purpose: Provide a thin local bridge to the dev-workflow operating policy when a project has no local AGENTS.md.
+    sync: prepend_to_existing
+    protect_existing: false
+    purpose: Ensure the dev-workflow bridge appears at the top of local AGENTS.md while preserving project-specific instructions below it.
 
 managed_templates:
   - id: idea-note-template
-    source: templates/Idea Note Template.md
+    source: docs/Templates/Idea Note Template.md
     target: Templates/Idea Note Template.md
     required: true
   - id: general-note-template
-    source: templates/General Note Template.md
+    source: docs/Templates/General Note Template.md
     target: Templates/General Note Template.md
     required: true
   - id: sub-hub-template
-    source: templates/Sub Hub Template.md
+    source: docs/Templates/Sub Hub Template.md
     target: Templates/Sub Hub Template.md
     required: true
 
 managed_starter_notes:
   - id: workflow-hub
-    source: starter-notes/Workflow Hub.md
+    source: docs/Main Hubs/Workflow Hub.md
     target: Main Hubs/Workflow Hub.md
     required: true
   - id: agent-roles-hub
-    source: starter-notes/Agent Roles Hub.md
+    source: docs/Main Hubs/Agent Roles Hub.md
     target: Main Hubs/Agent Roles Hub.md
     required: true
   - id: idea-hub
-    source: starter-notes/Idea Hub.md
+    source: docs/Main Hubs/Idea Hub.md
     target: Main Hubs/Idea Hub.md
     required: true
   - id: workflow-schemas-hub
-    source: starter-notes/Workflow Schemas Hub.md
+    source: docs/Main Hubs/Workflow Schemas Hub.md
     target: Main Hubs/Workflow Schemas Hub.md
+    required: true
+
+managed_tags:
+  - id: status-active
+    source: docs/Tags/status-active.md
+    target: Tags/status-active.md
+    required: true
+  - id: status-draft
+    source: docs/Tags/status-draft.md
+    target: Tags/status-draft.md
+    required: true
+  - id: status-pending
+    source: docs/Tags/status-pending.md
+    target: Tags/status-pending.md
+    required: true
+  - id: status-settled
+    source: docs/Tags/status-settled.md
+    target: Tags/status-settled.md
+    required: true
+  - id: status-archived
+    source: docs/Tags/status-archived.md
+    target: Tags/status-archived.md
     required: true
 
 managed_skills:
@@ -122,9 +144,9 @@ health_checks:
     - id: source-asset-folders-present
       type: paths_exist
       targets:
-        - modes/dev-workflow/files
-        - modes/dev-workflow/templates
-        - modes/dev-workflow/starter-notes
+        - modes/dev-workflow/docs/Templates
+        - modes/dev-workflow/docs/Main Hubs
+        - modes/dev-workflow/docs/Tags
         - modes/dev-workflow/skills
         - modes/dev-workflow/tools
       severity: error
@@ -132,10 +154,10 @@ health_checks:
       type: file_exists
       target: atlas.yaml
       severity: warning
-    - id: local-agents-protected
+    - id: local-agents-bridge
       type: existing_file_policy
       target: AGENTS.md
-      policy: do_not_overwrite_without_explicit_approval
+      policy: create_if_missing_or_prepend_bridge_with_explicit_sync_approval
       severity: error
     - id: vault-folders-present
       type: paths_exist
@@ -157,17 +179,19 @@ sync_policy:
   project_sync_command: atlas sync
   project_sync_requires_explicit_approval: true
   approval_granularity: whole_sync_run
-  protect_existing_files:
+  prepend_existing_files:
     - AGENTS.md
   never_overwrite_without_explicit_approval:
     - AGENTS.md
-  existing_agents_md_behavior: leave_unchanged_or_add_explicit_bridge_only_after_approval
+  existing_agents_md_behavior: create_if_missing_or_prepend_bridge_after_sync_approval
   allowed_project_sync_actions:
     - create_missing_managed_files
+    - prepend_agents_bridge_to_existing_agents_md
     - create_missing_vault_folders
     - update_managed_tools_after_approval
     - update_managed_templates_after_approval
     - update_managed_starter_notes_after_approval
+    - update_managed_tags_after_approval
   disallowed_implicit_actions:
     - replace_existing_agents_md
     - install_global_skills_during_project_init

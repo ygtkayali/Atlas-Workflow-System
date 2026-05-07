@@ -16,8 +16,8 @@ This skill is the stable interface layer for note retrieval.
 It does not implement graph traversal, embedding, or ranking itself.
 It calls the local retrieval scripts:
 
-- graph search: `/home/yigit-kayali/.codex/tools/local_note-search.py`
-- semantic search: `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py`
+- graph search: `~/.codex/tools/local_note_search.py`
+- semantic search: `~/.codex/tools/local_note_semantic_search.py`
 
 In an Atlas workflow source checkout, skill-related tool sources live under `shared/tools/`; those sources should stay synchronized with the installed helpers when behavior changes.
 
@@ -75,7 +75,7 @@ Manual text search remains acceptable for exact strings, filenames, or implement
 Use JSON by default.
 
 ```bash
-python3 /home/yigit-kayali/.codex/tools/local_note-search.py \
+python3 ~/.codex/tools/local_note_search.py \
   --vault-root "<vault-root>" \
   --seed-path "<note-path>" \
   --format json
@@ -84,7 +84,7 @@ python3 /home/yigit-kayali/.codex/tools/local_note-search.py \
 When only the note title is known:
 
 ```bash
-python3 /home/yigit-kayali/.codex/tools/local_note-search.py \
+python3 ~/.codex/tools/local_note_search.py \
   --vault-root "<vault-root>" \
   --seed-title "<note-title>" \
   --format json
@@ -93,7 +93,7 @@ python3 /home/yigit-kayali/.codex/tools/local_note-search.py \
 Use debug mode only when you need scoring, hop reasons, or unresolved-link diagnostics:
 
 ```bash
-python3 /home/yigit-kayali/.codex/tools/local_note-search.py \
+python3 ~/.codex/tools/local_note_search.py \
   --vault-root "<vault-root>" \
   --seed-path "<note-path>" \
   --format json \
@@ -105,25 +105,25 @@ python3 /home/yigit-kayali/.codex/tools/local_note-search.py \
 When a warm semantic search service is running, use the fast socket client with plain `python3`:
 
 ```bash
-python3 /home/yigit-kayali/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --expand-graph --require-socket --format json
+python3 ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --expand-graph --require-socket --format json
 ```
 
 Start the warm service in a separate terminal when repeated semantic queries are expected:
 
 ```bash
-conda run --no-capture-output -n base-ml python /home/yigit-kayali/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --serve-socket --no-refresh
+conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --serve-socket --no-refresh
 ```
 
 Use cold semantic discovery through the `base-ml` conda environment when no service is running:
 
 ```bash
-conda run --no-capture-output -n base-ml python /home/yigit-kayali/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --expand-graph --format json
+conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --expand-graph --format json
 ```
 
 Use `--no-refresh` only when the caller explicitly wants to avoid checking changed files:
 
 ```bash
-conda run --no-capture-output -n base-ml python /home/yigit-kayali/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --no-refresh --format json
+conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --no-refresh --format json
 ```
 
 Semantic search uses `sentence-transformers/all-MiniLM-L6-v2` and stores a vault-local cache at `.codex-note-search/`.

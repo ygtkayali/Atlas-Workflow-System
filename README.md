@@ -101,6 +101,74 @@ Local Obsidian workspace state remains excluded from v1.
 
 No package installation is required for the markdown workflow itself.
 
+## Atlas CLI
+
+Run Atlas directly from this checkout:
+
+```bash
+./atlas --help
+```
+
+To make `atlas` available outside this directory, create a one-time user-local symlink:
+
+```bash
+ln -s "$(pwd)/atlas" ~/.local/bin/atlas
+```
+
+`~/.local/bin` must be on your `PATH`. After the symlink is created, use `atlas` from any project directory:
+
+```bash
+atlas --help
+atlas mode list
+```
+
+If the symlink already exists and points to an old checkout, replace it:
+
+```bash
+rm ~/.local/bin/atlas
+ln -s "$(pwd)/atlas" ~/.local/bin/atlas
+```
+
+### Common Commands
+
+Inspect available modes:
+
+```bash
+atlas mode list
+```
+
+Initialize a project with the development workflow:
+
+```bash
+atlas init --mode dev-workflow .
+```
+
+Check a project's Atlas setup:
+
+```bash
+atlas health check .
+```
+
+Synchronize project-local managed assets:
+
+```bash
+atlas sync .
+```
+
+Synchronize globally installed skills and shared tools for the current project's mode:
+
+```bash
+atlas sync skills
+```
+
+You can also call the explicit skills subcommand:
+
+```bash
+atlas skills sync --mode dev-workflow
+```
+
+Project initialization and project sync do not install global skills automatically. Run skill sync separately when shared skills or tools change.
+
 The bundled search helper uses only the Python standard library and can be run with Python 3:
 
 ```bash
@@ -111,7 +179,7 @@ python3 shared/tools/local_note-search.py \
 ```
 
 Semantic note search has a repo-local helper copy for this vault.
-It currently depends on the shared source helper at `shared/tools/local_note_semantic_search.py`, the installed/deployed helper at `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py`, the installed `note-search` skill, the `base-ml` conda environment, and the vault-local `.codex-note-search/` cache.
+It currently depends on the shared source helper at `shared/tools/local_note_semantic_search.py`, the installed/deployed helper at `~/.codex/tools/local_note_semantic_search.py`, the installed `note-search` skill, the configured conda environment, and the vault-local `.codex-note-search/` cache.
 The shared semantic helper source is intentional; keep it synchronized with the installed helper when behavior changes.
 
 Atlas mode assets use lowercase hyphenated skill IDs such as `dw-clarify-intent`, `dw-note-manager`, `project-planner`, and shared `note-search`. Run `./atlas health check .` to inspect local drift and `./atlas skills sync --mode dev-workflow` to review the global skill sync plan.

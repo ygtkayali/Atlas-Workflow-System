@@ -175,6 +175,71 @@ def copy_file(source: Path, target: Path) -> None:
     shutil.copy2(source, target)
 
 
+def file_text(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def marked_block_bounds(text: str, begin_marker: str, end_marker: str) -> tuple[int, int] | None:
+    begin = text.find(begin_marker)
+    if begin == -1:
+        return None
+    end = text.find(end_marker, begin)
+    if end == -1:
+        return None
+    return begin, end + len(end_marker)
+
+
+def prepended_file_content(source: Path, target: Path) -> str | None:
+    source_text = file_text(source).strip() + "\n"
+    target_text = file_text(target)
+    if target_text.startswith(source_text):
+        return None
+
+    begin_marker = "<!-- atlas-dev-workflow-bridge:start -->"
+    end_marker = "<!-- atlas-dev-workflow-bridge:end -->"
+    existing_bridge = marked_block_bounds(target_text, begin_marker, end_marker)
+    if existing_bridge:
+        begin, end = existing_bridge
+        target_text = target_text[:begin] + target_text[end:]
+
+    remaining = target_text.lstrip("\n")
+    if remaining:
+        return f"{source_text}\n{remaining}"
+    return source_text
+
+
+def prepend_file(source: Path, target: Path) -> None:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if not target.exists():
+        copy_file(source, target)
+        return
+
+    content = prepended_file_content(source, target)
+    if content is not None:
+        target.write_text(content, encoding="utf-8")
+
+
+def cleaned_marked_block_content(target: Path) -> str | None:
+    if not target.exists():
+        return None
+
+    begin_marker = "<!-- atlas-dev-workflow-bridge:start -->"
+    end_marker = "<!-- atlas-dev-workflow-bridge:end -->"
+    target_text = file_text(target)
+    existing_bridge = marked_block_bounds(target_text, begin_marker, end_marker)
+    if not existing_bridge:
+        return None
+
+    begin, end = existing_bridge
+    return (target_text[:begin] + target_text[end:]).lstrip("\n")
+
+
+def clean_marked_block(target: Path) -> None:
+    content = cleaned_marked_block_content(target)
+    if content is not None:
+        target.write_text(content, encoding="utf-8")
+
+
 def copy_tree_payload(source: Path, target: Path) -> None:
     for source_file in source.rglob("*"):
         if not source_file.is_file() or source_file.name == ".gitkeep":
@@ -224,6 +289,10 @@ def apply_action(action: Action) -> None:
         target.mkdir(parents=True, exist_ok=True)
     elif kind == "copy_file":
         copy_file(Path(action["source"]), target)
+    elif kind == "prepend_file":
+        prepend_file(Path(action["source"]), target)
+    elif kind == "clean_marked_block":
+        clean_marked_block(target)
     elif kind == "copy_tree":
         copy_tree_payload(Path(action["source"]), target)
     elif kind == "write_atlas_config":
@@ -299,7 +368,7 @@ def command_health_check(args: argparse.Namespace) -> int:
         print_check("error", "manifest", str(manifest_path))
         failures += 1
 
-    failures += check_source_asset_folders(manifest_path, manifest, ("files", "templates", "starter_notes", "skills", "tools"))
+    failures += check_source_asset_folders(manifest_path, manifest, ("templates", "starter_notes", "tags", "skills", "tools"))
 
     shared_manifest = load_shared_manifest()
     if shared_manifest:
@@ -319,7 +388,7 @@ def command_health_check(args: argparse.Namespace) -> int:
 
     agents_path = project_root / "AGENTS.md"
     if agents_path.exists():
-        print_check("ok", "local AGENTS.md", "exists and must be protected")
+        print_check("ok", "local AGENTS.md", "exists and may receive the managed bridge")
     else:
         print_check("warning", "local AGENTS.md", "missing")
         warnings += 1
@@ -356,6 +425,7 @@ def atlas_config_for_mode(manifest: dict[str, Any], mode: str) -> dict[str, Any]
     managed_skills = manifest.get("managed_skills", {})
     managed_tools = manifest.get("managed_tools", {})
     managed_files = manifest.get("managed_files", [])
+    managed_tags = manifest.get("managed_tags", [])
     skill_items = managed_skills.get("items", []) if isinstance(managed_skills, dict) else []
     tool_items = managed_tools.get("items", []) if isinstance(managed_tools, dict) else []
 
@@ -369,6 +439,7 @@ def atlas_config_for_mode(manifest: dict[str, Any], mode: str) -> dict[str, Any]
             "path": vault.get("default_path", "docs") if isinstance(vault, dict) else "docs",
         },
         "managed_files": [item.get("id") for item in managed_files if isinstance(item, dict)],
+        "managed_tags": [item.get("id") for item in managed_tags if isinstance(item, dict)],
         "managed_skills": [
             item.get("id")
             for item in skill_items
@@ -382,12 +453,46 @@ def atlas_config_for_mode(manifest: dict[str, Any], mode: str) -> dict[str, Any]
     }
 
 
+def configured_item_ids(project_root: Path, section: str) -> set[str] | None:
+    config_path = project_atlas_config_path(project_root)
+    if not config_path.exists():
+        return None
+    config = load_yaml(config_path)
+    values = config.get(section)
+    if not isinstance(values, list):
+        return None
+    return {str(value) for value in values if value is not None}
+
+
+def copy_managed_vault_files(manifest: dict[str, Any], mode_root: Path, vault_root: Path, created: list[Path], kept: list[Path]) -> None:
+    for section, base_target in (
+        ("managed_templates", vault_root),
+        ("managed_starter_notes", vault_root),
+        ("managed_tags", vault_root),
+    ):
+        items = manifest.get(section, [])
+        if not isinstance(items, list):
+            continue
+        for item in items:
+            if not isinstance(item, dict) or not item.get("source") or not item.get("target"):
+                continue
+            source = mode_root / str(item["source"])
+            target = base_target / str(item["target"])
+            if target.exists():
+                kept.append(target)
+            elif source.is_file() and has_payload(source):
+                copy_file(source, target)
+                created.append(target)
+
+
 def command_init(args: argparse.Namespace) -> int:
     project_root = Path(args.path).resolve()
     project_root.mkdir(parents=True, exist_ok=True)
     manifest_path, manifest = load_mode_manifest(args.mode)
+    mode_root = manifest_path.parent
 
     created: list[Path] = []
+    updated: list[Path] = []
     kept: list[Path] = []
 
     config_path = project_atlas_config_path(project_root)
@@ -413,9 +518,41 @@ def command_init(args: argparse.Namespace) -> int:
             folder_path.mkdir(parents=True)
             created.append(folder_path)
 
+    managed_files = manifest.get("managed_files", [])
+    if isinstance(managed_files, list):
+        for item in managed_files:
+            if not isinstance(item, dict) or not item.get("source") or not item.get("target"):
+                continue
+            source = mode_root / str(item["source"])
+            target = project_root / str(item["target"])
+            sync_mode = str(item.get("sync") or "")
+            if target in created or target in kept:
+                continue
+            if target.exists():
+                if sync_mode == "prepend_to_existing" and source.is_file() and has_payload(source):
+                    content = prepended_file_content(source, target)
+                    if content is not None:
+                        target.write_text(content, encoding="utf-8")
+                        updated.append(target)
+                    else:
+                        kept.append(target)
+                else:
+                    kept.append(target)
+                continue
+            if has_payload(source):
+                if source.is_file():
+                    copy_file(source, target)
+                else:
+                    copy_tree_payload(source, target)
+                created.append(target)
+
+    copy_managed_vault_files(manifest, mode_root, vault_root, created, kept)
+
     print(f"Initialized mode {manifest_mode_name(manifest, args.mode)} from {manifest_path.relative_to(REPO_ROOT)}")
     for path in created:
         print_check("created", str(path))
+    for path in updated:
+        print_check("updated", str(path), "prepended managed bridge")
     for path in kept:
         print_check("kept", str(path), "already exists")
     return 0
@@ -453,15 +590,35 @@ def project_sync_plan(project_root: Path, mode: str, manifest_path: Path, manife
             })
 
     managed_files = manifest.get("managed_files", [])
+    configured_files = configured_item_ids(project_root, "managed_files")
     if isinstance(managed_files, list):
         for item in managed_files:
             if not isinstance(item, dict) or not item.get("source") or not item.get("target"):
                 continue
+            item_id = str(item.get("id") or "")
             source = mode_root / str(item["source"])
             target = project_root / str(item["target"])
-            if target.exists():
+            sync_mode = str(item.get("sync") or "")
+            if configured_files is not None and item_id not in configured_files:
+                if sync_mode == "prepend_to_existing" and cleaned_marked_block_content(target) is not None:
+                    actions.append({
+                        "kind": "clean_marked_block",
+                        "target": str(target),
+                        "detail": f"remove unmanaged bridge for {item_id}",
+                    })
+                continue
+            if target.exists() and sync_mode != "prepend_to_existing":
                 continue
             if has_payload(source):
+                if target.exists() and sync_mode == "prepend_to_existing":
+                    if source.is_file() and prepended_file_content(source, target) is not None:
+                        actions.append({
+                            "kind": "prepend_file",
+                            "source": str(source),
+                            "target": str(target),
+                            "detail": f"prepend/update bridge from {relative_to_repo(source)}",
+                        })
+                    continue
                 actions.append({
                     "kind": "copy_file" if source.is_file() else "copy_tree",
                     "source": str(source),
@@ -478,6 +635,7 @@ def project_sync_plan(project_root: Path, mode: str, manifest_path: Path, manife
     for section, base_target in (
         ("managed_templates", vault_root),
         ("managed_starter_notes", vault_root),
+        ("managed_tags", vault_root),
     ):
         items = manifest.get(section, [])
         if not isinstance(items, list):
@@ -530,6 +688,10 @@ def project_sync_plan(project_root: Path, mode: str, manifest_path: Path, manife
 
 
 def command_sync(args: argparse.Namespace) -> int:
+    if args.path == "skills":
+        project_mode = read_project_mode(Path.cwd()) or default_mode()
+        return command_skills_sync(argparse.Namespace(mode=project_mode))
+
     project_root = Path(args.path).resolve()
     mode = read_project_mode(project_root)
     if not mode:
