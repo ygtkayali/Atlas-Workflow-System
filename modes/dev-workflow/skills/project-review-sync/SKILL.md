@@ -1,5 +1,5 @@
 ---
-name: project_review_sync
+name: project-review-sync
 description: Review implemented work against an approved task packet and route documentation synchronization, or analyze bounded maintenance review tasks and route findings. Use when Codex should compare the packet, implementation report, and resulting changes, detect mismatches or missing verification, decide what documentation-sync context should follow, produce maintenance review reports for stale state or artifact cleanup, and surface follow-up tasks or decision gaps without silently normalizing unapproved changes.
 ---
 
@@ -28,11 +28,11 @@ Do:
 - identify scope drift, missing verification, stale docs, and newly implied decisions,
 - check interpretation fidelity when durable note changes came from a clarified context handoff,
 - analyze bounded maintenance review tasks from the user-provided scope,
-- use `note_search` to retrieve bounded durable note context when a known packet, feature, task, report note, or semantic query can anchor documentation synchronization,
-- prefer semantic `note_search` over manual broad note discovery for concept-level documentation-sync context,
+- use `note-search` to retrieve bounded durable note context when a known packet, feature, task, report note, or semantic query can anchor documentation synchronization,
+- prefer semantic `note-search` over manual broad note discovery for concept-level documentation-sync context,
 - decide which documentation-sync context should follow from accepted implementation,
 - decide which maintenance-review findings should be routed through clarification and note management,
-- create context proposal artifacts for clarification when the local workflow routes durable note mutation through `dw_clarify_intent` and a separate gate such as `Note Manager`,
+- create context proposal artifacts for clarification when the local workflow routes durable note mutation through `dw-clarify-intent` and a separate gate such as `Note Manager`,
 - create maintenance review reports for stale-state, consistency, lint, health, or artifact-cleanup tasks,
 - use one context proposal artifact per documentation-sync subject when the local workflow requires it,
 - otherwise propose the minimum required documentation synchronization within the local authority model,
@@ -90,14 +90,14 @@ Preferred order:
 2. Read the approved task packet.
 3. Read the implementation report.
 4. Read the touched files, diff, or verification results.
-5. Use `note_search` when a known note or semantic query can anchor a bounded documentation-sync context.
+5. Use `note-search` when a known note or semantic query can anchor a bounded documentation-sync context.
 6. Read relevant notes and hubs that should reflect the new state, if documentation synchronization is needed.
 7. Read decision logs or active-context notes only when they materially affect synchronization.
 
 For implementation review, avoid broad documentation sweeps unless the implemented change truly has project-wide impact.
 For maintenance review, start from the explicit task scope, such as a known note set, note type, folder, hub, artifact set, lint target, or health-check target. Avoid broad documentation sweeps unless the user has explicitly requested vault-level maintenance and the review can return findings without directly mutating notes.
-If `note_search` is used, keep the basis for note selection explicit in the review output.
-For concept-level note selection, use semantic `note_search` first so retrieval behavior can be observed and improved centrally.
+If `note-search` is used, keep the basis for note selection explicit in the review output.
+For concept-level note selection, use semantic `note-search` first so retrieval behavior can be observed and improved centrally.
 
 ## Review Workflow
 
@@ -108,8 +108,8 @@ Follow this sequence:
 3. Compare implementation against the approved work.
 4. Identify matches, mismatches, missing checks, and newly introduced assumptions.
 5. Decide whether implementation-backed documentation-sync context should be clarified after accepted implementation.
-6. If the local workflow routes durable note mutation through `dw_clarify_intent`, create the required context artifact for each proposed documentation-sync subject.
-7. Present or return those context artifacts in the format required by the local workflow so `dw_clarify_intent` can produce a clarified context handoff for the note-mutation role.
+6. If the local workflow routes durable note mutation through `dw-clarify-intent`, create the required context artifact for each proposed documentation-sync subject.
+7. Present or return those context artifacts in the format required by the local workflow so `dw-clarify-intent` can produce a clarified context handoff for the note-mutation role.
 8. Create or propose follow-up task context for unresolved issues.
 9. Recommend `keep`, `revise`, or `reject` for human closeout.
 10. Surface decision needs instead of silently normalizing them.
@@ -120,7 +120,7 @@ For maintenance review tasks:
 2. Inspect only the bounded notes, artifacts, or health checks needed for that task.
 3. Identify stale notes, missing links, outdated implementation state, obsolete artifacts, lint or health issues, contradictory durable state, and unclear ownership.
 4. Produce a maintenance review report.
-5. Route the report to `dw_clarify_intent` when durable note decisions, note mutation, artifact cleanup, or governance decisions are needed.
+5. Route the report to `dw-clarify-intent` when durable note decisions, note mutation, artifact cleanup, or governance decisions are needed.
 6. Recommend `sync-needed`, `follow-up-needed`, or `no-action` when implementation disposition language does not apply.
 
 ## What To Check
@@ -157,10 +157,10 @@ A maintenance review report should include:
 - candidate artifact cleanup,
 - risks or unclear ownership,
 - recommended routing,
-- and whether the next step is `dw_clarify_intent`, `Note Manager`, implementation follow-up, or no action.
+- and whether the next step is `dw-clarify-intent`, `Note Manager`, implementation follow-up, or no action.
 
-When durable note decisions are needed, route the report to `dw_clarify_intent` when the local workflow uses clarification before note mutation.
-`dw_clarify_intent` turns the report into a clarified context handoff.
+When durable note decisions are needed, route the report to `dw-clarify-intent` when the local workflow uses clarification before note mutation.
+`dw-clarify-intent` turns the report into a clarified context handoff.
 The note-management role remains responsible for deciding and applying concrete note mutations.
 
 ## Documentation Responsibilities
@@ -173,7 +173,7 @@ You may:
 - flag stale hubs or decision logs,
 - and propose documentation synchronization when direct edits would overstep authority.
 
-When the local workflow routes note mutation through `dw_clarify_intent`, review should pass implementation-backed synchronization context forward for clarification before `Note Manager` acts.
+When the local workflow routes note mutation through `dw-clarify-intent`, review should pass implementation-backed synchronization context forward for clarification before `Note Manager` acts.
 When a separate note-mutation role exists without a clarification step, review should use the local proposal artifact and avoid leaving traceability gaps for the downstream role.
 Review should not create or update durable notes directly when a separate note-management or documentation-sync gate exists.
 Review should not directly create, update, archive, delete, or relink durable notes when a separate note-management gate exists.
@@ -236,7 +236,7 @@ Do not rely on:
 Instead:
 - read local instructions first,
 - treat the approved packet and implementation report as the primary review inputs,
-- use `note_search` when it improves note-selection quality without broadening scope, including semantic query-first retrieval when no seed note is known,
+- use `note-search` when it improves note-selection quality without broadening scope, including semantic query-first retrieval when no seed note is known,
 - use only the minimum surrounding note graph needed for synchronization,
 - and fall back to the bundled schemas when local conventions are missing.
 

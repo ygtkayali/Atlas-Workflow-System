@@ -4,7 +4,7 @@ Status: [[status-settled]]
 Parent: [[Agent Roles Hub]]
 Related: [[Local Note Search Script]], [[Semantic Search Model Reload Delay]]
 Created: 18-04-2026
-Last Reviewed: 2026-05-06
+Last Reviewed: 2026-05-07
 Source:
 Decisions:
 Dependencies:
@@ -27,8 +27,8 @@ This skill does not implement retrieval logic itself.
 
 Instead, it wraps local retrieval scripts:
 
-- graph search: `tools/local_note_search.py` or `/home/yigit-kayali/.codex/tools/local_note_search.py`
-- semantic search: `tools/local_note_semantic_search.py` and `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py`
+- graph search: `shared/tools/local_note_search.py` or `/home/yigit-kayali/.codex/tools/local_note_search.py`
+- semantic search: `shared/tools/local_note_semantic_search.py` and `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py`
 
 Current expectations:
 - accept the retrieval need from another skill
@@ -59,9 +59,9 @@ The current version of `Note Search Skill` should not:
 
 The current skill depends on:
 
-- `tools/local_note_search.py`
+- `shared/tools/local_note_search.py`
 - `/home/yigit-kayali/.codex/tools/local_note_search.py`
-- `tools/local_note_semantic_search.py`
+- `shared/tools/local_note_semantic_search.py`
 - `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py`
 
 Graph search is path or title seeded.
@@ -72,8 +72,8 @@ If the script interface changes later, the skill should absorb that change so ot
 ## Ownership Boundary
 
 Repo-owned:
-- `tools/local_note_search.py`
-- `tools/local_note_semantic_search.py`
+- `shared/tools/local_note_search.py`
+- `shared/tools/local_note_semantic_search.py`
 - durable notes that define graph and semantic search routing expectations
 
 Codex-local owned:

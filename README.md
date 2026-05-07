@@ -1,12 +1,12 @@
-# Project Planning Workflow
+# Atlas Workflow System
 
-A documentation-centered workflow for building software with AI assistance.
+Atlas is a local workflow system for installing, initializing, checking, and synchronizing documentation-centered AI workflows.
 
-This project treats markdown documentation as the control surface for AI-assisted work. Instead of asking an agent to jump straight from a vague request into code, the workflow makes intent, constraints, planning, implementation, review, and documentation sync visible as durable project state.
+This repository contains the Atlas CLI source, shared workflow assets, and the first concrete mode: `dev-workflow`. The earlier Project Planning Workflow now acts as the source basis for that mode rather than the whole system identity.
 
 ## What This Project Is For
 
-This repository is for teams or solo developers who want AI coding assistance without losing control of project direction.
+This repository is for teams or solo developers who want AI coding assistance without losing control of project direction, and who want reusable workflow setup across projects.
 
 It provides a practical operating model where:
 
@@ -36,15 +36,15 @@ The goal is not to add bureaucracy. The goal is to prevent hidden design drift, 
 
 ## Tools And Roles
 
-The workflow is organized around a small set of agent roles and local tools:
+The `dev-workflow` mode is organized around a small set of agent roles and local tools:
 
 - `clarify-intent` turns rough ideas, ambiguous requests, or review/sync proposals into clarified context.
-- `Full notes/Note Manager.md` owns durable note create/update decisions after clarification.
+- `Full notes/note-manager.md` owns durable note create/update decisions after clarification.
 - `Full notes/planner-agent.md` prepares scoped implementation packets from note-backed project state.
 - `Full notes/implementer-agent.md` performs bounded code changes and returns implementation reports.
 - `Full notes/review-agent.md` compares implementation results to the approved packet and routes documentation sync.
-- `tools/local_note_search.py` retrieves nearby linked notes from a known seed note without broad vault search.
-- `Full notes/Note Search Skill.md` is the shared retrieval interface for graph search and Codex-local semantic search.
+- `shared/tools/local_note-search.py` retrieves nearby linked notes from a known seed note without broad vault search.
+- `Full notes/note-search-skill.md` is the shared retrieval interface for graph search and Codex-local semantic search.
 
 These roles are intentionally gated. A downstream role should not silently absorb work that belongs to an earlier phase.
 
@@ -73,17 +73,20 @@ review/sync -> clarify-intent -> visible clarified context handoff -> Note Manag
 ## Repository Structure
 
 - `AGENTS.md` - root operating charter for agents working in this repository.
+- `atlas` and `tools/atlas.py` - local Atlas CLI entry point and command implementation.
+- `modes/dev-workflow/` - first mode manifest, starter assets, templates, and mode skill sources.
+- `shared/` - shared skills and tools reused across modes.
 - `Main Hubs/` - compact entry points into the note graph.
 - `Fleeting notes/` - idea notes and early capture.
 - `Full notes/` - durable project notes that are not hubs, templates, tags, or fleeting notes.
 - `Templates/` - starter templates for new notes.
 - `Tags/` and `Full notes/Status Tag Registry.md` - status tags and their intended meanings.
-- `Full notes/clarify-intent.md`, `Full notes/Note Manager.md`, `Full notes/planner-agent.md`, `Full notes/implementer-agent.md`, `Full notes/review-agent.md` - role contracts.
+- `Full notes/clarify-intent.md`, `Full notes/note-manager.md`, `Full notes/planner-agent.md`, `Full notes/implementer-agent.md`, `Full notes/review-agent.md` - role contracts.
 - `Full notes/clarified-context-handoff.md`, `Full notes/note-ready-handoff.md`, `Full notes/task-packet-schema.md`, `Full notes/implementation-report-schema.md` - reusable workflow schemas.
 - `Full notes/Two-Phase Workflow Boundary.md` and `Full notes/Durable Notes Follow Accepted Implementation.md` - core workflow decisions.
 - `Full notes/tool-policy.md` - tool-use expectations and boundaries.
-- `tools/local_note_search.py` - deterministic local note-neighborhood retrieval helper.
-- `Full notes/Note Search Skill.md` - durable contract for routing known-seed graph search and concept-level semantic search.
+- `shared/tools/local_note-search.py` - deterministic local note-neighborhood retrieval helper source.
+- `Full notes/note-search-skill.md` - durable contract for routing known-seed graph search and concept-level semantic search.
 
 Idea notes and early capture belong in `Fleeting notes/`.
 Local Obsidian workspace state remains excluded from v1.
@@ -101,15 +104,17 @@ No package installation is required for the markdown workflow itself.
 The bundled search helper uses only the Python standard library and can be run with Python 3:
 
 ```bash
-python3 tools/local_note_search.py \
+python3 shared/tools/local_note-search.py \
   --vault-root . \
-  --seed-path "Full notes/Note Manager.md" \
+  --seed-path "Full notes/note-manager.md" \
   --format json
 ```
 
 Semantic note search has a repo-local helper copy for this vault.
-It currently depends on the repo-local helper at `tools/local_note_semantic_search.py`, the installed/deployed helper at `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py`, the installed `note-search` skill, the `base-ml` conda environment, and the vault-local `.codex-note-search/` cache.
-The repo-local semantic helper copy is intentional; keep it synchronized with the installed helper when behavior changes.
+It currently depends on the shared source helper at `shared/tools/local_note_semantic_search.py`, the installed/deployed helper at `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py`, the installed `note-search` skill, the `base-ml` conda environment, and the vault-local `.codex-note-search/` cache.
+The shared semantic helper source is intentional; keep it synchronized with the installed helper when behavior changes.
+
+Atlas mode assets use lowercase hyphenated skill IDs such as `dw-clarify-intent`, `dw-note-manager`, `project-planner`, and shared `note-search`. Run `./atlas health check .` to inspect local drift and `./atlas skills sync --mode dev-workflow` to review the global skill sync plan.
 
 ## Operating Rules
 
@@ -124,7 +129,7 @@ The repo-local semantic helper copy is intentional; keep it synchronized with th
 1. `AGENTS.md`
 2. `Main Hubs/Workflow Hub.md`
 3. `Full notes/Two-Phase Workflow Boundary.md`
-4. `Full notes/Note Manager.md`
+4. `Full notes/note-manager.md`
 5. `Full notes/clarify-intent.md`
 6. `Full notes/planner-agent.md`
 7. `Full notes/implementer-agent.md`

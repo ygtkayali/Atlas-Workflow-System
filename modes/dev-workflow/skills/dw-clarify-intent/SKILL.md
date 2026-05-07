@@ -1,5 +1,5 @@
 ---
-name: dw_clarify_intent
+name: dw-clarify-intent
 description: Clarify an early-stage idea before durable note creation or planner work begins. Use when Codex should run a guided clarification loop that interrogates the idea, surfaces hidden inconsistencies, challenges weak assumptions, guides important decisions, and only prepares downstream-ready output when the core intent is actually solid enough for the next structured step.
 ---
 
@@ -38,9 +38,9 @@ Do:
 - separate implementation facts from review/sync proposals when the upstream source is post-implementation review,
 - separate scope from non-goals,
 - extract constraints and approval boundaries,
-- use `note_search` to retrieve a small bounded note set when a seed note or semantic query may materially improve clarification quality,
-- prefer semantic `note_search` over manual broad note discovery when the prompt asks whether something exists, asks for similar notes, or gives only a concept,
-- consume bounded retrieval results from the local note_search interface instead of inventing separate retrieval behavior,
+- use `note-search` to retrieve a small bounded note set when a seed note or semantic query may materially improve clarification quality,
+- prefer semantic `note-search` over manual broad note discovery when the prompt asks whether something exists, asks for similar notes, or gives only a concept,
+- consume bounded retrieval results from the local note-search interface instead of inventing separate retrieval behavior,
 - keep the work in clarification when high-impact uncertainty remains,
 - separate `decided`, `proposed`, `unclear`, and `blocked` points,
 - and choose the right output mode: continue clarification, end clarification with a recommended next step, or produce a note-ready handoff.
@@ -67,12 +67,12 @@ Preferred order:
 
 1. Read the local `AGENTS.md` if it exists.
 2. Read the triggering idea, request, note, or upstream review/sync context.
-3. Use `note_search` when the triggering note is known, when nearby linked context may matter, or when a semantic query can answer concept-level note discovery; then read only the most relevant returned note paths.
-4. Read the local clarification artifact, `dw_note_manager` artifact, or `clarified-context-handoff.md` schema/template if the project provides one.
+3. Use `note-search` when the triggering note is known, when nearby linked context may matter, or when a semantic query can answer concept-level note discovery; then read only the most relevant returned note paths.
+4. Read the local clarification artifact, `dw-note-manager` artifact, or `clarified-context-handoff.md` schema/template if the project provides one.
 5. Read directly linked notes only when they materially affect goals, scope, constraints, terminology, source-of-truth, or major tradeoffs.
 
 Avoid broad repository scans. This skill should clarify intent, not map the full project.
-If `note_search` is used, treat it as a bounded retrieval aid rather than permission to widen scope indiscriminately.
+If `note-search` is used, treat it as a bounded retrieval aid rather than permission to widen scope indiscriminately.
 If no bounded context anchor exists and semantic search cannot produce a useful context capsule, ask for the relevant seed note, folder, hub, registry, or supplied context instead of broadening retrieval.
 
 ## Complex Prompt Intake

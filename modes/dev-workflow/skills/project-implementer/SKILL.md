@@ -1,5 +1,5 @@
 ---
-name: project_implementer
+name: project-implementer
 description: Implement coding work from an approved execution artifact. Use when Codex should inspect the minimum relevant code context, make bounded changes, run focused verification, and return a structured implementation report without silently changing architecture, schema, API contracts, project goals, or durable notes.
 ---
 

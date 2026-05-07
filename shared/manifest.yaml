@@ -10,9 +10,9 @@ source_assets:
 managed_skills:
   install_scope: global
   items:
-    - id: note_search
-      source: skills/note_search
-      installed_path: ~/.codex/skills/note_search
+    - id: note-search
+      source: skills/note-search
+      installed_path: ~/.codex/skills/note-search
       required: true
 
 managed_tools:

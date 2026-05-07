@@ -1,5 +1,5 @@
 ---
-name: project_planner
+name: project-planner
 description: Plan implementation work from documentation-centered project notes. Use when Codex needs to turn a note-ready handoff, feature note, task note, project hub, architecture note, decision log, active-context note, or similar note-backed input into a scoped implementation packet with explicit constraints, risks, open questions, and approval needs. Especially useful in repositories or vaults that use linked markdown notes, metadata, backlinks, central hubs, and feature-specific hubs to manage project state.
 ---
 
@@ -54,13 +54,13 @@ Do:
 - clarify the requested outcome,
 - identify scope and non-goals,
 - gather the minimum relevant context,
-- use `note_search` to retrieve bounded note context when a known seed note, task note, feature note, or semantic query can anchor planning context efficiently,
-- prefer semantic `note_search` over manual broad note discovery for concept-level planning context,
+- use `note-search` to retrieve bounded note context when a known seed note, task note, feature note, or semantic query can anchor planning context efficiently,
+- prefer semantic `note-search` over manual broad note discovery for concept-level planning context,
 - extract constraints, assumptions, dependencies, and open questions,
 - detect contradictions and missing decisions,
 - assess planning confidence,
 - identify planning-stage documentation gaps,
-- prepare documentation-gap context for `dw_clarify_intent` when durable notes need to change,
+- prepare documentation-gap context for `dw-clarify-intent` when durable notes need to change,
 - and produce a scoped implementation packet for explicit human approval.
 
 Do not:
@@ -81,7 +81,7 @@ Do not:
 - inspect linked files needed to understand scope,
 - create or refine task packet artifacts,
 - flag stale, missing, or contradictory documentation,
-- and prepare documentation-gap context for `dw_clarify_intent` when durable notes need to change.
+- and prepare documentation-gap context for `dw-clarify-intent` when durable notes need to change.
 
 ### Not allowed without explicit human approval
 - broad implementation changes,
@@ -97,7 +97,7 @@ Preferred order:
 
 1. Read the local `AGENTS.md` if it exists.
 2. Read the triggering request, note-ready handoff, or note.
-3. Use `note_search` when a known seed note or semantic query can retrieve a smaller relevant context set than manual note discovery.
+3. Use `note-search` when a known seed note or semantic query can retrieve a smaller relevant context set than manual note discovery.
 4. Read the directly linked durable notes, feature note, or feature hub, if present.
 5. Read the relevant central hubs.
 6. Read current decisions, constraints, active-context notes, and recent implementation reports.
@@ -109,13 +109,13 @@ Avoid broad repository scans when a smaller context set can define:
 - constraints,
 - risks,
 - and handoff requirements.
-If `note_search` is used, keep the retrieved set bounded and still apply judgment about which returned notes are actually relevant.
-For concept-level note discovery, use semantic `note_search` first so retrieval behavior can be observed and improved centrally.
+If `note-search` is used, keep the retrieved set bounded and still apply judgment about which returned notes are actually relevant.
+For concept-level note discovery, use semantic `note-search` first so retrieval behavior can be observed and improved centrally.
 
 Implementation planning should normally begin from durable project notes rather than informal chat alone.
 For v1, those notes may be assembled manually and may include task notes, architecture notes, implementation notes, feature notes, or other bounded project notes that preserve enough context to plan safely.
 If durable planning notes are still missing, escalate or route the planning gap through clarification instead of forcing packet creation from rough conversation.
-If durable note-backed planning context is missing, stale, or contradictory in a way that blocks safe packet creation, route the relevant planning context through `dw_clarify_intent` rather than creating or updating durable notes directly.
+If durable note-backed planning context is missing, stale, or contradictory in a way that blocks safe packet creation, route the relevant planning context through `dw-clarify-intent` rather than creating or updating durable notes directly.
 
 ## Hubs And Aggregation
 
@@ -151,7 +151,7 @@ Follow this sequence:
 6. Detect conflicts, missing decisions, or unclear ownership.
 7. Record a confidence assessment and mark approval status explicitly.
 8. Identify any durable note gaps that block safe planning.
-9. Route blocking durable note gaps through `dw_clarify_intent` when needed.
+9. Route blocking durable note gaps through `dw-clarify-intent` when needed.
 10. Produce a scoped implementation packet for human approval.
 11. Mark unresolved items explicitly.
 
@@ -201,7 +201,7 @@ Identify documentation gaps at the planning stage without directly mutating dura
 The planner may produce task packet artifacts directly.
 Task packets and implementation reports are workflow artifacts, not durable notes.
 
-Route durable note work through `dw_clarify_intent -> Note Manager` when the planner needs to:
+Route durable note work through `dw-clarify-intent -> Note Manager` when the planner needs to:
 - clarify durable task scope in project notes,
 - create or refine a durable task note,
 - connect durable notes to the relevant feature hub,
@@ -227,7 +227,7 @@ The packet should be self-sufficient enough that an implementer can execute from
 
 Task packets are workflow artifacts, not durable notes.
 Creating or refining a task packet artifact does not require `Note Manager`.
-If a task packet implies a durable note update, that update must route through `dw_clarify_intent -> Note Manager`.
+If a task packet implies a durable note update, that update must route through `dw-clarify-intent -> Note Manager`.
 
 At minimum, the final packet should include:
 - a header with packet title,
@@ -270,7 +270,7 @@ Planner outputs should be:
 Possible outputs include:
 - an implementation packet,
 - an escalation note,
-- documentation-gap context for `dw_clarify_intent`,
+- documentation-gap context for `dw-clarify-intent`,
 - or a recommendation for additional documentation work.
 
 If unresolved items remain, separate them clearly from the settled portion of the plan.
@@ -302,6 +302,6 @@ Do not rely on:
 Instead:
 - read local project instructions first,
 - infer the smallest viable note graph from local links and metadata,
-- use `note_search` when it helps retrieve that note graph or semantic context more efficiently,
+- use `note-search` when it helps retrieve that note graph or semantic context more efficiently,
 - use existing hubs and notes when present,
 - and make missing structure explicit rather than assuming it.

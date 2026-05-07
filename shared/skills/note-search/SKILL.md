@@ -1,5 +1,5 @@
 ---
-name: note_search
+name: note-search
 description: Retrieve bounded note context from a local markdown vault by routing known-seed requests to graph search and concept-level discovery requests to semantic embedding search. Use when Codex needs nearby notes, similar notes, or a query-first context capsule without broad vault reads.
 ---
 
@@ -16,10 +16,10 @@ This skill is the stable interface layer for note retrieval.
 It does not implement graph traversal, embedding, or ranking itself.
 It calls the local retrieval scripts:
 
-- graph search: `/home/yigit-kayali/.codex/tools/local_note_search.py`
+- graph search: `/home/yigit-kayali/.codex/tools/local_note-search.py`
 - semantic search: `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py`
 
-In the Project Planning Workflow vault, a repo-local semantic helper copy may also exist at `tools/local_note_semantic_search.py`; that copy is intentional and should stay synchronized with the installed helper when behavior changes.
+In an Atlas workflow source checkout, skill-related tool sources live under `shared/tools/`; those sources should stay synchronized with the installed helpers when behavior changes.
 
 ## Responsibilities
 
@@ -75,7 +75,7 @@ Manual text search remains acceptable for exact strings, filenames, or implement
 Use JSON by default.
 
 ```bash
-python3 /home/yigit-kayali/.codex/tools/local_note_search.py \
+python3 /home/yigit-kayali/.codex/tools/local_note-search.py \
   --vault-root "<vault-root>" \
   --seed-path "<note-path>" \
   --format json
@@ -84,7 +84,7 @@ python3 /home/yigit-kayali/.codex/tools/local_note_search.py \
 When only the note title is known:
 
 ```bash
-python3 /home/yigit-kayali/.codex/tools/local_note_search.py \
+python3 /home/yigit-kayali/.codex/tools/local_note-search.py \
   --vault-root "<vault-root>" \
   --seed-title "<note-title>" \
   --format json
@@ -93,7 +93,7 @@ python3 /home/yigit-kayali/.codex/tools/local_note_search.py \
 Use debug mode only when you need scoring, hop reasons, or unresolved-link diagnostics:
 
 ```bash
-python3 /home/yigit-kayali/.codex/tools/local_note_search.py \
+python3 /home/yigit-kayali/.codex/tools/local_note-search.py \
   --vault-root "<vault-root>" \
   --seed-path "<note-path>" \
   --format json \
@@ -126,7 +126,7 @@ Use `--no-refresh` only when the caller explicitly wants to avoid checking chang
 conda run --no-capture-output -n base-ml python /home/yigit-kayali/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --no-refresh --format json
 ```
 
-Semantic search uses `sentence-transformers/all-MiniLM-L6-v2` and stores a vault-local cache at `.codex-note_search/`.
+Semantic search uses `sentence-transformers/all-MiniLM-L6-v2` and stores a vault-local cache at `.codex-note-search/`.
 
 ## Output Handling
 

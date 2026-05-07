@@ -4,13 +4,13 @@ Status: [[status-settled]]
 Parent: [[Workflow Hub]]
 Related: [[note-search-skill]]
 Created: 14-04-2026
-Last Reviewed: 2026-05-05
+Last Reviewed: 2026-05-07
 
 ## Summary
 
 Create a reusable local script that agents can call with a known seed note to retrieve candidate related note paths without reading the entire vault.
 
-The v1 repository includes the graph script at `tools/local_note_search.py`.
+The Atlas source repository includes the graph script source at `shared/tools/local_note_search.py`.
 The semantic-search companion lives at `/home/yigit-kayali/.codex/tools/local_note_semantic_search.py` and is routed through [[note-search-skill]] rather than replacing this graph script.
 
 ## Current V1 Intent
@@ -58,9 +58,9 @@ Secondary use case:
 ## Usage
 
 ```bash
-python3 tools/local_note_search.py \
+python3 shared/tools/local_note_search.py \
   --vault-root . \
-  --seed-path "Full notes/Note Manager.md" \
+  --seed-path "Full notes/note-manager.md" \
   --format json
 ```
 

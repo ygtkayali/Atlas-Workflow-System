@@ -8,10 +8,10 @@ managed_files:
   - atlas-config
   - agents-bridge
 managed_skills:
-  - dw_clarify_intent
-  - dw_note_manager
-  - project_planner
-  - project_implementer
-  - implementation_verifier
-  - project_review_sync
+  - dw-clarify-intent
+  - dw-note-manager
+  - project-planner
+  - project-implementer
+  - implementation-verifier
+  - project-review-sync
 managed_tools: []

@@ -2,8 +2,9 @@
 
 Status: [[status-draft]]
 Parent: [[Idea Hub]]
-Related: [[Note Search Skill]], [[Local Note Search Script]], [[Note Manager]], [[LLM Wiki Lossy Compression and Integrity Risks]], [[Workflow Hub]]
+Related: [[note-search-skill]], [[Local Note Search Script]], [[note-manager]], [[LLM Wiki Lossy Compression and Integrity Risks]], [[Workflow Hub]]
 Created: 07-05-2026
+Last Reviewed: 2026-05-07
 
 ---
 
@@ -17,7 +18,7 @@ The core approach is to separate evidence extraction from durable note creation:
 2. A workflow skill interprets that graph into a documentation map and batch review.
 3. The human approves documentation batches, not every extracted fact.
 4. Note-ready handoffs are generated only for the selected batch.
-5. Durable notes still route through [[Note Manager]].
+5. Durable notes still route through [[note-manager]].
 
 ## Proposed Tool And Skill Split
 
@@ -52,7 +53,7 @@ Skill responsibilities:
 - recommend breadth-first or depth-first documentation batches
 - prepare `batch-review.md`
 - generate note-ready handoffs only for approved batches
-- route durable note changes through [[Note Manager]]
+- route durable note changes through [[note-manager]]
 
 ## Documentation Creation Logic
 
@@ -95,7 +96,7 @@ Batch review should let the human choose:
 - inspect cluster
 - defer ambiguous area
 - request clarification
-- route selected handoffs to [[Note Manager]]
+- route selected handoffs to [[note-manager]]
 
 ## Graphify Reference
 

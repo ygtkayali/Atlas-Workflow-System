@@ -83,29 +83,29 @@ managed_skills:
   install_scope: global
   sync_separate_from_project_init: true
   items:
-    - id: dw_clarify_intent
-      source: skills/dw_clarify_intent
-      installed_path: ~/.codex/skills/dw_clarify_intent
+    - id: dw-clarify-intent
+      source: skills/dw-clarify-intent
+      installed_path: ~/.codex/skills/dw-clarify-intent
       required: true
-    - id: dw_note_manager
-      source: skills/dw_note_manager
-      installed_path: ~/.codex/skills/dw_note_manager
+    - id: dw-note-manager
+      source: skills/dw-note-manager
+      installed_path: ~/.codex/skills/dw-note-manager
       required: true
-    - id: project_planner
-      source: skills/project_planner
-      installed_path: ~/.codex/skills/project_planner
+    - id: project-planner
+      source: skills/project-planner
+      installed_path: ~/.codex/skills/project-planner
       required: true
-    - id: project_implementer
-      source: skills/project_implementer
-      installed_path: ~/.codex/skills/project_implementer
+    - id: project-implementer
+      source: skills/project-implementer
+      installed_path: ~/.codex/skills/project-implementer
       required: true
-    - id: implementation_verifier
-      source: skills/implementation_verifier
-      installed_path: ~/.codex/skills/implementation_verifier
+    - id: implementation-verifier
+      source: skills/implementation-verifier
+      installed_path: ~/.codex/skills/implementation-verifier
       required: true
-    - id: project_review_sync
-      source: skills/project_review_sync
-      installed_path: ~/.codex/skills/project_review_sync
+    - id: project-review-sync
+      source: skills/project-review-sync
+      installed_path: ~/.codex/skills/project-review-sync
       required: true
 
 managed_tools:

@@ -12,13 +12,13 @@ Last Reviewed: 2026-05-07
 
 The workflow system should support modes that select and tune only the skills needed for a specific kind of work.
 
-This would let the current Project Planning Workflow become one mode while other modes can develop their own skill expectations without overloading the same skill files.
+This lets the former Project Planning Workflow become the source basis for one mode while other modes can develop their own skill expectations without overloading the same skill files.
 
 ## Current Direction
 
 - V2 should introduce the local mode system.
-- Project Planning Workflow should become a mode, not the entire system.
-- The first mode should be `dev-workflow`, based on the current Project Planning Workflow and tuned for technical projects.
+- Project Planning Workflow should be treated as the source basis for `dev-workflow`, not the entire system identity.
+- The first mode is `dev-workflow`, based on the Project Planning Workflow approach and tuned for technical projects.
 - Modes should expose selective skills rather than requiring every user to understand every role.
 - Active mode should live in project-root `atlas.yaml` for V2.
 - Reading mode should not need planning, implementation, implementation verification, or implementation review skills.
@@ -55,7 +55,7 @@ V2 should:
 
 - define `dev-workflow` as the first concrete mode
 - tune that mode for technical project planning, implementation, verification, review, and documentation sync
-- define a minimal YAML mode manifest with active skills, disabled skills, required files, templates, tools, gates, default artifacts, and health checks
+- validate and harden the scaffolded YAML mode manifest with active skills, disabled skills, required files, templates, tools, gates, default artifacts, and health checks
 - make the current workflow easier to install, inspect, and synchronize locally
 - preserve local `AGENTS.md` authority for project-specific behavior
 - test `dev-workflow` in real projects, with special attention to planner, implementer, verifier, and review/sync behavior
@@ -121,20 +121,21 @@ Mode-specific skills define behavior inside that boundary.
 
 Mode-specific installed skill instances are the clearest early option when behavior differs.
 
-Example installed skills:
+Implemented V2 skill ids:
 
 ```text
-dev-workflow-clarify-intent
-dev-workflow-note-manager
-dev-workflow-planner
-dev-workflow-implementer
-dev-workflow-verifier
-dev-workflow-review-sync
+dw-clarify-intent
+dw-note-manager
+project-planner
+project-implementer
+implementation-verifier
+project-review-sync
 
-reading-clarify-intent
-reading-note-manager
+note-search
 ```
 
+The first six are mode skills from `modes/dev-workflow/manifest.yaml`.
+`note-search` is a shared skill from `shared/manifest.yaml`.
 This avoids dynamically rewriting skills every time a mode is used.
 
 `note-search` should remain a shared skill across modes because its retrieval behavior is generic.
@@ -169,8 +170,8 @@ Technical workflow artifacts should get their own folders:
 - `Tasks/`
 - `Reports/`
 
-`clarify-intent` and `note-manager` should get `dev-workflow` specific skill files for V2 so technical note behavior can be explicit from the start.
-They should not be split into a separate `vault-governor` mode during V2 unless real mode testing shows that the current sequence cannot be tightened otherwise.
+`dw-clarify-intent` and `dw-note-manager` now provide `dev-workflow` specific skill files for V2 so technical note behavior can be explicit from the start.
+They should be validated in real technical-project work before deciding whether any separate `vault-governor` mode is needed.
 
 ### Reading / Article / Book Mode
 
@@ -204,7 +205,7 @@ These modes are deferred until after `dev-workflow` is clean and workable.
 
 ## Mode-Specific Note Surface
 
-Each mode may need its own note surface instead of inheriting the current Project Planning Workflow vault shape unchanged.
+Each mode may need its own note surface instead of inheriting the former Project Planning Workflow vault shape unchanged.
 
 The mode manifest should be able to define or propose:
 
@@ -276,11 +277,11 @@ Mode-specific skills should respect both the selected mode and the local project
 
 ## Open Questions
 
-- What exact YAML schema should `manifest.yaml` use?
+- Which parts of the initial YAML manifest schema need hardening after real-project use?
 - Which future mode should be developed first after `dev-workflow`: reading, knowledge-extraction, knowledge-base-maintenance, or maintenance-review?
 - How much duplicated skill text is acceptable before generation tooling is worth building?
 - What real-project trial should validate `dev-workflow` first?
 
 ## Next Possible Step
 
-Define the first minimal local `dev-workflow` YAML manifest and decide which skills, templates, tools, gates, default artifacts, and health checks belong in the V2 mode.
+Validate the scaffolded `dev-workflow` manifest and skill set in a real project, then decide whether the initial hyphenated skill ids and mode asset layout need refinement before adding more modes.

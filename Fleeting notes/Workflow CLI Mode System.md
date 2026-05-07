@@ -41,6 +41,18 @@ The CLI should make workflow setup reproducible without forcing every project to
 - If a local `AGENTS.md` already exists, the CLI should either leave it unchanged or add a clearly marked bridge only when explicitly allowed.
 - Mode behavior belongs in a separate mode-governance note rather than being fully defined inside the CLI note.
 
+## Current Implementation Snapshot
+
+The first local Atlas scaffold exists in this repository:
+
+- `./atlas` and `tools/atlas.py` provide the local command surface.
+- `modes/dev-workflow/manifest.yaml` defines the first mode.
+- `shared/manifest.yaml` defines shared assets such as `note-search` and the note-search tools.
+- mode skill sources use lowercase hyphenated ids such as `dw-clarify-intent`, `dw-note-manager`, `project-planner`, and `project-implementer`.
+
+`./atlas health check .` is report-only and currently surfaces missing project-local setup and missing hyphen-named global skills when those assets have not been synced yet.
+`./atlas skills sync --mode dev-workflow` remains the explicit command for reviewing and applying global skill installation.
+
 ## Version Scope
 
 ### V2: Local `atlas` Tooling
@@ -171,8 +183,8 @@ This workflow should copy the shape but be more conservative around `AGENTS.md`.
 
 - Should later updates become version-aware through package metadata, installed file hashes, or explicit managed-block markers?
 - How much should the CLI know about mode internals versus delegating to mode manifests?
-- Which commands are necessary for the first local `dev-workflow` mode, and which can wait for V3?
-- Should the first local command surface be a small script before becoming a packaged CLI?
+- Which existing commands need hardening after real-project trial?
+- When should the local script-style command surface become a packaged CLI, if ever?
 - Should `atlas health check` inspect only the current directory or accept both path and mode arguments?
 
 ## Tensions
@@ -184,4 +196,4 @@ This workflow should copy the shape but be more conservative around `AGENTS.md`.
 
 ## Next Possible Step
 
-Define the first `dev-workflow` `manifest.yaml`, then use it to drive local `atlas` mode listing, initialization, skill install/sync, and health checks.
+Use the scaffolded `dev-workflow` manifest to trial local `atlas` initialization, health checks, and explicit skill sync in a real project before expanding the mode catalog or packaging surface.

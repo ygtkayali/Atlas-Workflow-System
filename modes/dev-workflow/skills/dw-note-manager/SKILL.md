@@ -1,5 +1,5 @@
 ---
-name: dw_note_manager
+name: dw-note-manager
 description: Manage bounded note create/update work from a clarified context handoff plus user-supplied relevant notes. Use when Codex needs to decide, draft, or apply a bounded note action after clarification, especially in note-centered workflows that want explicit confirmation, template-based notes, and no autonomous vault retrieval or reorganization.
 ---
 
@@ -25,7 +25,7 @@ Do:
 - read the clarified context handoff,
 - route behavior using an explicit `owner` field in the input context when the local workflow provides one,
 - read only the specific relevant notes the user provides,
-- consume supplied `note_search` context capsules as upstream context when provided,
+- consume supplied `note-search` context capsules as upstream context when provided,
 - read the local note templates when they exist,
 - decide whether the bounded action is `create` or `update`,
 - decide note type, target note, title, links, and final durable note structure from the provided context,
@@ -86,13 +86,13 @@ Preferred order:
 1. Read the local `AGENTS.md` if it exists.
 2. Read the clarified context handoff.
 3. Read the specific note files or note paths supplied by the user.
-   Supplied context may include a semantic `note_search` context capsule, but `Note Manager` should not run search as its own discovery step.
+   Supplied context may include a semantic `note-search` context capsule, but `Note Manager` should not run search as its own discovery step.
 4. Read the local note templates that match the chosen or strongly indicated note type.
 5. Read [references/v1-note-rules.md](references/v1-note-rules.md) when note splitting, grouping, or type selection needs a closer pass, especially when choosing between `Main Hub`, `Sub Hub`, `General Note`, and `Idea Note`.
 
 Avoid broad repository scans. This skill should shape a bounded note action, not discover the whole vault.
 
-When `dw_clarify_intent` produces a visible `ready_for_note_manager` handoff for a required note change and the relevant note context is supplied, proceed into this workflow by default without waiting for separate phase-switch approval. The approval gate applies to the resulting draft or durable-write decision.
+When `dw-clarify-intent` produces a visible `ready_for_note_manager` handoff for a required note change and the relevant note context is supplied, proceed into this workflow by default without waiting for separate phase-switch approval. The approval gate applies to the resulting draft or durable-write decision.
 
 ## Workflow
 
@@ -111,7 +111,7 @@ Follow this sequence:
 10. Present the draft and wait for confirmation before writing.
 
 If any step depends on unprovided context or unclear structure, stop and escalate instead of improvising.
-If the input did not pass through `dw_clarify_intent`, route it there first and wait for a clarified context handoff before drafting note content.
+If the input did not pass through `dw-clarify-intent`, route it there first and wait for a clarified context handoff before drafting note content.
 
 ## Bundled Intake
 
@@ -140,7 +140,7 @@ The relationship between clarified subjects and note actions is not one-to-one:
 - one note action must target exactly one durable note,
 - multiple subjects may support one note action only when that relationship is explicit in the manifest.
 
-`dw_clarify_intent` owns semantic subject separation.
+`dw-clarify-intent` owns semantic subject separation.
 `Note Manager` owns subject-to-note mapping, note action choice, target note choice, note type, metadata, links, and final draft structure.
 When a handoff includes `Interpretation Basis`, use it as source basis for the note action and preserve the parts needed to validate intent later.
 Do not discard original input, tone or stance, user-intent versus agent-inference boundaries, open ambiguity, or things not to imply when those fields affect the durable note's meaning.

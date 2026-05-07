@@ -1,5 +1,5 @@
 ---
-name: implementation_verifier
+name: implementation-verifier
 description: Verify implementation-like changes after they are made and before final commit. Use when Codex should inspect the diff, create or update context-appropriate tests, run verification, optionally use subagents as independent validation, assess completeness, recommend commit readiness, and commit only when explicitly authorized.
 ---
 
