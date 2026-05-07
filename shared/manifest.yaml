@@ -1,0 +1,46 @@
+shared:
+  version: 0.1.0
+  description: Shared Atlas assets reused across modes.
+
+source_assets:
+  root: shared
+  skills: skills
+  tools: tools
+
+managed_skills:
+  install_scope: global
+  items:
+    - id: note_search
+      source: skills/note_search
+      installed_path: ~/.codex/skills/note_search
+      required: true
+
+managed_tools:
+  install_scope: global
+  items:
+    - id: local_note_search
+      source: tools/local_note_search.py
+      installed_path: ~/.codex/tools/local_note_search.py
+      required: true
+    - id: local_note_semantic_search
+      source: tools/local_note_semantic_search.py
+      installed_path: ~/.codex/tools/local_note_semantic_search.py
+      required: true
+
+health_checks:
+  report_only: true
+  checks:
+    - id: shared-source-asset-folders-present
+      type: paths_exist
+      targets:
+        - shared/skills
+        - shared/tools
+      severity: error
+    - id: shared-skills-installed
+      type: paths_exist
+      targets_from: managed_skills.items.installed_path
+      severity: warning
+    - id: shared-tools-installed
+      type: paths_exist
+      targets_from: managed_tools.items.installed_path
+      severity: warning

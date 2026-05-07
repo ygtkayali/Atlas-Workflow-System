@@ -1,0 +1,17 @@
+atlas:
+  mode: dev-workflow
+  version: 0.1.0
+vault:
+  name: docs
+  path: docs
+managed_files:
+  - atlas-config
+  - agents-bridge
+managed_skills:
+  - dw_clarify_intent
+  - dw_note_manager
+  - project_planner
+  - project_implementer
+  - implementation_verifier
+  - project_review_sync
+managed_tools: []

@@ -1,0 +1,175 @@
+mode:
+  name: dev-workflow
+  version: 0.1.0
+  description: Technical project workflow mode for clarification, note management, planning, implementation, verification, review, and documentation sync.
+
+source_assets:
+  root: modes/dev-workflow
+  files: files
+  templates: templates
+  starter_notes: starter-notes
+  skills: skills
+  tools: tools
+
+vault:
+  default_name: docs
+  default_path: docs
+  folders:
+    - path: Idea Backlog
+      purpose: Draft project and workflow ideas waiting for clarification, planning, promotion, implementation, or discard.
+    - path: Durable Notes
+      purpose: Settled or evolving project knowledge notes.
+    - path: Tasks
+      purpose: Implementation packets and task-facing workflow artifacts.
+    - path: Reports
+      purpose: Implementation reports, verification reports, and review/sync artifacts.
+    - path: Templates
+      purpose: Reusable note and artifact templates.
+    - path: Tags
+      purpose: Linked status and classification tags.
+    - path: Main Hubs
+      purpose: Lightweight index hubs for the workflow surface.
+
+managed_files:
+  - id: atlas-config
+    source: files/atlas.yaml
+    target: atlas.yaml
+    required: true
+    sync: create_if_missing
+    protect_existing: true
+    purpose: Record the active mode, configured vault path, and managed asset inventory for a project.
+  - id: agents-bridge
+    source: files/AGENTS.md
+    target: AGENTS.md
+    required: false
+    sync: create_if_missing
+    protect_existing: true
+    purpose: Provide a thin local bridge to the dev-workflow operating policy when a project has no local AGENTS.md.
+
+managed_templates:
+  - id: idea-note-template
+    source: templates/Idea Note Template.md
+    target: Templates/Idea Note Template.md
+    required: true
+  - id: general-note-template
+    source: templates/General Note Template.md
+    target: Templates/General Note Template.md
+    required: true
+  - id: sub-hub-template
+    source: templates/Sub Hub Template.md
+    target: Templates/Sub Hub Template.md
+    required: true
+
+managed_starter_notes:
+  - id: workflow-hub
+    source: starter-notes/Workflow Hub.md
+    target: Main Hubs/Workflow Hub.md
+    required: true
+  - id: agent-roles-hub
+    source: starter-notes/Agent Roles Hub.md
+    target: Main Hubs/Agent Roles Hub.md
+    required: true
+  - id: idea-hub
+    source: starter-notes/Idea Hub.md
+    target: Main Hubs/Idea Hub.md
+    required: true
+  - id: workflow-schemas-hub
+    source: starter-notes/Workflow Schemas Hub.md
+    target: Main Hubs/Workflow Schemas Hub.md
+    required: true
+
+managed_skills:
+  global_sync_command: atlas skills sync --mode dev-workflow
+  install_scope: global
+  sync_separate_from_project_init: true
+  items:
+    - id: dw_clarify_intent
+      source: skills/dw_clarify_intent
+      installed_path: ~/.codex/skills/dw_clarify_intent
+      required: true
+    - id: dw_note_manager
+      source: skills/dw_note_manager
+      installed_path: ~/.codex/skills/dw_note_manager
+      required: true
+    - id: project_planner
+      source: skills/project_planner
+      installed_path: ~/.codex/skills/project_planner
+      required: true
+    - id: project_implementer
+      source: skills/project_implementer
+      installed_path: ~/.codex/skills/project_implementer
+      required: true
+    - id: implementation_verifier
+      source: skills/implementation_verifier
+      installed_path: ~/.codex/skills/implementation_verifier
+      required: true
+    - id: project_review_sync
+      source: skills/project_review_sync
+      installed_path: ~/.codex/skills/project_review_sync
+      required: true
+
+managed_tools:
+  install_scope: mode_specific
+  items: []
+
+health_checks:
+  report_only: true
+  checks:
+    - id: manifest-yaml-valid
+      type: yaml_parse
+      target: modes/dev-workflow/manifest.yaml
+      severity: error
+    - id: source-asset-folders-present
+      type: paths_exist
+      targets:
+        - modes/dev-workflow/files
+        - modes/dev-workflow/templates
+        - modes/dev-workflow/starter-notes
+        - modes/dev-workflow/skills
+        - modes/dev-workflow/tools
+      severity: error
+    - id: project-atlas-config-present
+      type: file_exists
+      target: atlas.yaml
+      severity: warning
+    - id: local-agents-protected
+      type: existing_file_policy
+      target: AGENTS.md
+      policy: do_not_overwrite_without_explicit_approval
+      severity: error
+    - id: vault-folders-present
+      type: paths_exist
+      targets_from: vault.folders
+      severity: warning
+    - id: managed-skills-installed
+      type: paths_exist
+      targets_from: managed_skills.items.installed_path
+      severity: warning
+    - id: managed-tools-installed
+      type: paths_exist
+      targets_from: managed_tools.items.installed_path
+      severity: warning
+
+sync_policy:
+  health_check_mutates_files: false
+  project_init_installs_global_skills: false
+  global_skill_sync_command: atlas skills sync --mode dev-workflow
+  project_sync_command: atlas sync
+  project_sync_requires_explicit_approval: true
+  approval_granularity: whole_sync_run
+  protect_existing_files:
+    - AGENTS.md
+  never_overwrite_without_explicit_approval:
+    - AGENTS.md
+  existing_agents_md_behavior: leave_unchanged_or_add_explicit_bridge_only_after_approval
+  allowed_project_sync_actions:
+    - create_missing_managed_files
+    - create_missing_vault_folders
+    - update_managed_tools_after_approval
+    - update_managed_templates_after_approval
+    - update_managed_starter_notes_after_approval
+  disallowed_implicit_actions:
+    - replace_existing_agents_md
+    - install_global_skills_during_project_init
+    - mutate_files_during_health_check
+    - update_unmanaged_project_notes
