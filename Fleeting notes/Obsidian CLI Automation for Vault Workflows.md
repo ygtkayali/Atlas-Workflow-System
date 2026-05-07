@@ -4,6 +4,7 @@ Status: [[status-draft]]
 Parent: [[Idea Hub]]
 Related: [[Workflow Hub]], [[note-search-skill]]
 Created: 05-05-2026
+Last Reviewed: 2026-05-07
 
 ---
 
@@ -26,10 +27,12 @@ This should be explored as an idea before changing the workflow or depending on 
 - CLI automation may be useful for mechanical operations, but it should not replace workflow gates.
 - The safest first use would be read-only inspection or deterministic file operations after an explicit note action is decided.
 - Any tool dependency should be evaluated before being added to agent instructions.
+- Obsidian CLI integration is deferred for Atlas V2.
+- The first Atlas build should use plain filesystem markdown operations for initialization, health checks, sync, and managed workflow assets.
+- Obsidian-specific automation can be researched later as a separate tool integration question.
 
 ## Open Decisions
 
 - Whether to research the available Obsidian CLI options.
 - Whether the main vault needs CLI-specific rules in `AGENTS.md`.
-- Whether this workflow should keep plain filesystem markdown operations as the default path.
-
+- Whether this workflow should keep plain filesystem markdown operations as the default path after Atlas V2.

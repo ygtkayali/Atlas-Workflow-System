@@ -25,6 +25,16 @@ The CLI should make workflow setup reproducible without forcing every project to
 - The first mode should be `dev-workflow`.
 - Mode manifests should use YAML.
 - Mode manifests should be allowed to define mode-specific templates, starter notes, artifact folders, and human-facing vault folder names.
+- Project root should contain `atlas.yaml`.
+- `atlas.yaml` should record active mode, Atlas or mode version, documentation vault name and path, managed files, managed skills, and managed tools.
+- Managed assets are Atlas-created or Atlas-installed workflow assets, not every note in the project vault.
+- Global skill sync should be separate from project initialization.
+- `atlas skills sync --mode dev-workflow` should be the single user-facing command for installing missing skills and updating outdated skills.
+- `atlas health check .` should be report-only.
+- `atlas sync` may apply project-local file or tool updates only after explicit approval.
+- V2 sync approval should apply to the whole proposed sync run, not per-file partial approval.
+- Partial approval can be reconsidered later if sync plans become too large.
+- Obsidian CLI integration is deferred for V2.
 - Local project `AGENTS.md` files should remain authoritative for project-specific rules.
 - The workflow system's canonical `AGENTS.md` should remain the authority for workflow decisions.
 - Existing local `AGENTS.md` files should not be replaced automatically.
@@ -41,7 +51,7 @@ The local version should include:
 
 - listing available local modes
 - initializing the `dev-workflow` mode in a project or vault
-- installing or synchronizing mode-specific skills locally
+- synchronizing mode-specific global skills through a separate command
 - checking expected files, skills, templates, and tools
 - reporting drift without silently overwriting local project rules
 
@@ -64,15 +74,24 @@ V3 may include:
 ```bash
 atlas mode list
 atlas init --mode dev-workflow .
-atlas skills install --mode dev-workflow
-atlas skills sync --mode dev-workflow
 atlas health check .
+atlas sync
+atlas skills sync --mode dev-workflow
 ```
 
 `doctor` should not be the user-facing term.
 Use `health check` for setup and drift inspection.
 
-`update` should remain deferred until local versioning and managed-file policy are clearer.
+`update` should remain deferred until local versioning needs are clearer.
+
+`atlas init --mode dev-workflow .` should initialize project-local setup only.
+It should create or update `atlas.yaml` and initialize docs vault assets, but it should not install global skills implicitly.
+
+`atlas health check .` should read `atlas.yaml`, inspect the configured vault path, compare managed files, tools, and global skills against expected mode versions, and report missing, outdated, or inconsistent assets without mutating anything.
+
+`atlas sync` should show a proposed project-local file or tool update plan, ask for explicit approval, and apply the whole approved sync run.
+
+`atlas skills sync --mode dev-workflow` should install missing global mode skills, update outdated global mode skills, leave matching skills unchanged, and ask for explicit approval before applying changes.
 
 ## Manifest Format
 
@@ -81,28 +100,48 @@ Mode manifests should use YAML.
 The initial `manifest.yaml` should likely include:
 
 - mode name
-- mode purpose
-- active skills
-- disabled skills
-- required files
-- templates
-- starter notes
+- mode version
+- mode description
+- default vault name and path
+- expected folders
+- managed files
+- managed skills
+- managed tools
 - vault folder names
 - artifact folders
-- tools
 - gates
 - default artifacts
 - health checks
+- sync policy
 
 The manifest should define what `atlas` can inspect, initialize, install, and synchronize for a mode.
 It should not override local project authority.
 
-For `dev-workflow`, the mode manifest should probably use a clearer name than `Fleeting notes/` for draft implementation ideas, such as `Idea Backlog/`.
+For `dev-workflow`, the mode manifest should use `Idea Backlog/` instead of `Fleeting notes/` for draft implementation ideas.
 That name better matches notes that are waiting to be refined, planned, promoted to durable project documentation, implemented, or discarded.
+
+The project-local `atlas.yaml` should use this initial shape:
+
+```yaml
+atlas:
+  mode: dev-workflow
+  version: 0.1
+
+vault:
+  name: "docs"
+  path: "docs"
+
+managed_files: []
+managed_skills: []
+managed_tools: []
+```
+
+The mode manifest should stay operational: files, folders, tools, skills, versions, checks, and sync policy.
+Workflow philosophy belongs in `AGENTS.md` and skill files.
 
 ## Setup Responsibilities
 
-- install mode-specific Codex skills
+- synchronize mode-specific Codex skills through a separate global skill command
 - initialize project or vault starter files
 - check whether expected files and skills exist
 - detect stale or missing workflow assets
@@ -130,14 +169,10 @@ This workflow should copy the shape but be more conservative around `AGENTS.md`.
 
 ## Open Questions
 
-- Should global skill installation be separate from project or vault initialization?
-- Should CLI-managed state live in a config file, marker note, `.codex` file, or a generated metadata file?
-- Should updates be version-aware through package metadata, installed file hashes, or explicit managed-block markers?
-- Should `health check` only report drift or also offer fixes?
+- Should later updates become version-aware through package metadata, installed file hashes, or explicit managed-block markers?
 - How much should the CLI know about mode internals versus delegating to mode manifests?
 - Which commands are necessary for the first local `dev-workflow` mode, and which can wait for V3?
 - Should the first local command surface be a small script before becoming a packaged CLI?
-- Should `skills install` and `skills sync` remain separate commands or become one command with options?
 - Should `atlas health check` inspect only the current directory or accept both path and mode arguments?
 
 ## Tensions

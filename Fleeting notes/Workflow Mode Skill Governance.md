@@ -20,6 +20,7 @@ This would let the current Project Planning Workflow become one mode while other
 - Project Planning Workflow should become a mode, not the entire system.
 - The first mode should be `dev-workflow`, based on the current Project Planning Workflow and tuned for technical projects.
 - Modes should expose selective skills rather than requiring every user to understand every role.
+- Active mode should live in project-root `atlas.yaml` for V2.
 - Reading mode should not need planning, implementation, implementation verification, or implementation review skills.
 - `dev-workflow` should cover the whole technical workflow loop: clarification, note management, planning, implementation, verification, review, and sync.
 - Skills can be tuned differently per mode when their identity or behavior meaningfully changes.
@@ -93,7 +94,7 @@ atlas
   CLI layer
     mode listing
     initialization
-    skill install and sync
+    skill sync
     health checks
   mode layer
     dev-workflow
@@ -123,19 +124,20 @@ Mode-specific installed skill instances are the clearest early option when behav
 Example installed skills:
 
 ```text
-atlas-dev-workflow-clarify-intent
-atlas-dev-workflow-note-manager
-atlas-dev-workflow-planner
-atlas-dev-workflow-implementer
-atlas-dev-workflow-verifier
-atlas-dev-workflow-review-sync
+dev-workflow-clarify-intent
+dev-workflow-note-manager
+dev-workflow-planner
+dev-workflow-implementer
+dev-workflow-verifier
+dev-workflow-review-sync
 
-atlas-reading-clarify-intent
-atlas-reading-note-manager
-atlas-reading-note-search
+reading-clarify-intent
+reading-note-manager
 ```
 
 This avoids dynamically rewriting skills every time a mode is used.
+
+`note-search` should remain a shared skill across modes because its retrieval behavior is generic.
 
 ## Skill Behavior By Mode
 
@@ -158,9 +160,16 @@ It should care about:
 - stale documentation
 - implementation review and sync
 
-`dev-workflow` should probably rename the current `Fleeting notes/` idea area to `Idea Backlog/` or an equivalent mode-specific folder name, because these notes are not merely fleeting capture. In this mode, they function as draft project and workflow ideas waiting for later refinement, implementation planning, promotion to durable notes, or discard.
+`dev-workflow` should rename the current `Fleeting notes/` idea area to `Idea Backlog/` because these notes are not merely fleeting capture. In this mode, they function as draft project and workflow ideas waiting for later refinement, implementation planning, promotion to durable notes, or discard.
 
-`clarify-intent` and `note-manager` should stay shared core skills for V2, but their `dev-workflow` variants or mode instructions should make technical note behavior explicit.
+`Full notes/` should become `Durable Notes/`.
+
+Technical workflow artifacts should get their own folders:
+
+- `Tasks/`
+- `Reports/`
+
+`clarify-intent` and `note-manager` should get `dev-workflow` specific skill files for V2 so technical note behavior can be explicit from the start.
 They should not be split into a separate `vault-governor` mode during V2 unless real mode testing shows that the current sequence cannot be tightened otherwise.
 
 ### Reading / Article / Book Mode
@@ -214,6 +223,7 @@ This should stay mode-specific because different modes organize work differently
 Examples:
 
 - `dev-workflow` needs implementation-facing idea backlog, planning, packet, report, verification, and sync artifacts.
+- The default `dev-workflow` vault surface is `Idea Backlog/`, `Durable Notes/`, `Tasks/`, `Reports/`, `Templates/`, `Tags/`, and `Main Hubs/`.
 - reading, article, or book modes may need source, excerpt, claim, concept, and question templates.
 - knowledge-base maintenance may need provenance, stale-claim, conflict, and review-report structures.
 
@@ -268,11 +278,7 @@ Mode-specific skills should respect both the selected mode and the local project
 
 - What exact YAML schema should `manifest.yaml` use?
 - Which future mode should be developed first after `dev-workflow`: reading, knowledge-extraction, knowledge-base-maintenance, or maintenance-review?
-- Should `clarify-intent` stay mostly shared or become mode-specific immediately?
-- Should `note-search` be shared across modes or tuned for reading versus project retrieval?
-- What should each mode call its draft or incubating idea area?
 - How much duplicated skill text is acceptable before generation tooling is worth building?
-- How should a user see which mode is active in a directory?
 - What real-project trial should validate `dev-workflow` first?
 
 ## Next Possible Step
