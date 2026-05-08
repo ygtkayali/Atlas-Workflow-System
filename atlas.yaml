@@ -13,10 +13,13 @@ managed_tags:
 - status-settled
 - status-archived
 managed_skills:
+- note-search
 - dw-clarify-intent
 - dw-note-manager
 - project-planner
 - project-implementer
 - implementation-verifier
 - project-review-sync
-managed_tools: []
+managed_tools:
+- local_note_search
+- local_note_semantic_search

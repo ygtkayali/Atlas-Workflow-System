@@ -127,48 +127,26 @@ Owns:
 - acceptance of major changes,
 - final decisions.
 
-The human can:
-- create or edit notes,
-- approve or reject task packets,
-- request implementation,
-- review reports,
-- update priorities.
+The human may create or edit notes, approve or reject task packets, request implementation, review reports, and update priorities.
 
 ### Planner / Documentation Agent
-Responsible for:
-- refining task intent,
-- detecting ambiguity,
-- checking constraints,
-- updating documentation,
-- creating implementation task packets,
-- preparing compact context for the coding agent.
+Owns clarity before execution: refine intent, surface ambiguity, check constraints, and prepare implementation context when planning is needed.
 
-This role should optimize for clarity, constraint adherence, and decision visibility.
+Detailed planning procedure lives in the selected skill.
 
 ### Implementer Agent
-Responsible for:
-- reading the approved task packet or a sufficiently specific direct coding request,
-- inspecting code and relevant files,
-- making operation-scoped changes,
-- running checks,
-- producing a structured implementation report.
+Owns scoped execution from an approved packet or sufficiently specific direct coding request.
 
-This role should optimize for correct, limited execution.
-It should not redefine project goals or silently rewrite architecture.
-It may begin from a direct user coding request when scope and constraints are already clear.
-It must escalate instead of guessing when the request would force architecture, schema, API, dependency, or other high-impact decisions.
-It does not own stale-note updates or durable note synchronization.
+It should keep implementation limited, explainable, and verified. It does not own stale-note updates or durable note synchronization.
+
+Detailed implementation procedure lives in the selected skill.
 
 ### Review / Sync Agent
-Responsible for:
-- comparing implementation results to the task packet,
-- analyzing bounded maintenance review tasks when given a scoped maintenance request,
-- routing documentation or maintenance findings through clarification and note management,
-- surfacing mismatches,
-- suggesting follow-up tasks,
-- marking stale notes or decision gaps,
-- producing review or maintenance reports,
-- and recommending whether the implementation should be kept, revised, rejected, synchronized, followed up, or left unchanged.
+Owns comparison, drift detection, and synchronization routing after implementation or during bounded maintenance review.
+
+It recommends closeout disposition but does not silently normalize mismatches or bypass note-management gates.
+
+Detailed review and synchronization procedure lives in the selected skill.
 
 ---
 
@@ -185,26 +163,6 @@ The old workflow and agent-role hub notes are retired as runtime references.
 Agents should not need to load hub notes to route routine work.
 Artifact-shape notes may remain as lightweight reference material, but runtime routing starts here.
 
-### Workflow loops
-
-For ideas and durable note work:
-
-```text
-idea -> dw-clarify-intent -> clarified context handoff -> dw-note-manager draft
-```
-
-For implementation:
-
-```text
-note-backed need or clear direct request -> project-planner when needed -> approved packet or clear direct request -> project-implementer -> implementation report -> project-review-sync
-```
-
-For documentation sync after implementation:
-
-```text
-project-review-sync -> dw-clarify-intent -> clarified context handoff -> dw-note-manager draft
-```
-
 ### Skill routing table
 
 | Situation | Skill | Required output or gate |
@@ -213,6 +171,7 @@ project-review-sync -> dw-clarify-intent -> clarified context handoff -> dw-note
 | Durable note create/update, metadata edit, status change, link change, archival change, schema/governance edit, or correction | `dw-note-manager` | Draft first unless direct-write authorization is clear; durable write only after the note-manager gate is satisfied |
 | Note-backed implementation planning need | `project-planner` | Scoped implementation packet with explicit approval state |
 | Approved packet or sufficiently specific direct coding request | `project-implementer` | Operation-scoped change plus implementation report |
+| Verification before closeout for implementation-like changes | `implementation-verifier` | Verification result, durable tests when appropriate, and explicit remaining risk |
 | Completed implementation review, documentation-sync routing, or bounded maintenance review | `project-review-sync` | Review or maintenance report with disposition |
 | Note-related retrieval needed by clarification, planning, or review | `note-search` helper | Candidate note paths or local context capsule; caller supplies task context and `note-search` chooses retrieval mode |
 
@@ -244,34 +203,18 @@ Hard gate sequence:
 - approved note-manager draft and clear workflow authorization -> durable note write
 - note-backed implementation need -> `project-planner`
 - approved packet or sufficiently specific direct coding request -> `project-implementer`
+- implementation-like changes -> `implementation-verifier` when verification is requested, required, or materially useful before closeout
 - completed implementation or bounded maintenance task -> `project-review-sync`
 
 Dynamic routing should improve the quality of the current phase.
 It must not be used to complete multiple phases silently.
 
+When a prompt contains multiple domains, areas, or branching ideas, `dw-clarify-intent` should split it into provisional subject bundles before downstream work.
+This split is intake evidence, not final note structure; `dw-note-manager` decides concrete note actions from a ready handoff plus supplied relevant note context.
+
 Durable writes are never inferred from isolated wording.
 The agent must evaluate the full prompt, current workflow state, user intent, risk, and whether required upstream gates are satisfied.
 If direct-write authorization is ambiguous, default to draft-only output.
-
----
-
-## Routing Authority Boundaries
-
-Skill routing exists to make the workflow easier to apply in real tasks.
-It does not weaken human authority, approval gates, scoped context, or role boundaries.
-
-Dynamic routing does not give the agent authority to decide:
-- project intent,
-- architecture direction,
-- note ownership or placement when unclear,
-- implementation scope,
-- schema or API changes,
-- dependency additions,
-- security or privacy behavior,
-- or whether an implementation packet is approved.
-
-When a prompt contains multiple domains, areas, or branching ideas, `dw-clarify-intent` should split it into provisional subject bundles before downstream work.
-This split is intake evidence, not final note structure; `dw-note-manager` decides concrete note actions from a ready handoff plus supplied relevant note context.
 
 Durable note mutation rule:
 - any durable note create, update, metadata edit, status change, link change, archival change, schema/governance note edit, or correction must route through `dw-note-manager`
@@ -281,61 +224,40 @@ Durable note mutation rule:
 
 ---
 
-## Base Workflow
+## Common Workflow Shapes
 
-### Phase 1: Clarify intent
-A task begins from a human-written note, task request, idea note, or feature note.
+These are common paths, not mandatory full sequences.
+Use the smallest valid path that satisfies the current gate, and stop at the first unresolved gate.
 
-Expected outcome:
-- clarified intent,
-- relevant constraints,
-- known uncertainties,
-- initial scope,
-- and either a continued clarification state or a visible clarified context handoff that is immediately routed to `Note Manager` when bounded note work is required and ready.
+For ideas and durable note work:
 
-### Phase 2: Create or update durable notes
-The `Note Manager` step turns clarified intent into bounded durable note work.
-All durable note mutations must pass through this step.
+```text
+idea -> dw-clarify-intent -> ready_for_note_manager handoff -> dw-note-manager draft -> approved durable write when authorized
+```
 
-Expected outcome:
-- a small set of durable note creates or updates,
-- minimal metadata and intentional links,
-- conservative note typing,
-- refreshed dynamic metadata such as status, review date, related links, decisions, and tasks when applicable,
-- and explicit refusal to proceed when the supplied context is insufficient for responsible note placement or note-type selection.
+For note-backed implementation:
 
-### Phase 3: Prepare implementation packet
-The planner/documentation agent creates a task packet from note-backed project state when implementation planning is actually needed.
-For v1, the planner may rely on manually prepared task, architecture, or implementation notes as the durable planning context.
+```text
+note-backed need -> project-planner -> approved packet -> project-implementer -> implementation report -> implementation-verifier when needed -> project-review-sync
+```
 
-The packet should include:
-- objective,
-- scope,
-- constraints,
-- relevant files/components,
-- linked documentation,
-- acceptance criteria,
-- non-goals,
-- questions or risks,
-- confidence assessment,
-- and approval status.
+For clear direct coding requests:
 
-### Phase 4: Human approval
-The human reviews every task packet before implementation.
-Implementation must not begin until the user explicitly approves the current packet revision.
+```text
+sufficiently specific direct request -> project-implementer -> implementation report -> implementation-verifier when needed -> project-review-sync
+```
 
-### Phase 5: Implementation
-The implementer agent performs only the explicitly approved work from the approved packet.
-Implementation should be packet-bound: the implementer should inspect and edit only the files or artifacts explicitly allowed by the approved packet unless a revised packet is approved.
+For documentation sync after implementation:
 
-### Phase 6: Implementation report
-The implementer agent returns a structured report.
+```text
+project-review-sync -> dw-clarify-intent when durable note decisions are needed -> ready_for_note_manager handoff -> dw-note-manager draft
+```
 
-### Phase 7: Review and sync
-The review/sync agent compares the implementation to the approved packet, analyzes scoped maintenance requests when asked, routes documentation or maintenance findings through clarification and note management, flags mismatches, and produces a recommendation for human closeout.
+For maintenance review:
 
-### Phase 8: Human closeout
-The human decides whether to keep the implementation, reject it, request revisions, or reopen the task.
+```text
+bounded maintenance request -> project-review-sync -> dw-clarify-intent or follow-up planning when needed
+```
 
 ---
 
@@ -494,53 +416,6 @@ State:
 
 ---
 
-## Output Expectations
-
-### Clarification output should be:
-- structured,
-- explicit about what is `decided`, `proposed`, `unclear`, or `blocked`,
-- challenge-oriented rather than planner-shaped by default,
-- efficient about the next highest-value questions instead of repeating a full handoff on every turn,
-- explicit about whether it is continuing clarification, ending clarification with a next-step recommendation, or producing a note-ready handoff,
-- and task-relative about confidence: idea capture may only need clear uncertainty, while architecture or workflow decisions need stronger resolution.
-
-### Note Manager output should be:
-- bounded,
-- conservative about note structure,
-- explicit about whether the action is `create` or `update`,
-- based only on the provided relevant notes plus local templates,
-- explicit about dynamic metadata changes such as status, review date, related links, decisions, and tasks,
-- protective of unresolved idea-note content when the source is exploratory,
-- and draft-first unless the prompt and current workflow state clearly authorize direct writes.
-
-### Planner / Documentation output should be:
-- structured,
-- actionable,
-- scoped,
-- explicit about missing information,
-- explicit about confidence,
-- and explicit about approval state.
-
-### Implementer output should include:
-- summary of change,
-- files touched,
-- why those files changed,
-- checks run,
-- assumptions introduced,
-- unresolved issues,
-- docs to update.
-
-### Review / Sync output should include:
-- durable documentation sync routed or proposed,
-- docs still stale,
-- new decision candidates,
-- follow-up tasks,
-- priority changes if warranted,
-- maintenance review reports when the task is maintenance-oriented,
-- and a recommended disposition: `keep`, `revise`, `reject`, `sync-needed`, `follow-up-needed`, or `no-action`.
-
----
-
 ## Definition of Success
 
 A successful task flow should result in:
@@ -570,6 +445,34 @@ The system is failing if:
 - high-impact decisions are made implicitly,
 - context packets grow bloated and noisy,
 - or the human stops trusting the notes as current state.
+
+---
+
+## Repo Specific Instructions
+
+This repository is the Atlas Workflow System repository.
+It may contain multiple reusable modes under `modes/`.
+
+This checkout itself is initialized as a `dev-workflow` project for development of the Atlas Workflow System.
+Use the root `atlas.yaml` to confirm the active mode for this repo.
+
+Repo-specific plans, notes, implementation packets, reports, and project context belong under this repo's `docs/` vault.
+
+Mode-specific changes belong under the relevant `modes/<mode>/` source when they affect reusable mode behavior, including:
+- persistent folder structures,
+- managed files,
+- reusable rules,
+- reusable templates,
+- starter notes,
+- managed tags,
+- mode-specific skills,
+- mode-specific tools.
+
+Do not maintain reusable mode behavior in both a project copy and the mode source.
+Change the relevant `modes/<mode>/` source, then use Atlas sync in the project where that mode is used.
+
+For this repository's own workflow, the active mode is currently `dev-workflow`.
+When changing reusable behavior for that mode, update `modes/dev-workflow/` and sync it into this repo rather than manually maintaining both places.
 
 ---
 

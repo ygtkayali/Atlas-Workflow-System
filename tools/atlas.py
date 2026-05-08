@@ -444,6 +444,23 @@ def atlas_config_for_mode(manifest: dict[str, Any], mode: str) -> dict[str, Any]
     managed_tags = manifest.get("managed_tags", [])
     skill_items = managed_skills.get("items", []) if isinstance(managed_skills, dict) else []
     tool_items = managed_tools.get("items", []) if isinstance(managed_tools, dict) else []
+    shared_manifest = load_shared_manifest()
+    shared_skill_items: list[dict[str, Any]] = []
+    shared_tool_items: list[dict[str, Any]] = []
+    if shared_manifest:
+        _, shared = shared_manifest
+        shared_skills = shared.get("managed_skills", {})
+        shared_tools = shared.get("managed_tools", {})
+        if isinstance(shared_skills, dict):
+            shared_skill_items = [
+                item for item in shared_skills.get("items", [])
+                if isinstance(item, dict)
+            ]
+        if isinstance(shared_tools, dict):
+            shared_tool_items = [
+                item for item in shared_tools.get("items", [])
+                if isinstance(item, dict)
+            ]
 
     return {
         "atlas": {
@@ -458,12 +475,12 @@ def atlas_config_for_mode(manifest: dict[str, Any], mode: str) -> dict[str, Any]
         "managed_tags": [item.get("id") for item in managed_tags if isinstance(item, dict)],
         "managed_skills": [
             item.get("id")
-            for item in skill_items
+            for item in [*shared_skill_items, *skill_items]
             if isinstance(item, dict)
         ],
         "managed_tools": [
             item.get("id")
-            for item in tool_items
+            for item in [*shared_tool_items, *tool_items]
             if isinstance(item, dict)
         ],
     }
