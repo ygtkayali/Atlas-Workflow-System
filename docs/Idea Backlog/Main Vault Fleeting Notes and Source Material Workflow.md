@@ -1,7 +1,8 @@
 # Main Vault Fleeting Notes and Source Material Workflow
 
 Status: [[Tags/status-draft]]
-Parent: [[Main Hubs/Idea Hub]]
+Type: [[idea-note]]
+Parent:
 Related: [[Main Hubs/Workflow Hub]], [[note-manager]]
 Created: 05-05-2026
 

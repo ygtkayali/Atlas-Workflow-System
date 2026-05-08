@@ -1,7 +1,8 @@
 # Workflow Mode Skill Governance
 
 Status: [[Tags/status-draft]]
-Parent: [[Main Hubs/Idea Hub]]
+Type: [[idea-note]]
+Parent:
 Related: [[Workflow CLI Mode System|Workflow CLI Tooling System]], [[Main Hubs/Workflow Hub]], [[Main Hubs/Agent Roles Hub]]
 Created: 2026-05-06
 Last Reviewed: 2026-05-07

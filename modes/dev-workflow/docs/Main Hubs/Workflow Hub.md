@@ -2,9 +2,9 @@
 
 Status: [[Tags/status-settled]]
 Parent:
-Related: [[modes/dev-workflow/docs/Main Hubs/Agent Roles Hub]], [[modes/dev-workflow/docs/Main Hubs/Workflow Schemas Hub]], [[modes/dev-workflow/docs/Main Hubs/Idea Hub]]
+Related: [[modes/dev-workflow/docs/Main Hubs/Agent Roles Hub]], [[modes/dev-workflow/docs/Main Hubs/Workflow Schemas Hub]], [[modes/dev-workflow/docs/Tags/idea-note]]
 Created: 2026-04-14
-Last Reviewed: 2026-05-07
+Last Reviewed: 2026-05-08
 Scope: Local entry point for the dev-workflow operating loop.
 
 ## Overview
@@ -37,7 +37,8 @@ project-review-sync -> dw-clarify-intent -> clarified context handoff -> dw-note
 
 - [[modes/dev-workflow/docs/Main Hubs/Agent Roles Hub]] explains which installed skill owns each phase.
 - [[modes/dev-workflow/docs/Main Hubs/Workflow Schemas Hub]] explains the core handoff, packet, and report artifacts.
-- [[modes/dev-workflow/docs/Main Hubs/Idea Hub]] is the local entry point for captured ideas before they become durable project state.
+- `docs/Idea Backlog/` stores captured ideas, future plans, and questions before they become durable project state.
+- [[modes/dev-workflow/docs/Tags/idea-note]] marks notes that are still idea-shaped rather than active feature subjects or design notes.
 
 ## Local Project Growth
 

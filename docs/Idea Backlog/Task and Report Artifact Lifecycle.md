@@ -1,7 +1,8 @@
 # Task and Report Artifact Lifecycle
 
 Status: [[Tags/status-draft]]
-Parent: [[Main Hubs/Idea Hub]]
+Type: [[idea-note]]
+Parent:
 Related: [[Workflow CLI Tooling System]], [[Workflow Mode Skill Governance]], [[Two-Phase Workflow Boundary]]
 Created: 2026-05-07
 Last Reviewed: 2026-05-07

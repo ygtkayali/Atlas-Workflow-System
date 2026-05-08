@@ -1,7 +1,8 @@
 # LLM Wiki Lossy Compression and Integrity Risks
 
 Status: [[Tags/status-draft]]
-Parent: [[Main Hubs/Idea Hub]]
+Type: [[idea-note]]
+Parent:
 Related: [[Main Vault Fleeting Notes and Source Material Workflow]], [[Local Note Search Script]], [[Main Hubs/Workflow Hub]]
 Created: 06-05-2026
 

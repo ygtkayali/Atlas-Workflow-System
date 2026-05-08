@@ -1,7 +1,8 @@
 # Project Documenter Evidence Graph Workflow
 
 Status: [[Tags/status-draft]]
-Parent: [[Main Hubs/Idea Hub]]
+Type: [[idea-note]]
+Parent:
 Related: [[note-search-skill]], [[Local Note Search Script]], [[note-manager]], [[LLM Wiki Lossy Compression and Integrity Risks]], [[Main Hubs/Workflow Hub]]
 Created: 07-05-2026
 Last Reviewed: 2026-05-07

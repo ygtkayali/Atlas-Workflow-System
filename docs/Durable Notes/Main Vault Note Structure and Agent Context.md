@@ -1,10 +1,10 @@
 # Main Vault Note Structure and Agent Context
 
 Status: [[Tags/status-settled]]
-Parent: [[Main Hubs/Idea Hub]]
+Parent:
 Related: [[Main Hubs/Workflow Hub]], [[note-manager]], [[Main Vault Fleeting Notes and Source Material Workflow]]
 Created: 05-05-2026
-Last Reviewed: 2026-05-05
+Last Reviewed: 2026-05-08
 
 ---
 

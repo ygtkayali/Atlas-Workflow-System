@@ -1,7 +1,8 @@
 # Semantic Search Model Reload Delay
 
 Status: [[Tags/status-draft]]
-Parent: [[Main Hubs/Idea Hub]]
+Type: [[idea-note]]
+Parent:
 Related: [[note-search-skill]]
 Created: 05-05-2026
 

@@ -29,6 +29,7 @@ Do:
 - read the local note templates when they exist,
 - decide whether the bounded action is `create` or `update`,
 - decide note type, target note, title, links, and final durable note structure from the provided context,
+- use the local note-type tags when the project provides them, especially `[[idea-note]]`, `[[feature-subject-note]]`, and `[[design-note]]`,
 - choose folder placement only from the provided context, local folder policy, or local `AGENTS.md`, treating folder placement as readability rather than governance,
 - refresh dynamic metadata on every create or update so status and other changing header fields reflect the current note state rather than stale template or prior values,
 - evaluate context drift on every update, including whether status should become `[[status-draft]]`, `[[status-active]]`, `[[status-pending]]`, `[[status-settled]]`, or `[[status-archived]]`,
@@ -36,7 +37,8 @@ Do:
 - keep note bodies meaningful and durable,
 - consume and preserve the handoff's `Interpretation Basis` when it affects intent, tone, uncertainty, or traceability,
 - preserve the original input or upstream artifact especially when the clarified context handoff exists only as transient conversation state, using a link, excerpt, concise basis note, or intentional redaction as appropriate,
-- preserve the question-based nature of `Idea Note` content when the handoff is exploratory,
+- preserve the question-based nature of `[[idea-note]]` content when the handoff is exploratory,
+- preserve local design-choice trails inside `[[feature-subject-note]]` notes instead of moving every decision into a separate design note,
 - use the minimum useful links needed for the provided context,
 - prefer intentional related links over default parent placement,
 - split or group subjects conservatively using the v1 note rules,
@@ -88,7 +90,7 @@ Preferred order:
 3. Read the specific note files or note paths supplied by the user.
    Supplied context may include a semantic `note-search` context capsule, but `Note Manager` should not run search as its own discovery step.
 4. Read the local note templates that match the chosen or strongly indicated note type.
-5. Read [references/v1-note-rules.md](references/v1-note-rules.md) when note splitting, grouping, or type selection needs a closer pass, especially when choosing between `Main Hub`, `Sub Hub`, `General Note`, and `Idea Note`.
+5. Read [references/v1-note-rules.md](references/v1-note-rules.md) when note splitting, grouping, or type selection needs a closer pass, especially when choosing between hub roles and local note-type tags.
 
 Avoid broad repository scans. This skill should shape a bounded note action, not discover the whole vault.
 
@@ -101,7 +103,7 @@ Follow this sequence:
 1. Identify the durable subject from the clarified context handoff.
 2. Confirm that the current request has already passed through clarification at least once.
 3. Confirm the candidate action: `create` or `update`.
-4. Choose and justify the note type: `Main Hub`, `Sub Hub`, `General Note`, or `Idea Note`.
+4. Choose and justify the note type, preferring local note-type tags such as `[[idea-note]]`, `[[feature-subject-note]]`, or `[[design-note]]` when they exist.
 5. Read only the provided notes needed for the action.
 6. Decide whether the subject belongs in one note or a small obvious set of notes.
    If the handoff contains provisional subject bundles, use them as input evidence rather than final note structure.
@@ -157,6 +159,7 @@ Refresh dynamic metadata for every durable note mutation.
 
 At minimum, evaluate:
 - `Status`,
+- `Type`,
 - `Last Reviewed`,
 - `Related`,
 - `Parent`,
@@ -181,19 +184,31 @@ Do not preserve stale metadata just because the body edit is small.
 
 ## Note-Type Selection
 
-Prefer these defaults:
-- `Main Hub` only for a lightweight top-level index role. It should stay mostly empty, should not become the primary hierarchical center of the vault, and should usually be referenced by sub hubs rather than directly linking broadly across the note graph.
-- `Sub Hub` for broader context in a bounded area when related notes need an organizing layer. Sub hubs may contain other sub hubs when the area has expanded enough to justify another context layer.
-- `General Note` for the main unit of durable knowledge: a concrete system concept, feature area, workflow concept, or implementation-facing subject that should evolve as understanding improves.
-- `Idea Note` for ideas, feature directions, or other not-yet-actualized subjects that are worth preserving but are not yet stable project knowledge.
+Prefer the local dev-workflow note-type tags when they exist:
+- `[[idea-note]]` for draft ideas, future plans, exploratory questions, and possible directions that are not yet active durable project subjects. These notes usually live in `docs/Idea Backlog/` and should not depend on a separate idea hub.
+- `[[feature-subject-note]]` for promoted project subjects that started as ideas and are now active or settled project knowledge. Use this for one feature, workflow behavior, implementation concept, or action area. Preserve the subject's own design choices, technical details, implementation notes, open questions, and related tasks or reports in the note.
+- `[[design-note]]` for coherent design areas or cross-cutting system behavior. Use this when the design spans multiple feature subject notes, constrains future work, or should explain how a related feature set works from one place.
 
-`Idea Note` content should preserve live thinking.
+Keep this structural role available:
+- `Main Hub` only for a lightweight top-level index role. It should stay mostly empty, should not become the primary hierarchical center of the vault, and should usually link to stable workflow entry points rather than broadly across the note graph.
+
+Do not use `General Note` as a normal fallback in `dev-workflow`.
+The `[[feature-subject-note]]` template is the default durable subject template for notes that would previously have been generic durable notes.
+
+Do not expose `Sub Hub` as a normal note-creation path in `dev-workflow`.
+When a related subject set needs one shared explanation, prefer a `[[design-note]]`; its links to related subject notes provide the natural organizing layer.
+
+`[[idea-note]]` content should preserve live thinking.
 When the source handoff is exploratory, use questions, tensions, candidate options, assumptions to test, branching thoughts, and unresolved decisions as first-class content.
 Do not smooth these into recommendations or settled direction unless the handoff explicitly marks them as decided.
 
+When promoting an idea, prefer creating or updating a `[[feature-subject-note]]` rather than a `[[design-note]]`.
+Use a `[[design-note]]` later when an active or settled feature set needs a broader design explanation.
+A design note does not replace the local `Design Choices` or equivalent decision trail inside the feature subject notes.
+
 Do not use `Sub Hub` as a generic wrapper for every small topic cluster.
 Do not promote a note to `Main Hub` just because it is high-level.
-Allow a `General Note` to become a `Sub Hub` later when the subject expands and clearly needs broader organizing context.
+If a future project truly needs a hub-like note beyond the starter main hubs, escalate instead of silently creating a sub hub.
 
 ## Vault Folder Handling
 
@@ -210,12 +225,14 @@ Folder placement and note type are separate concepts.
 A note's operational meaning should come from its role, metadata, links, and supplied context, not from its folder alone.
 
 When a vault has a local folder policy, follow it only as a placement/readability rule.
-For the main-vault structure, the base folders are:
-- `Fleeting notes` for Idea Notes and early capture,
+For the current dev-workflow structure, the base folders are:
+- `Idea Backlog` for `[[idea-note]]` notes and early capture,
+- `Durable Notes` for active or settled project knowledge such as `[[feature-subject-note]]` and `[[design-note]]` notes,
+- `Tasks` for implementation packets and task-facing workflow artifacts,
+- `Reports` for implementation, verification, and review/sync reports,
 - `Tags` for note-based tags,
 - `Main Hubs` for hub notes,
-- `Templates` for note templates,
-- and `Full notes` for durable notes that do not belong to the other base folders.
+- and `Templates` for note and artifact templates.
 
 Project-specific folders may be valid when the project type benefits from them, such as `Tests`, `Features`, or `Reports`.
 Those folders should be proposed or constrained by the project's local `AGENTS.md` or supplied project context.

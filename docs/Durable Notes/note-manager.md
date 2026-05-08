@@ -2,11 +2,11 @@
 
 Status: [[Tags/status-settled]]
 Parent: [[Main Hubs/Workflow Hub]]
-Related: [[clarify-intent]], [[clarified-context-handoff]], [[Two-Phase Workflow Boundary]], [[Durable Notes Follow Accepted Implementation]], [[Main Vault Note Structure and Agent Context]]
+Related: [[clarify-intent]], [[clarified-context-handoff]], [[Two-Phase Workflow Boundary]], [[Durable Notes Follow Accepted Implementation]], [[Main Vault Note Structure and Agent Context]], [[Tags/idea-note]], [[Tags/feature-subject-note]], [[Tags/design-note]]
 Created: 2026-04-14
-Last Reviewed: 2026-05-06
+Last Reviewed: 2026-05-08
 Source: [[LLM Wiki Lossy Compression and Integrity Risks]]
-Decisions: `Note Manager` must consume and preserve the handoff's `Interpretation Basis`, especially original input, when drafting or updating durable notes.
+Decisions: `Note Manager` must consume and preserve the handoff's `Interpretation Basis`, especially original input, when drafting or updating durable notes. It must prefer the local note-type tag model when creating or updating dev-workflow notes.
 Dependencies:
 Tasks:
 
@@ -39,13 +39,15 @@ It should remain narrow in authority:
 - use local templates when they apply
 - decide whether the correct bounded action is `create` or `update`
 - decide note type, target note, title, note links, and final durable note structure from the provided context
+- use local note-type tags when the project provides them, especially `[[idea-note]]`, `[[feature-subject-note]]`, and `[[design-note]]`
 - choose folder placement only from the provided context, local folder policy, or local `AGENTS.md`, treating folder placement as readability rather than governance
 - refresh dynamic metadata on every create or update so status and other changing header fields reflect the current note state rather than stale template or prior values
 - evaluate context drift on every update, especially whether `Status` should move between `[[status-draft]]`, `[[status-active]]`, `[[status-pending]]`, `[[status-settled]]`, and `[[status-archived]]`
 - draft exact note content or exact update content
 - preserve the handoff's `Interpretation Basis` in the draft or update when it affects intent, tone, uncertainty, or traceability
 - preserve the original input or upstream artifact especially when the clarified context handoff exists only as transient conversation state, using a link, excerpt, concise basis note, or intentional redaction as appropriate
-- preserve the question-based nature of `Idea Note` content when the handoff is exploratory
+- preserve the question-based nature of `[[idea-note]]` content when the handoff is exploratory
+- preserve local design-choice trails inside `[[feature-subject-note]]` notes instead of moving every decision into a separate design note
 - keep links minimal and intentional
 - prefer intentional related links over default parent placement
 - treat `Main Hub` as an explicit lightweight index role rather than the default destination for new notes
@@ -70,16 +72,25 @@ Additional owners may be introduced later, but this note should describe only th
 For the current system, `Note Manager` should work with:
 - `Main Hub`
 - `Sub Hub`
-- `General Note`
-- `Idea Note`
+- `[[idea-note]]`
+- `[[feature-subject-note]]`
+- `[[design-note]]`
+- `General Note` as a fallback when the local typed model does not fit
 
-The default emphasis remains on `Sub Hub`, `General Note`, and bounded updates to existing durable notes already present in the system.
+The default emphasis remains on bounded updates to existing durable notes and on the local note-type tags used by the dev-workflow documentation system.
 
 `Main Hub` remains a lightweight index role and should be chosen only when the clarified subject explicitly calls for an index note rather than a normal durable knowledge note.
 
-`Idea Note` preserves live thinking.
+`[[idea-note]]` preserves live thinking.
 When the source handoff is exploratory, unresolved questions, tensions, candidate options, branching thoughts, assumptions to test, and unresolved decisions are first-class note content.
 `Note Manager` must not convert them into recommendations, policy, or settled direction unless the handoff explicitly marks those points as decided.
+
+`[[feature-subject-note]]` is the normal promotion target for an idea that becomes active or settled project knowledge.
+It should preserve the local thought process for one feature, workflow behavior, implementation concept, or action area, including discovered design choices, technical details, implementation notes, open questions, and related tasks or reports.
+
+`[[design-note]]` is for coherent design areas or cross-cutting system behavior.
+It should be used when the design spans multiple feature subject notes, constrains future work, or should explain how a related feature set works from one place.
+A design note does not replace the design-choice trail inside the relevant feature subject notes.
 
 ## Vault Folder Handling
 
@@ -96,12 +107,14 @@ Folder placement and note type are separate concepts.
 A note's operational meaning should come from its role, metadata, links, and supplied context, not from its folder alone.
 
 When a vault has a local folder policy, `Note Manager` should follow it only as a placement/readability rule.
-For the main-vault structure, the base folders are:
-- `Fleeting notes` for Idea Notes and early capture
+For the current dev-workflow structure, the base folders are:
+- `Idea Backlog` for `[[idea-note]]` notes and early capture
+- `Durable Notes` for active or settled project knowledge such as `[[feature-subject-note]]` and `[[design-note]]` notes
+- `Tasks` for implementation packets and task-facing workflow artifacts
+- `Reports` for implementation, verification, and review/sync reports
 - `Tags` for note-based tags
 - `Main Hubs` for hub notes
-- `Templates` for note templates
-- `Full notes` for durable notes that do not belong to the other base folders
+- `Templates` for note and artifact templates
 
 Project-specific folders may be valid when the project type benefits from them, such as `Tests`, `Features`, or `Reports`.
 Those folders should be proposed or constrained by the project's local `AGENTS.md` or supplied project context.
@@ -177,6 +190,7 @@ If `Note Manager` cannot map a clarified subject to note actions without mixing 
 
 At minimum, it should evaluate:
 - `Status`
+- `Type`
 - `Last Reviewed`
 - `Related`
 - `Parent`
@@ -201,6 +215,7 @@ The final check for any note update must include:
 - does `Status` match the current body and role of the note?
 - does `Last Reviewed` reflect the current review date when the note was meaningfully evaluated?
 - do `Related` and `Parent` links still describe the note's current role?
+- does `Type` match the note's current role when the local project uses note-type tags?
 - did the update introduce stale `Tasks` or `Decisions` metadata?
 
 ## Output

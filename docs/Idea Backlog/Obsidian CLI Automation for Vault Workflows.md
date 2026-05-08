@@ -1,7 +1,8 @@
 # Obsidian CLI Automation for Vault Workflows
 
 Status: [[Tags/status-draft]]
-Parent: [[Main Hubs/Idea Hub]]
+Type: [[idea-note]]
+Parent:
 Related: [[Main Hubs/Workflow Hub]], [[note-search-skill]]
 Created: 05-05-2026
 Last Reviewed: 2026-05-07

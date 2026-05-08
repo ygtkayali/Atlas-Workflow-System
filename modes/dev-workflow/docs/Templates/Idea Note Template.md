@@ -1,9 +1,9 @@
 # {{title}}
 
 Status: 
-Parent: [[Main Hubs/Idea Hub]]
+Type: [[idea-note]]
+Parent:
 Related:
 Created: {{date:DD-MM-YYYY}}
 
 ---
-

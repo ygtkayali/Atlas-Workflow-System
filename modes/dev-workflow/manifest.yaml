@@ -51,13 +51,13 @@ managed_templates:
     source: docs/Templates/Idea Note Template.md
     target: Templates/Idea Note Template.md
     required: true
-  - id: general-note-template
-    source: docs/Templates/General Note Template.md
-    target: Templates/General Note Template.md
+  - id: project-subject-template
+    source: docs/Templates/Project Subject Template.md
+    target: Templates/Project Subject Template.md
     required: true
-  - id: sub-hub-template
-    source: docs/Templates/Sub Hub Template.md
-    target: Templates/Sub Hub Template.md
+  - id: design-note-template
+    source: docs/Templates/Design Note Template.md
+    target: Templates/Design Note Template.md
     required: true
 
 managed_starter_notes:
@@ -69,16 +69,24 @@ managed_starter_notes:
     source: docs/Main Hubs/Agent Roles Hub.md
     target: Main Hubs/Agent Roles Hub.md
     required: true
-  - id: idea-hub
-    source: docs/Main Hubs/Idea Hub.md
-    target: Main Hubs/Idea Hub.md
-    required: true
   - id: workflow-schemas-hub
     source: docs/Main Hubs/Workflow Schemas Hub.md
     target: Main Hubs/Workflow Schemas Hub.md
     required: true
 
 managed_tags:
+  - id: design-note
+    source: docs/Tags/design-note.md
+    target: Tags/design-note.md
+    required: true
+  - id: feature-subject-note
+    source: docs/Tags/feature-subject-note.md
+    target: Tags/feature-subject-note.md
+    required: true
+  - id: idea-note
+    source: docs/Tags/idea-note.md
+    target: Tags/idea-note.md
+    required: true
   - id: status-active
     source: docs/Tags/status-active.md
     target: Tags/status-active.md
