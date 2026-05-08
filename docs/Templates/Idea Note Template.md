@@ -7,4 +7,3 @@ Related:
 Created: {{date:DD-MM-YYYY}}
 
 ---
-

@@ -416,6 +416,22 @@ def command_health_check(args: argparse.Namespace) -> int:
     warnings += check_installed_assets(manifest, "managed_skills", "skill")
     warnings += check_installed_assets(manifest, "managed_tools", "tool")
 
+    sync_actions, sync_skipped = project_sync_plan(project_root, mode, manifest_path, manifest)
+    for action in sync_actions:
+        detail = action.get("detail", "")
+        sync_detail = f"{action['kind']}: {action['target']}"
+        if detail:
+            sync_detail = f"{sync_detail} - {detail}"
+        print_check("warning", "project sync drift", sync_detail)
+        warnings += 1
+    for action in sync_skipped:
+        detail = action.get("detail", "")
+        sync_detail = f"{action['kind']}: {action['target']}"
+        if detail:
+            sync_detail = f"{sync_detail} - {detail}"
+        print_check("warning", "project sync skipped", sync_detail)
+        warnings += 1
+
     print(f"Summary: {failures} error(s), {warnings} warning(s)")
     return 1 if failures else 0
 
@@ -645,9 +661,16 @@ def project_sync_plan(project_root: Path, mode: str, manifest_path: Path, manife
                 continue
             source = mode_root / str(item["source"])
             target = base_target / str(item["target"])
-            if target.exists():
-                continue
             if source.is_file() and has_payload(source):
+                if target.exists():
+                    if source.read_bytes() != target.read_bytes():
+                        actions.append({
+                            "kind": "copy_file",
+                            "source": str(source),
+                            "target": str(target),
+                            "detail": f"update changed managed asset from {relative_to_repo(source)}",
+                        })
+                    continue
                 actions.append({
                     "kind": "copy_file",
                     "source": str(source),
@@ -668,9 +691,16 @@ def project_sync_plan(project_root: Path, mode: str, manifest_path: Path, manife
                 continue
             source = mode_root / str(item["source"])
             target = project_root / str(item["project_path"])
-            if target.exists():
-                continue
             if source.is_file() and has_payload(source):
+                if target.exists():
+                    if source.read_bytes() != target.read_bytes():
+                        actions.append({
+                            "kind": "copy_file",
+                            "source": str(source),
+                            "target": str(target),
+                            "detail": f"update changed tool from {relative_to_repo(source)}",
+                        })
+                    continue
                 actions.append({
                     "kind": "copy_file",
                     "source": str(source),
