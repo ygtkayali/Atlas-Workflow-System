@@ -3,7 +3,7 @@
 Status: [[Tags/status-draft]]
 Type: [[idea-note]]
 Parent:
-Related: [[Workflow CLI Mode System|Workflow CLI Tooling System]], [[Main Hubs/Workflow Hub]], [[Main Hubs/Agent Roles Hub]]
+Related: [[Workflow CLI Mode System|Workflow CLI Tooling System]]
 Created: 2026-05-06
 Last Reviewed: 2026-05-07
 

@@ -61,14 +61,6 @@ managed_templates:
     required: true
 
 managed_starter_notes:
-  - id: workflow-hub
-    source: docs/Main Hubs/Workflow Hub.md
-    target: Main Hubs/Workflow Hub.md
-    required: true
-  - id: agent-roles-hub
-    source: docs/Main Hubs/Agent Roles Hub.md
-    target: Main Hubs/Agent Roles Hub.md
-    required: true
   - id: workflow-schemas-hub
     source: docs/Main Hubs/Workflow Schemas Hub.md
     target: Main Hubs/Workflow Schemas Hub.md

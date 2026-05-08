@@ -1,10 +1,10 @@
 # Workflow Schemas Hub
 
 Status: [[Tags/status-settled]]
-Parent: [[modes/dev-workflow/docs/Main Hubs/Workflow Hub]]
-Related: [[modes/dev-workflow/docs/Main Hubs/Agent Roles Hub]]
+Parent:
+Related:
 Created: 2026-04-14
-Last Reviewed: 2026-05-07
+Last Reviewed: 2026-05-08
 Scope: Local index for core dev-workflow artifact shapes.
 
 ## Overview

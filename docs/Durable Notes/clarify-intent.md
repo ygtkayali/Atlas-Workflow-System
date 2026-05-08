@@ -1,7 +1,7 @@
 # Clarify Intent
 
 Status: [[Tags/status-settled]]
-Parent: [[Main Hubs/Agent Roles Hub]]
+Parent:
 Related: [[clarified-context-handoff]], [[note-manager]], [[Two-Phase Workflow Boundary]]
 Created: 2026-04-14
 Last Reviewed: 2026-05-06

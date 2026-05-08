@@ -2,7 +2,7 @@
 
 Status: [[Tags/status-settled]]
 Parent:
-Related: [[Main Hubs/Workflow Hub]], [[note-manager]], [[Main Vault Fleeting Notes and Source Material Workflow]]
+Related: [[note-manager]], [[Main Vault Fleeting Notes and Source Material Workflow]]
 Created: 05-05-2026
 Last Reviewed: 2026-05-08
 

@@ -1,7 +1,7 @@
 # Implementation Verifier
 
 Status: [[Tags/status-pending]]
-Parent: [[Main Hubs/Agent Roles Hub]]
+Parent:
 Related: [[implementer-agent]], [[review-agent]], [[tool-policy]], [[Durable Notes Follow Accepted Implementation]]
 Created: 2026-05-05
 Last Reviewed: 2026-05-05

@@ -3,7 +3,7 @@
 Status: [[Tags/status-draft]]
 Type: [[idea-note]]
 Parent:
-Related: [[Main Hubs/Workflow Hub]], [[Main Hubs/Agent Roles Hub]], [[Workflow Mode Skill Governance]]
+Related: [[Workflow Mode Skill Governance]]
 Created: 2026-05-06
 Last Reviewed: 2026-05-07
 

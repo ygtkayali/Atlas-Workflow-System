@@ -1,7 +1,7 @@
 # Local Note Search Script
 
 Status: [[Tags/status-settled]]
-Parent: [[Main Hubs/Workflow Hub]]
+Parent:
 Related: [[note-search-skill]]
 Created: 14-04-2026
 Last Reviewed: 2026-05-07

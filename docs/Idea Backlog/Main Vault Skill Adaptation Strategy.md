@@ -3,7 +3,7 @@
 Status: [[Tags/status-draft]]
 Type: [[idea-note]]
 Parent:
-Related: [[Main Hubs/Workflow Hub]], [[note-manager]], [[note-search-skill]]
+Related: [[note-manager]], [[note-search-skill]]
 Created: 05-05-2026
 
 ---

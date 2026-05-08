@@ -2,7 +2,7 @@
 
 Status: [[Tags/status-settled]]
 Type: [[design-note]]
-Parent: [[Main Hubs/Workflow Hub]]
+Parent:
 Related: [[note-manager]], [[clarify-intent]], [[Main Vault Note Structure and Agent Context]], [[Workflow CLI Mode System]]
 Created: 2026-05-08
 Last Reviewed: 2026-05-08

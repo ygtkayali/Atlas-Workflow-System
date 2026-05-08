@@ -1,7 +1,7 @@
 # Note Search Skill
 
 Status: [[Tags/status-settled]]
-Parent: [[Main Hubs/Agent Roles Hub]]
+Parent:
 Related: [[Local Note Search Script]], [[Semantic Search Model Reload Delay]]
 Created: 18-04-2026
 Last Reviewed: 2026-05-07

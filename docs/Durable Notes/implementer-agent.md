@@ -1,7 +1,7 @@
 # Implementer Agent
 
 Status: [[Tags/status-settled]]
-Parent: [[Main Hubs/Agent Roles Hub]]
+Parent:
 Related: [[planner-agent]], [[review-agent]], [[implementation-report-schema]], [[clarify-intent]], [[note-manager]]
 Created:
 Last Reviewed: 2026-04-27

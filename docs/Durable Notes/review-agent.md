@@ -1,7 +1,7 @@
 # Review / Sync Agent
 
 Status: [[Tags/status-settled]]
-Parent: [[Main Hubs/Agent Roles Hub]]
+Parent:
 Related: [[planner-agent]], [[implementer-agent]], [[clarify-intent]], [[clarified-context-handoff]], [[note-manager]], [[Durable Notes Follow Accepted Implementation]]
 Created:
 Last Reviewed: 2026-05-06

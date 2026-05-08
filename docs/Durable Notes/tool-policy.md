@@ -1,7 +1,7 @@
 # Tool Policy
 
 Status: [[Tags/status-settled]]
-Parent: [[Main Hubs/Workflow Hub]]
+Parent:
 Related: [[planner-agent]], [[implementer-agent]], [[review-agent]]
 Created:
 Last Reviewed:

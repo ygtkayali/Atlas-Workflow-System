@@ -1,7 +1,7 @@
 # Two-Phase Workflow Boundary
 
 Status: [[Tags/status-settled]]
-Parent: [[Main Hubs/Workflow Hub]]
+Parent:
 Related: [[clarify-intent]], [[note-manager]], [[planner-agent]], [[review-agent]]
 Created: 15-04-2026
 Last Reviewed: 2026-05-05

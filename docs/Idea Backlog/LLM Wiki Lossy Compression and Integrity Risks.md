@@ -3,7 +3,7 @@
 Status: [[Tags/status-draft]]
 Type: [[idea-note]]
 Parent:
-Related: [[Main Vault Fleeting Notes and Source Material Workflow]], [[Local Note Search Script]], [[Main Hubs/Workflow Hub]]
+Related: [[Main Vault Fleeting Notes and Source Material Workflow]], [[Local Note Search Script]]
 Created: 06-05-2026
 
 ---

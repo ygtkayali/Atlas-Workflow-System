@@ -172,103 +172,59 @@ Responsible for:
 
 ---
 
-## Active Skill State
+## Runtime Workflow Router
 
-### `clarify-intent`
-Use `clarify-intent` for early-stage ideas and ambiguous requests before durable note work or planning begins.
+`AGENTS.md` is the root runtime routing authority for this repository.
+It tells agents which workflow phase comes first, which gate blocks the next phase, and where detailed behavior lives.
 
-Current expectations:
-- it acts as a guided clarification and challenge loop, not as a planner,
-- it should separate user goals from proposed solutions,
-- it should surface hidden inconsistencies, missing decisions, weak assumptions, and high-impact uncertainty,
-- it should split complex prompts into provisional subject bundles before downstream work,
-- it should preserve an `Interpretation Basis` in downstream-ready handoffs, including origin type, original input or artifact, relevant context used, interpreted intent, tone or stance, user-intent claims, agent-inference claims, open ambiguity, things not to imply, and validation target,
-- it should ask or answer the highest-value clarification points first rather than repeatedly restating the whole handoff,
-- all note-related search or retrieval steps should be delegated to `note-search`; `note-search` decides whether to use graph or semantic mode and formulates the semantic query from the current context,
-- it should keep work in clarification when `Note Manager` or planning would still require guesswork,
-- it should end as continued clarification, an end-of-clarification recommendation, or a note-ready handoff depending on task readiness,
-- when a durable note change is required and the handoff is ready, its default next action is to call `Note Manager` immediately with the visible `clarified context handoff` and supplied note context instead of stopping for a separate phase-switch approval,
-- and its default downstream-ready artifact for this repository is a `clarified context handoff`, not a note draft or planning brief.
+The installed skill `SKILL.md` files own in-role procedure.
+Do not duplicate full skill instructions here.
+Use this file to choose the skill and gate; then follow that skill's own instructions.
 
-### `note-manager`
-Use `note-manager` only after at least one `clarify-intent` pass has produced durable signal and the user has supplied the relevant note paths or notes needed for the change.
+The old workflow and agent-role hub notes are retired as runtime references.
+Agents should not need to load hub notes to route routine work.
+Artifact-shape notes may remain as lightweight reference material, but runtime routing starts here.
 
-Current expectations:
-- it performs bounded note `create` or `update` work only,
-- it is the required gate for every durable note mutation, including metadata-only edits, status changes, link changes, archival changes, schema/governance note edits, and small corrections,
-- it receives clarified context and decides the concrete note action, note type, target note, title, links, and durable note structure,
-- it should use the local templates when they apply,
-- it should read only the provided relevant notes and avoid broad vault discovery,
-- it should refresh dynamic metadata such as status and other changing header fields instead of preserving stale template or prior values,
-- it should consume and preserve the handoff's `Interpretation Basis`, especially original input or upstream artifact, when it affects intent, tone, uncertainty, or traceability,
-- it should work conservatively with `Idea Note`, `General Note`, and `Sub Hub`,
-- it should preserve the question-based nature of `Idea Note` content when the handoff is exploratory,
-- it must not convert unresolved ideas into recommendations, policy, decisions, or settled direction unless the handoff explicitly marks those points as decided,
-- it should treat the note space as interconnected rather than strictly hierarchical and should not default new notes into a top-level hub,
-- it should draft first and wait for confirmation before writing unless the prompt and current workflow state clearly authorize direct writes,
-- it must not take note action unless the current request has passed through `clarify-intent` at least once,
-- and it should return work to `clarify-intent` when the durable subject or supplied context is too unclear for it to choose note type, target note, or placement responsibly.
+### Workflow loops
 
-### `project-planner`
-Use `project-planner` after note-backed project state exists and implementation planning is actually needed.
+For ideas and durable note work:
 
-Current expectations:
-- it should begin from durable notes rather than rough chat alone,
-- it should gather the minimum relevant planning context rather than broad vault context,
-- all note-related search or retrieval steps should be delegated to `note-search`; `note-search` decides whether to use graph or semantic mode and formulates the semantic query from the current planning context,
-- it should make uncertainty and approval state explicit,
-- it should produce scoped implementation packets for human approval,
-- and it should escalate when documentation is missing, contradictory, or insufficient for safe planning.
+```text
+idea -> dw-clarify-intent -> clarified context handoff -> dw-note-manager draft
+```
 
-### `project-implementer`
-Use `project-implementer` for coding tasks.
-An explicitly approved task packet remains valid input, but a sufficiently specific direct user coding request may also be the execution artifact when it already makes the change scope and constraints clear.
+For implementation:
 
-Current expectations:
-- it should stay operation-scoped and inspect only the files and artifacts needed for the requested coding change,
-- it may begin from a direct coding request when the objective, scope, constraints, and intended behavior are clear enough,
-- it should escalate when a direct request or approved packet does not provide enough context for safe implementation,
-- it should edit only the relevant notebook cells when working in notebooks rather than broadly rewriting notebook files,
-- it should run the strongest practical verification available for the changed area,
-- and it should return a structured implementation report with checks, assumptions, unresolved issues, and review/sync follow-up.
+```text
+note-backed need or clear direct request -> project-planner when needed -> approved packet or clear direct request -> project-implementer -> implementation report -> project-review-sync
+```
 
-### `project-review-sync`
-Use `project-review-sync` after implementation to compare results to the approved packet and decide what durable documentation changes should follow. Also use it for bounded maintenance review tasks that need analysis of stale notes, missing links, outdated implementation or design state, obsolete artifacts, lint, health, or vault consistency issues.
+For documentation sync after implementation:
 
-Current expectations:
-- it should begin from the approved task packet, implementation report, and touched files or diff when needed,
-- for maintenance review, it should begin from the user-provided maintenance task and bounded scope,
-- all note-related search or retrieval steps should be delegated to `note-search`; `note-search` decides whether to use graph or semantic mode and formulates the semantic query from the current review or sync context,
-- it should keep the basis for note selection explicit,
-- it should check `Interpretation Fidelity` when reviewing durable note changes from clarified context handoffs, especially whether the resulting note preserved original input, interpreted intent, tone or stance, uncertainty, and user-intent versus agent-inference boundaries,
-- it should route implementation-backed documentation-sync context or maintenance review reports through `clarify-intent` before durable note mutation,
-- it should create or propose context handoffs for clarification when durable note mutation remains behind a separate gate such as `Note Manager`,
-- it should not directly create, update, archive, delete, or relink durable notes,
-- and it should recommend `keep`, `revise`, `reject`, `sync-needed`, `follow-up-needed`, or `no-action` rather than silently normalizing mismatches or stale state.
+```text
+project-review-sync -> dw-clarify-intent -> clarified context handoff -> dw-note-manager draft
+```
 
-### `note-search`
-Use `note-search` as the shared retrieval interface when a role needs bounded note context without broad vault reads.
+### Skill routing table
 
-Current expectations:
-- it wraps the shared graph and semantic local search scripts rather than owning retrieval logic itself,
-- it should return candidate note paths or a semantic context capsule from a local markdown vault,
-- it should remain bounded, deterministic, and local-first,
-- it owns the choice between graph and semantic retrieval modes for every note-related search step,
-- it should formulate semantic search queries from the caller's current context instead of requiring caller roles to preselect the exact semantic query,
-- caller roles must not run manual broad note discovery or choose separate note-search modes when the work is note-related,
-- and it should act as a reusable context-retrieval helper for clarification, planning, and review rather than as a separate planning or note-mutation role.
+| Situation | Skill | Required output or gate |
+| --- | --- | --- |
+| Early-stage idea, ambiguous request, overloaded prompt, or solution-led request | `dw-clarify-intent` | Continued clarification, next-step recommendation, or visible `ready_for_note_manager` handoff |
+| Durable note create/update, metadata edit, status change, link change, archival change, schema/governance edit, or correction | `dw-note-manager` | Draft first unless direct-write authorization is clear; durable write only after the note-manager gate is satisfied |
+| Note-backed implementation planning need | `project-planner` | Scoped implementation packet with explicit approval state |
+| Approved packet or sufficiently specific direct coding request | `project-implementer` | Operation-scoped change plus implementation report |
+| Completed implementation review, documentation-sync routing, or bounded maintenance review | `project-review-sync` | Review or maintenance report with disposition |
+| Note-related retrieval needed by clarification, planning, or review | `note-search` helper | Candidate note paths or local context capsule; caller supplies task context and `note-search` chooses retrieval mode |
 
-### Downstream implication
-Planning is no longer the default direct output of clarification.
+### Routing rules
 
-The active workflow is:
-`idea -> clarify-intent -> visible clarified context handoff -> Note Manager draft`
-
-The post-implementation documentation-sync workflow is:
-`review/sync -> clarify-intent -> visible clarified context handoff -> Note Manager draft`
-
-Planning remains downstream, but it should consume note-backed project state rather than relying on a planner-oriented clarification artifact by default.
-`note-search` is the shared bounded retrieval aid for all note-related search steps during clarification, planning, or review. Caller roles provide task context; `note-search` chooses the retrieval mode and semantic query when semantic mode is appropriate.
+- Ask which skill or skills the prompt requires, and in what order, before non-trivial work.
+- Choose the smallest valid sequence that preserves the gates.
+- If note-related retrieval is needed, use `note-search`; do not manually perform broad vault discovery.
+- If a prompt spans multiple phases, stop at the first unresolved gate.
+- A visible `ready_for_note_manager` handoff with supplied relevant note context is enough to route into `dw-note-manager`; the approval gate applies to the resulting draft or durable write.
+- A sufficiently specific direct coding request may route directly to `project-implementer` when objective, scope, constraints, and intended behavior are clear enough.
+- Planning is downstream from note-backed project state; clarification should not default to a planner-shaped artifact.
 
 ---
 
@@ -283,8 +239,8 @@ For the clarification-to-note-management boundary, a visible `ready_for_note_man
 When the user has requested or accepted a durable note change and the supplied note context is sufficient, the agent should invoke `Note Manager` in the same turn by default; separate user approval is required for the resulting `Note Manager` draft or durable write, not merely for calling `Note Manager`.
 
 Hard gate sequence:
-- raw idea, complex prompt, or ambiguous request -> `clarify-intent`
-- visible `ready_for_note_manager` clarified context handoff -> `note-manager` draft
+- raw idea, complex prompt, or ambiguous request -> `dw-clarify-intent`
+- visible `ready_for_note_manager` clarified context handoff -> `dw-note-manager` draft
 - approved note-manager draft and clear workflow authorization -> durable note write
 - note-backed implementation need -> `project-planner`
 - approved packet or sufficiently specific direct coding request -> `project-implementer`
@@ -299,46 +255,11 @@ If direct-write authorization is ambiguous, default to draft-only output.
 
 ---
 
-## Skill Routing Procedure
+## Routing Authority Boundaries
 
-Skill routing exists to make the existing workflow easier to apply in real tasks.
+Skill routing exists to make the workflow easier to apply in real tasks.
 It does not weaken human authority, approval gates, scoped context, or role boundaries.
 
-Routing helps the agent decide which existing skill should handle the next step.
-It must not be used to silently approve work, collapse phases, bypass clarification, skip `Note Manager`, or begin implementation without an approved packet.
-
-Durable note mutation rule:
-- any durable note create, update, metadata edit, status change, link change, archival change, schema/governance note edit, or correction must route through `note-manager`
-- raw direct durable note edits are not allowed as an independent shortcut
-- file-edit tools may apply the resulting `Note Manager` decision, but they do not replace `Note Manager`
-- this applies even when the requested change appears small, obvious, or purely mechanical
-
-### Complex prompt intake
-
-When a prompt contains multiple domains, areas, or branching ideas, split it into provisional subject bundles before downstream work.
-
-Each bundle should contain one domain or area.
-Branching ideas inside one area may stay together only when they are closely related.
-If a branch can become its own durable subject, split it and preserve the connection instead of blending it into a broader note or handoff.
-
-This bundle split is an intake step, not final note structure.
-`clarify-intent` uses it to ask better questions and preserve ambiguity.
-`Note Manager` later decides concrete note actions from the clarified handoff and supplied context.
-
-### Initial routing question
-At the start of every non-trivial request, ask:
-
-Which skill or skills does this prompt require, and in what order?
-
-Route by:
-- the next required artifact,
-- current uncertainty,
-- available note-backed context,
-- and the active approval gate.
-
-Do not route by convenience or by the agent's desire to finish the whole workflow in one response.
-
-### Human authority preservation
 Dynamic routing does not give the agent authority to decide:
 - project intent,
 - architecture direction,
@@ -349,32 +270,14 @@ Dynamic routing does not give the agent authority to decide:
 - security or privacy behavior,
 - or whether an implementation packet is approved.
 
-When one of these decisions is required, the agent must escalate to the human instead of continuing through the skill chain.
+When a prompt contains multiple domains, areas, or branching ideas, `dw-clarify-intent` should split it into provisional subject bundles before downstream work.
+This split is intake evidence, not final note structure; `dw-note-manager` decides concrete note actions from a ready handoff plus supplied relevant note context.
 
-### Routing checklist
-- If intent is unclear, early-stage, overloaded, or solution-led: use `clarify-intent`.
-- If the next artifact is any durable note create/update, metadata edit, status change, link change, archival change, schema/governance note edit, or correction: use `note-manager`, only after clarification has produced durable signal and relevant note context is supplied.
-- If implementation planning is needed from note-backed project state: use `project-planner`.
-- If code changes are requested: use `project-implementer`. If the request is ambiguous, cross-cutting, or likely to require explicit architecture or scope decisions before coding, route to `clarify-intent` or `project-planner` first instead of guessing.
-- If completed implementation needs comparison against the approved packet and documentation sync decisions: use `project-review-sync`.
-- If any note-related search, nearby note context, or concept-level note discovery is needed: use `note-search` as a helper, not as the primary role; let it choose graph or semantic mode and formulate any semantic query from context.
-
-### Skill ordering rule
-When multiple skills apply, choose the smallest valid sequence that preserves workflow gates.
-
-Do not skip required upstream gates for convenience.
-Do not call downstream skills merely because they may eventually be useful.
-If routing is ambiguous, prefer the earlier workflow phase and make the uncertainty explicit.
-
-### Real-task handling
-Before invoking a skill, briefly state:
-- the selected skill or skill sequence,
-- why it applies,
-- what artifact or decision it should produce,
-- and what gate prevents further downstream work.
-
-If a request spans multiple phases, stop at the first unresolved gate instead of simulating the whole pipeline.
-The `clarify-intent` to `Note Manager` transition is not an unresolved gate when the handoff is visible, marked ready for note management, the note change is required, and the relevant note context has been supplied.
+Durable note mutation rule:
+- any durable note create, update, metadata edit, status change, link change, archival change, schema/governance note edit, or correction must route through `dw-note-manager`
+- raw direct durable note edits are not allowed as an independent shortcut
+- file-edit tools may apply the resulting note-manager decision, but they do not replace the note-manager gate
+- this applies even when the requested change appears small, obvious, or purely mechanical
 
 ---
 
@@ -673,18 +576,5 @@ The system is failing if:
 ## Immediate Next Step
 
 Use this charter as the root operating policy for the repository.
-
-Current repository state:
-- the active Phase 1 workflow is ideation-first,
-- `clarify-intent` continues clarification, ends clarification with a recommended next step, or produces a visible `clarified context handoff` when note work is ready,
-- when a durable note change is required and relevant note context is supplied, the default flow is to call `Note Manager` immediately after the visible ready handoff rather than waiting for separate approval to switch phases,
-- `Note Manager` is the bounded durable note step before planner work,
-- all durable note mutations, including metadata-only corrections and archival changes, must route through `Note Manager`,
-- `Note Manager` owns note action, note type, target note, title, links, metadata, and durable note structure decisions from the clarified context plus supplied note paths,
-- review/sync documentation updates and maintenance review reports route through `clarify-intent` before `Note Manager`,
-- `Note Manager` refreshes dynamic metadata on create or update rather than preserving stale template values,
-- planning should begin from note-backed project state when implementation is actually needed,
-- `project-planner`, `clarify-intent`, and `project-review-sync` must use `note-search` for note-related retrieval; they provide task context while `note-search` chooses graph or semantic mode and formulates any semantic query,
-- `project-implementer` is operation-scoped, may begin from a sufficiently specific direct coding request, should edit only the relevant notebook cells when possible, and does not own stale-note updates,
-- `note-search` is the shared local retrieval interface backed by graph and semantic local search scripts,
-- and the existing governance, role, and schema notes should remain consistent with this charter.
+For runtime routing, start from the `Runtime Workflow Router`, preserve the hard gates, and then follow the selected skill's `SKILL.md` for detailed procedure.
+Keep the existing governance, role, schema, and hub notes consistent with this charter without treating them as required runtime routing dependencies.

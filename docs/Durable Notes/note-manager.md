@@ -1,7 +1,7 @@
 # Note Manager
 
 Status: [[Tags/status-settled]]
-Parent: [[Main Hubs/Workflow Hub]]
+Parent:
 Related: [[clarify-intent]], [[clarified-context-handoff]], [[Two-Phase Workflow Boundary]], [[Durable Notes Follow Accepted Implementation]], [[Main Vault Note Structure and Agent Context]], [[Tags/idea-note]], [[Tags/feature-subject-note]], [[Tags/design-note]]
 Created: 2026-04-14
 Last Reviewed: 2026-05-08

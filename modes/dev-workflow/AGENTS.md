@@ -31,8 +31,7 @@ By default, workflow documentation lives under:
 
 Start with:
 
-- `docs/Main Hubs/Workflow Hub.md`
-- `docs/Main Hubs/Agent Roles Hub.md`
+- `AGENTS.md` for runtime routing and hard gates.
 - `docs/Main Hubs/Workflow Schemas Hub.md`
 
 ## Skill Routing

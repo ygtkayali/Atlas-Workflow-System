@@ -96,7 +96,7 @@ Local Obsidian workspace state remains excluded from v1.
 1. Clone the repository.
 2. Open the folder in a markdown editor or Obsidian if you want wiki-link navigation.
 3. Read `AGENTS.md` first. It is the root operating policy.
-4. Read `Main Hubs/Workflow Hub.md` for the compact note index.
+4. Read `Main Hubs/Workflow Schemas Hub.md` if you need the compact artifact index.
 5. Use `Templates/` when creating new project notes.
 
 No package installation is required for the markdown workflow itself.
@@ -195,7 +195,7 @@ Atlas mode assets use lowercase hyphenated skill IDs such as `dw-clarify-intent`
 ## Recommended First Read
 
 1. `AGENTS.md`
-2. `Main Hubs/Workflow Hub.md`
+2. `Main Hubs/Workflow Schemas Hub.md`
 3. `Full notes/Two-Phase Workflow Boundary.md`
 4. `Full notes/note-manager.md`
 5. `Full notes/clarify-intent.md`

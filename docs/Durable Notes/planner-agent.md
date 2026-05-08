@@ -1,7 +1,7 @@
 # Planner Agent
 
 Status: [[Tags/status-settled]]
-Parent: [[Main Hubs/Agent Roles Hub]]
+Parent:
 Related: [[implementer-agent]], [[review-agent]], [[clarify-intent]], [[clarified-context-handoff]], [[note-manager]]
 Created:
 Last Reviewed: 2026-04-25
