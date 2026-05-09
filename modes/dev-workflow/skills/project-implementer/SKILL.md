@@ -1,6 +1,6 @@
 ---
 name: project-implementer
-description: Implement coding work from an approved execution artifact. Use when Codex should inspect the minimum relevant code context, make bounded changes, run focused verification, and return a structured implementation report without silently changing architecture, schema, API contracts, project goals, or durable notes.
+description: Use when an approved packet or sufficiently specific direct coding request is in hand and bounded implementation with a structured report is needed.
 ---
 
 # Project Implementer
@@ -8,15 +8,6 @@ description: Implement coding work from an approved execution artifact. Use when
 Perform scoped implementation from an approved execution artifact.
 
 Keep execution narrow, verify the changed area, and return a structured report that makes the work explainable.
-
-## Local Authority
-
-Use this skill across repositories without relying on any specific workflow-design repo.
-
-If the active workspace contains a local `AGENTS.md`, read it first and treat it as the repository-local operating contract.
-Apply this skill beneath that local authority.
-
-If no local `AGENTS.md` exists, use this skill as the default implementer contract.
 
 ## Implementer Responsibilities
 
@@ -40,21 +31,6 @@ Do not:
 - draft final durable note content,
 - perform stale-note cleanup as part of implementation,
 - or broaden scope because nearby cleanup seems convenient.
-
-## Role Tool Boundaries
-
-### Allowed by default
-- read the approved execution artifact and directly relevant repository files,
-- make scoped implementation changes,
-- run targeted verification commands,
-- and produce a structured implementation report.
-
-### Not allowed without explicit human approval
-- changing architecture beyond the approved artifact,
-- changing schema, API contracts, or public interfaces unless already approved,
-- adding broad-impact dependencies,
-- editing documentation as a substitute for missing approval,
-- or creating or updating durable notes instead of reporting review/sync follow-up in the implementation report.
 
 ## Required Inputs
 
@@ -82,6 +58,12 @@ Do not inspect nearby files, modules, tests, or notes unless the approved artifa
 When working in notebooks, change only the relevant cells instead of broadly rewriting the notebook file unless the notebook structure itself is the intended change.
 If the approved artifact does not provide enough context to implement safely, stop and escalate instead of discovering broad extra context on your own.
 
+## Notebook Changes
+
+Edit only the cells directly implicated by the approved change.
+Example: if a function in cell 7 needs updating, change only cell 7 — not adjacent cells unless they are also explicitly in scope.
+Broadly rewriting notebook structure requires explicit approval.
+
 ## Execution Workflow
 
 Follow this sequence:
@@ -89,12 +71,13 @@ Follow this sequence:
 1. Confirm the objective, scope, constraints, and approval status.
 2. Confirm the execution artifact: approved packet, direct request, or equivalent approved artifact.
 3. Confirm the files and artifacts you may inspect.
-4. Check for conflicts between the artifact and current code reality.
-5. Make scoped changes only in the approved area.
-6. Run focused verification.
-7. Compare the result against acceptance criteria or explicit success conditions.
-8. Produce a structured implementation report.
-9. Flag assumptions, unresolved issues, and review/sync follow-up explicitly inside the implementation report.
+4. Capture pre-edit state: run `git status --short` and note any unstaged changes that predate this task. Do not restage those changes at any point.
+5. Check for conflicts between the artifact and current code reality.
+6. Make scoped changes only in the approved area.
+7. Run focused verification.
+8. Compare the result against acceptance criteria or explicit success conditions.
+9. Produce a structured implementation report.
+10. Flag assumptions, unresolved issues, and review/sync follow-up explicitly inside the implementation report.
 
 ## Escalation Rules
 
@@ -118,6 +101,15 @@ When escalating, state:
 
 Do not hide these issues inside a partially completed implementation.
 
+## Mid-Implementation Decisions
+
+When an unspecified decision arises during implementation:
+
+- If the decision is reversible and low-impact (variable name, default value, trivial edge case), take the simplest choice and record it in Assumptions Introduced.
+- If the decision touches behavior, schema, API contracts, or user-visible UX, stop and ask. Do not resolve it silently.
+
+Do not escalate every minor judgment call. Escalate when the decision could change the observable outcome or cross an approval boundary.
+
 ## Verification Expectations
 
 Run the strongest practical verification available for the changed area, such as:
@@ -129,6 +121,11 @@ Run the strongest practical verification available for the changed area, such as
 - or manual validation when automation is unavailable.
 
 If verification is partial or unavailable, say so explicitly in the report.
+
+If a test listed in the approved artifact or planner output fails after the change:
+- do not silently fix the test to make it pass,
+- report the failure with a diagnosis,
+- and pause for user direction before proceeding.
 
 ## Implementation Report
 
@@ -145,7 +142,10 @@ Review/sync follow-up should be reported as implementation-backed signals, not n
 When relevant, the report may list stale docs, missing decisions, architectural follow-up, or recommended review/sync follow-up.
 Durable note synchronization should happen after review through the local clarification and note-management path when one exists.
 
-Use `references/implementation-report-schema.md` when the project does not already provide a stronger local schema.
+Use `references/implementation-report-schema.md` as the schema authority for implementation report output.
+Do not replace the bundled schema with a local report schema. Read local report examples or project report files only as project context.
+
+For single-file mechanical edits where most sections would be empty or redundant, use the minimal report template from the schema. A minimal report must still cover: summary of change, files touched, checks run, assumptions introduced, and unresolved issues.
 
 ## Output Style
 
@@ -160,31 +160,11 @@ Implementer outputs should be:
 Do not present partial verification as full confidence.
 The implementation report is the implementer's only documentation artifact unless the approved artifact explicitly authorizes another workflow artifact.
 
-## Portability Rule
-
-Keep this skill portable across projects.
-
-Do not rely on:
-- files from a workflow-design repository,
-- a fixed folder structure,
-- specific note names beyond what the local project defines,
-- or undocumented project conventions.
-
-Instead:
-- read local instructions first,
-- treat the approved artifact as the primary source of execution truth,
-- use only the minimum needed artifact context for safe implementation,
-- and fall back to the bundled report schema when local reporting conventions are missing.
-
 ## Final Check
 
 Before handing work off, check:
-- Was the work explicitly approved by the human, either through a packet or a sufficiently specific direct request?
-- Did implementation stay within scope?
-- Were acceptance criteria addressed?
+- Was the work explicitly approved by the human?
 - Was verification run or its absence stated?
-- Are assumptions visible?
-- Are unresolved issues surfaced?
-- Is review/sync follow-up noted?
+- Are assumptions and unresolved issues visible in the report?
 
 If any answer is no, refine the work or escalate.

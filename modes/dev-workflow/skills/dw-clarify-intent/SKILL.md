@@ -1,6 +1,6 @@
 ---
 name: dw-clarify-intent
-description: Clarify an early-stage idea before durable note creation or planner work begins. Use when Codex should run a guided clarification loop that interrogates the idea, surfaces hidden inconsistencies, challenges weak assumptions, guides important decisions, and only prepares downstream-ready output when the core intent is actually solid enough for the next structured step.
+description: Use when a request is vague, overloaded, solution-led, or touches a high-impact area and intent must be solidified before durable note creation or planning begins.
 ---
 
 # Clarify Intent
@@ -12,52 +12,55 @@ Also use it when a review/sync step has implementation-backed documentation-sync
 
 This skill is not a fast pre-planner handoff.
 Its primary job is to make the entry point into a project or feature as solid as practical without getting stuck on every low-impact detail.
-It should preserve clarified context for downstream note work, not design the durable note structure itself.
+It preserves clarified context for downstream note work; it does not design the durable note structure itself.
 
-## Local Authority
+## Clarification Depth
 
-If the active workspace contains a local `AGENTS.md`, read it first and treat it as the repository-local operating contract.
-Apply this skill beneath that local authority.
+Choose depth before starting the loop:
 
-If no local `AGENTS.md` exists, use the user request and nearby project notes as the operating context.
+- `light` — low-impact, narrow, or already mostly-clear requests. Restate goal in 2-4 lines, ask at most 2 high-value questions, and either end clarification or produce a compact handoff. The full `Interpretation Basis` may be omitted when the origin is the direct user prompt with no hidden context, source material, or upstream artifact being interpreted.
+- `full` — ideas that touch any high-impact area (see below) or multi-domain bundles. Use the full guided loop and full `Interpretation Basis`.
+
+If unsure, start `light` and escalate to `full` the moment a high-impact area surfaces.
+
+## High-Impact Uncertainty
+
+Treat any of these as high-impact and bias toward `full` depth and `needs_clarification` status until resolved enough for safe downstream work:
+
+- architecture or pipeline shape,
+- schema, API contract, or public interface,
+- new dependency with broad reach,
+- security, privacy, or auth behavior,
+- workflow gates, ownership boundaries, or note governance,
+- conflicts with documented constraints.
+
+Minor wording, presentation, or low-impact implementation detail is not high-impact.
 
 ## Responsibilities
 
 Do:
-- interrogate the idea,
-- restate the user goal and problem shape clearly,
+- restate the user goal and problem shape separately from any proposed solution,
 - split complex prompts into provisional subject bundles before downstream work,
 - surface hidden inconsistencies, missing decisions, and weak assumptions,
-- ask targeted clarification questions,
-- challenge premature or weak solution framing,
-- guide the user through important tradeoffs and focus areas,
-- prioritize the next highest-value questions instead of repeating a full handoff on every turn,
-- distinguish important unresolved uncertainty from minor detail,
-- separate user goals from proposed solutions,
-- preserve an `Interpretation Basis` for downstream-ready handoffs, including origin type, original input or artifact, relevant context used, interpreted intent, tone or stance, user-intent claims, agent-inference claims, open ambiguity, things not to imply, and validation target,
-- separate implementation facts from review/sync proposals when the upstream source is post-implementation review,
-- separate scope from non-goals,
-- extract constraints and approval boundaries,
-- use `note-search` to retrieve a small bounded note set when a seed note or semantic query may materially improve clarification quality,
-- prefer semantic `note-search` over manual broad note discovery when the prompt asks whether something exists, asks for similar notes, or gives only a concept,
-- consume bounded retrieval results from the local note-search interface instead of inventing separate retrieval behavior,
-- keep the work in clarification when high-impact uncertainty remains,
+- ask the highest-value clarification questions first,
+- challenge premature solution framing with concrete tradeoffs,
+- preserve an `Interpretation Basis` for `note_ready_handoff` output in `full` depth,
 - separate `decided`, `proposed`, `unclear`, and `blocked` points,
-- and choose the right output mode: continue clarification, end clarification with a recommended next step, or produce a note-ready handoff.
+- use `note-search` for bounded retrieval when a seed note or semantic query materially improves clarification quality,
+- choose the right output mode: `continue_clarification`, `end_clarification`, `note_ready_handoff`, or `partial_clarification`.
 
 Do not:
-- create implementation files,
-- create implementation packets,
-- approve anything,
-- act like a planner,
-- act like an implementer,
-- decide whether a reviewed implementation should be kept, revised, or rejected,
-- silently decide architecture, pipeline direction, interfaces, schemas, workflow boundaries, or similar high-impact choices for the user,
-- silently decide durable note placement when the target is unclear,
-- decide note type, target note, title, final links, or durable note structure as binding output,
-- draft final durable note content,
-- move to `Note Manager` before producing a visible clarified context handoff and showing it to the user,
-- or force a planning brief just because some structure already exists.
+- act as planner, note-manager, or implementer (the router owns those gates),
+- silently decide architecture, schemas, interfaces, note placement, or workflow boundaries,
+- draft final durable note content or decide note type as binding output,
+- move to `Note Manager` without a visible handoff,
+- force a planner-shaped artifact when the idea is still raw.
+
+## Required Inputs
+
+Begin from the triggering idea, request, or upstream review/sync context.
+
+If no bounded context anchor exists and `note-search` cannot produce a useful capsule, ask for the relevant seed note, hub, or supplied context instead of broadening retrieval.
 
 ## Context Selection
 
@@ -65,199 +68,122 @@ Load only the minimum context needed to clarify the request.
 
 Preferred order:
 
-1. Read the local `AGENTS.md` if it exists.
-2. Read the triggering idea, request, note, or upstream review/sync context.
-3. Use `note-search` when the triggering note is known, when nearby linked context may matter, or when a semantic query can answer concept-level note discovery; then read only the most relevant returned note paths.
-4. Read the local clarification artifact, `dw-note-manager` artifact, or `clarified-context-handoff.md` schema/template if the project provides one.
-5. Read directly linked notes only when they materially affect goals, scope, constraints, terminology, source-of-truth, or major tradeoffs.
+1. Local `AGENTS.md` if it exists.
+2. The triggering idea, request, note, or upstream review/sync context.
+3. `note-search` when a seed note is known or a semantic query can answer concept-level discovery; read only the highest-relevance returned paths.
+4. `references/clarified-context-handoff.md` only before producing a `note_ready_handoff`.
+5. Directly linked notes only when they materially affect goals, scope, constraints, terminology, source-of-truth, or major tradeoffs.
 
-Avoid broad repository scans. This skill should clarify intent, not map the full project.
-If `note-search` is used, treat it as a bounded retrieval aid rather than permission to widen scope indiscriminately.
-If no bounded context anchor exists and semantic search cannot produce a useful context capsule, ask for the relevant seed note, folder, hub, registry, or supplied context instead of broadening retrieval.
+Avoid broad repository scans. Do not map the full project.
 
 ## Complex Prompt Intake
 
-When the triggering prompt contains multiple domains, areas, or branching ideas, split it into provisional subject bundles before downstream work.
+When the prompt contains multiple domains, areas, or branching ideas, split it into provisional subject bundles before downstream work.
 
-Each bundle should contain one domain or area.
-Branching ideas inside one area may stay together only when they are closely related.
-If a branch can become its own durable subject, split it and preserve the connection instead of blending it into a broader handoff.
+Each bundle uses this shape:
 
-This bundle split is an intake and clarification tool, not final durable note structure.
-Do not decide note type, target note, title, or final links from the bundle split.
+- `id` — stable short label,
+- `label` — human-readable subject name,
+- `summary` — 1-2 line description,
+- `scope` — what is in / out for this bundle,
+- `why-distinct` — why this should not collapse into a neighboring bundle.
 
-## Guided Clarification Loop
+A bundle holds one domain or area. Branches inside a bundle stay together only when closely related.
+The split is intake evidence, not final note structure; `Note Manager` owns subject-to-note mapping.
 
-Use this loop as the default behavior pattern:
+## Clarification Loop
 
-1. Capture the current idea as the user currently understands it.
-2. Restate the user goal, problem shape, and proposed direction separately.
-3. Identify ambiguity, hidden assumptions, missing required fields, and internal inconsistencies.
-4. Ask targeted clarification questions about the highest-impact unresolved points.
-5. Challenge the current direction with alternatives, tradeoffs, risks, or premature commitments.
-6. Explain why certain directions are stronger, weaker, safer, or premature when the user is uncertain.
-7. Narrow or reshape scope when that improves clarity without silently changing intent.
-8. Distinguish between:
-   - important uncertainty that should block note creation or planner handoff,
-   - and minor incompleteness that can be deferred safely.
-9. Update the clarification state.
-10. Either continue the loop or exit to the appropriate downstream step when the idea is ready.
+Run this loop until the idea is ready or clearly stuck:
 
-This loop should continue when:
-- the user is not confident in the architecture, pipeline, or overall direction,
-- core goals and proposed solutions are still mixed together,
-- important tradeoffs are still hidden or unresolved,
-- note creation or planner work would still require guesswork on key decisions,
-- or contradictions remain in scope, constraints, or intent.
+1. Capture the idea as the user currently states it.
+2. Restate user goal, problem shape, and proposed direction *separately*.
+3. Split into subject bundles when the prompt is multi-domain.
+4. Identify ambiguity, hidden assumptions, missing decisions, and inconsistencies — distinguish high-impact from minor.
+5. Ask the highest-value questions and challenge weak directions with concrete tradeoffs.
+6. Update the clarification state (`decided` / `proposed` / `unclear` / `blocked`).
+7. Continue, end, hand off, or mark `partial_clarification`.
 
-This loop should not get stuck on:
-- minor wording issues,
-- low-impact implementation details,
-- small presentation choices,
-- or secondary questions that do not materially affect planning quality.
+### Iteration cap
 
-## Clarification Workflow
+After three full loop iterations on the same subject without reaching `ready_for_note_manager`, stop iterating freely.
+Produce a `partial_clarification` summary that lists what *is* settled, what is still blocking progress, and explicit options (defer / narrow scope / escalate / abandon). Wait for the user to direct the next move.
 
-Follow this sequence:
+### Continue when
+- the user is unsure about a high-impact direction,
+- core goals and proposed solutions are still mixed,
+- important tradeoffs are still hidden,
+- contradictions remain in scope, constraints, or intent.
 
-1. Identify the idea as stated by the user.
-2. Split complex prompts into provisional subject bundles when needed.
-3. Separate the desired outcome from the proposed solution shape.
-4. Surface important inconsistencies, assumptions, and missing decisions.
-5. Ask the most valuable clarification questions first.
-6. Guide the user through major tradeoffs, risks, and focus areas.
-7. Narrow or reshape the request when that reduces ambiguity without deciding for the user.
-8. Extract explicit constraints, approval boundaries, and non-goals.
-9. Determine whether major uncertainty still blocks note creation or planning.
-10. Set status to `draft`, `needs_clarification`, or the local downstream-ready status such as `ready_for_note_manager`.
-11. Produce the most appropriate structured clarification output allowed by the local project.
-
-Do not advance to downstream-ready output just because the request sounds plausible.
-Advance only when the important points are sufficiently clarified.
+### Do not stall on
+- minor wording,
+- low-impact implementation detail,
+- presentation choices,
+- secondary questions that would not change the downstream note action.
 
 ## Status Rules
 
-Use:
-- `draft` when the clarification state exists but is still rough or incomplete,
-- `needs_clarification` when important uncertainty, contradiction, or missing decisions would make downstream note creation or planner work guesswork,
-- `ready_for_note_manager` when the core subject, goals, scope, constraints, and major tradeoffs are clear enough for `Note Manager` to decide a bounded note action without silent decision-making.
+Clarification state labels are defined in `vocabulary.md`. Use them exactly as defined there.
 
-`ready_for_note_manager` does not imply approval for implementation.
-It only means the request is mature enough for the next downstream workflow step.
+`ready_for_note_manager` does not imply approval for implementation. It only authorizes the next workflow step.
 
-If the user is uncertain about architecture, pipelines, interfaces, schemas, note placement, workflow boundaries, or similar high-impact choices, bias toward `needs_clarification` until that uncertainty is clarified enough for safe downstream work.
-For idea capture, confidence may mean that the unresolved uncertainty is clearly preserved rather than resolved.
-For architecture, workflow, schema, API, dependency, security, privacy, or public-interface decisions, confidence requires stronger resolution before downstream handoff.
+For idea capture, confidence may mean unresolved uncertainty is clearly *preserved* rather than resolved.
+For high-impact areas, confidence requires stronger resolution before downstream handoff.
 
 ## Output Modes
 
-Use `continue_clarification` when the user still needs help refining the idea.
-In this mode, provide the current correction or clarification state and the next highest-value questions.
-Do not repeat a full context handoff every turn unless the user asks for it or the state has materially changed.
+- `continue_clarification` — provide the current state plus the next highest-value questions. Do not repeat a full handoff every turn unless the state has materially changed or the user asks.
+- `end_clarification` — state the clarified result and recommend the next relevant action (note creation, planning, review, no durable action, or a user decision). Use when the idea is clear enough for the current purpose but the next step is not necessarily `Note Manager`.
+- `note_ready_handoff` — produce the `references/clarified-context-handoff.md` artifact. After it is visible and supplied with relevant note context, route to `Note Manager` in the same turn by default. Separate user approval applies to the resulting `Note Manager` draft or durable write, not to switching phases.
+- `partial_clarification` — iteration cap reached; structured pause requesting user direction.
 
-Use `end_clarification` when the idea is clear enough for the current purpose but the next step is not necessarily durable note creation.
-In this mode, state the clarified result and recommend the next relevant action, such as note creation, planning, review, no durable action, or a decision from the user.
+Private reasoning does not satisfy a gate. The clarification state or handoff must be visible in the conversation or in an approved workflow artifact before downstream work begins.
 
-Use `note_ready_handoff` when the next step is `Note Manager`.
-In this mode, produce the local clarified context handoff or equivalent artifact.
-This is the only clarification output mode that should hand the work to note creation or update.
-When a durable note change is required, the default flow is to call `Note Manager` immediately after the visible handoff is ready and the relevant note context has been supplied.
-Do not wait for a separate user approval merely to switch phases.
-The approval gate belongs to the resulting `Note Manager` draft or durable-write decision.
+## Interpretation Basis
 
-Private reasoning does not satisfy this skill.
-When a downstream gate depends on clarification, the clarification state or handoff must be visible in the conversation or in an approved workflow artifact.
+Use the full structure defined in `references/clarified-context-handoff.md` for `note_ready_handoff` output.
+
+In `light` depth, `Interpretation Basis` may be omitted when the origin is the direct user prompt and no hidden context, source material, or upstream artifact is being interpreted. Otherwise it is required.
+
+When clarifying implementation-backed review/sync context, separate implementation facts from review proposals inside the basis.
+
+## Long-Session Re-Validation
+
+Before producing a `note_ready_handoff` after a long or compacted conversation:
+
+- re-read the original triggering input (prompt, note, packet, or upstream artifact),
+- verify the handoff still matches that origin in goal, scope, tone, and uncertainty,
+- flag any drift introduced during the loop instead of normalizing it.
 
 ## Escalation Rules
 
-Escalate or continue clarification when:
-- the request contains conflicting goals,
-- the scope boundary cannot be narrowed without a human choice,
-- the idea implies architecture, schema, API, dependency, security, workflow, or ownership decisions that are still undefined,
-- the user is visibly unsure about a high-impact direction,
-- the source-of-truth note, note placement, or ownership boundary is unclear,
-- the request would force downstream note creation or the planner to guess at major intent,
-- or the user asks this skill to produce planner or implementer artifacts before the core idea is clarified.
+Escalate or stay in clarification when:
 
-When escalating, state:
-- the issue,
-- why it matters,
-- the decision or clarification needed,
-- the impacted area,
-- and the recommended next step.
+- conflicting goals,
+- scope cannot be narrowed without a human choice,
+- high-impact uncertainty remains,
+- source-of-truth, ownership, or note placement is unclear,
+- the request would force `Note Manager` or the planner to guess key intent,
+- the user asks for planner or implementer artifacts before the idea is clarified.
 
-Do not bury these issues inside a polished summary.
-
-## Output Contract
-
-Produce structured clarification output that matches the local project convention.
-
-If the project uses a clarified context handoff, clarification note, task note, or similar artifact before planning, follow that local convention.
-If the project uses `clarified-context-handoff.md` as the clarification artifact, follow that schema for the default successful output.
-If the project uses a planning brief as a later downstream artifact, follow that schema only when the idea is mature enough for planner handoff.
-
-When the active repository already uses `clarified-context-handoff.md` as a controlled schema or template, treat that file as the source of truth for structure when the local workflow uses it at the clarification stage.
-Only overwrite that exact path when the repository convention or the user request makes it clear that `clarified-context-handoff.md` is the correct live artifact for this step.
-
-When outputting a clarified context handoff or equivalent clarification artifact, it should make these points explicit when the local project needs them:
-- clarified subject,
-- provisional subject bundles when the source prompt was complex,
-- user goal,
-- interpretation basis, including original input or artifact, relevant context used, interpreted intent, tone or stance to preserve, user-intent claims, agent-inference claims, open ambiguity, things not to imply, and validation target,
-- decided points,
-- proposed but unsettled direction,
-- unclear or blocked points,
-- boundaries or non-goals,
-- relevant context already known,
-- recommended next step,
-- and status.
-
-It should not prescribe note type, target note, title, final links, or durable note body as binding output. Those decisions belong to the downstream note-management role.
-
-When outputting a planning brief, it must include:
-- idea summary,
-- user goal,
-- problem statement,
-- scope,
-- non-goals,
-- assumptions,
-- constraints,
-- open questions,
-- risks / ambiguities,
-- recommended next step,
-- and status.
-
-If the idea is not ready for planner handoff, the output should still preserve the clarification state clearly rather than pretending the work is planner-ready.
-If the idea is exploratory and useful note creation depends on preserving open questions, do not treat unresolved questions as a failure by default.
-They block downstream note work only when they would force `Note Manager` to guess the durable subject, note action, note split, target, placement, or meaning.
+Escalation should be concise: state the issue, why it matters, the decision needed, the impacted area, and the recommended next step. Do not bury these issues inside a polished summary.
 
 ## Output Style
 
-Keep the clarification output:
-- compact,
-- explicit,
-- challenge-oriented,
-- guidance-oriented,
-- and clear about what is known versus what still needs clarification.
-
+Keep outputs compact, explicit, challenge-oriented, and clear about known versus unclear.
 Do not turn unresolved questions into implied decisions.
 Do not silently convert clarification into a planner packet.
 Do not optimize for polished completeness over real understanding.
 
 ## Final Check
 
-Before finishing, check:
-- Is the user goal distinct from the proposed solution?
-- If the prompt was complex, did I split it into provisional subject bundles before downstream work?
-- Are important assumptions challenged instead of repeated?
-- Are major inconsistencies or missing decisions surfaced clearly?
-- Are high-impact uncertainties kept in clarification instead of normalized?
-- Is scope narrower than the original idea when needed?
-- Are non-goals and constraints explicit?
-- Is the next step explicit?
-- Is the output structured appropriately for the local project?
-- Is downstream handoff happening only because the idea is actually ready?
-- If the next step is `Note Manager`, has the clarified context handoff been shown to the user, marked ready, and supplied with enough note context for bounded note work?
-- Did I avoid crossing into `Note Manager` through private reasoning only?
+Before finishing, verify:
 
-If any answer is no, refine the clarification state or mark it `needs_clarification`.
+- Goal is distinct from proposed solution.
+- Multi-domain prompts were split into bundles using the bundle shape above.
+- High-impact uncertainty is preserved or resolved, not normalized.
+- Status (`draft` / `needs_clarification` / `ready_for_note_manager` / `partial_clarification`) is accurate.
+- For `note_ready_handoff`: handoff is visible, schema-shaped, and supplied with enough note context.
+- For long sessions: handoff still matches the original triggering input.
+- The next step (continue / end / handoff / partial) is explicit and matches the actual state.
+
+If any answer is no, refine the state or mark it `needs_clarification`.

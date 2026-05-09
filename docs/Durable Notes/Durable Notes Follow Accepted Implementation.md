@@ -2,7 +2,7 @@
 
 Status: [[Tags/status-settled]]
 Parent:
-Related: [[Two-Phase Workflow Boundary]], [[planner-agent]], [[implementer-agent]], [[review-agent]], [[task-packet-schema]], [[implementation-report-schema]], [[clarify-intent]], [[clarified-context-handoff]], [[note-manager]]
+Related: [[Two-Phase Workflow Boundary]], [[planner-agent]], [[implementer-agent]], [[review-agent]], [[task-packet-schema]], [[modes/dev-workflow/skills/project-implementer/references/implementation-report-schema]], [[clarify-intent]], [[clarified-context-handoff]], [[note-manager]]
 Created: 15-04-2026
 Last Reviewed: 2026-04-25
 Source:

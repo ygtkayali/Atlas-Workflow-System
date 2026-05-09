@@ -2,7 +2,7 @@
 
 Status: [[Tags/status-settled]]
 Parent: [[Main Hubs/Workflow Schemas Hub]]
-Related: [[note-ready-handoff]], [[implementation-report-schema]], [[planner-agent]]
+Related: [[note-ready-handoff]], [[modes/dev-workflow/skills/project-implementer/references/implementation-report-schema]], [[planner-agent]]
 Created: 2026-04-14
 Last Reviewed:
 Source:

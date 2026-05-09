@@ -2,7 +2,7 @@
 
 Status: [[Tags/status-settled]]
 Parent:
-Related: [[planner-agent]], [[review-agent]], [[implementation-report-schema]], [[clarify-intent]], [[note-manager]]
+Related: [[planner-agent]], [[review-agent]], [[modes/dev-workflow/skills/project-implementer/references/implementation-report-schema]], [[clarify-intent]], [[note-manager]]
 Created:
 Last Reviewed: 2026-04-27
 Source:
@@ -124,7 +124,7 @@ Follow this sequence:
 5. Make scoped changes only in the approved area.
 6. Run focused verification.
 7. Compare the result against the acceptance criteria or explicit success conditions.
-8. Produce a structured implementation report that follows [[implementation-report-schema]] when it exists locally.
+8. Produce a structured implementation report that follows [[modes/dev-workflow/skills/project-implementer/references/implementation-report-schema]] when it exists locally.
 9. Flag review/sync follow-up and unresolved issues explicitly inside the implementation report.
 
 ---

@@ -1,28 +1,22 @@
 ---
 name: dw-note-manager
-description: Manage bounded note create/update work from a clarified context handoff plus user-supplied relevant notes. Use when Codex needs to decide, draft, or apply a bounded note action after clarification, especially in note-centered workflows that want explicit confirmation, template-based notes, and no autonomous vault retrieval or reorganization.
+description: Use when a ready_for_note_manager handoff or clear direct note request is in hand and a bounded durable note create, update, or metadata change must be drafted or applied.
 ---
 
 # Note Manager
 
-Perform bounded note-mutation work from clarified input without turning into a vault-management system.
+Perform bounded note-mutation work from clear bounded input without turning into a vault-management system.
 
-Use this skill after clarification has produced durable signal and the user has supplied the relevant notes or note paths needed for the change.
-Do not use it as the first step for a note-action request; route the work through clarification at least once before this skill acts.
+Use this skill when the note action is already clear enough to decide, draft, or apply from the user's request, a clarified context handoff, and the supplied relevant notes or note paths.
+If decision confidence is not high enough to choose the note action, target, note type, or durable meaning safely, route the work through `dw-clarify-intent` before this skill acts.
 Any durable note mutation must use this skill, including metadata-only fixes, status changes, schema/governance note edits, link changes, small corrections in durable notes, and archival changes.
 Do not make raw direct durable note updates outside `Note Manager`.
-
-## Local Authority
-
-If the active workspace contains a local `AGENTS.md`, read it first and treat it as the repository-local operating contract.
-Apply this skill beneath that local authority.
-
-If no local `AGENTS.md` exists, use the user request, the clarified context handoff, and the provided notes as the operating context.
 
 ## Responsibilities
 
 Do:
 - read the clarified context handoff,
+- read the direct note-action request when it is already clear enough to act on,
 - route behavior using an explicit `owner` field in the input context when the local workflow provides one,
 - read only the specific relevant notes the user provides,
 - consume supplied `note-search` context capsules as upstream context when provided,
@@ -41,9 +35,8 @@ Do:
 - preserve local design-choice trails inside `[[feature-subject-note]]` notes instead of moving every decision into a separate design note,
 - use the minimum useful links needed for the provided context,
 - prefer intentional related links over default parent placement,
-- split or group subjects conservatively using the v1 note rules,
 - produce a subject-to-note action manifest before drafting when the clarified context contains multiple durable subjects,
-- treat `Main Hub` as an explicit lightweight index role rather than the default destination for new notes,
+- use managed hub or index files only when explicitly requested or supplied by local context,
 - and wait for confirmation before writing unless the prompt and current workflow state clearly authorize direct writes.
 
 Do not:
@@ -53,10 +46,10 @@ Do not:
 - allow raw direct durable note updates outside this role,
 - rename, move, or reorganize notes,
 - invent a richer metadata or linking system,
-- act without at least one prior clarification pass,
+- act when decision confidence is not high enough to choose the note action, target, note type, or durable meaning safely,
 - create notes from weak clarification state,
 - convert unresolved ideas into recommendations, policy, decisions, or settled direction unless the handoff explicitly marks those points as decided,
-- default new notes into a top-level hub,
+- default new notes into a hub or index file,
 - treat hierarchy as required note structure,
 - infer note meaning, ownership, or governance from folders alone,
 - create domain hierarchy folders when links, tags, hubs, or backlinks are the intended structure,
@@ -65,14 +58,14 @@ Do not:
 ## Required Inputs
 
 Begin from:
-- an explicit upstream artifact such as a clarified context handoff,
+- an explicit clear note-action request or upstream artifact such as a clarified context handoff,
 - the relevant notes or note paths supplied by the user,
 - and the local templates when the project uses them.
 
 If any of these are missing, do not guess through the gap.
 
 Escalate back to clarification when:
-- the request has not yet passed through clarification at least once,
+- decision confidence is not high enough to choose the note action, target, note type, or durable meaning safely,
 - the upstream input is raw review-sync output, implementation context, or another note-change proposal that has not been clarified,
 - the durable subject is still weak,
 - the supplied context is insufficient to choose a note type responsibly,
@@ -86,11 +79,12 @@ Load context in layers and stop when it is sufficient.
 Preferred order:
 
 1. Read the local `AGENTS.md` if it exists.
-2. Read the clarified context handoff.
+2. Read the clear direct note-action request or clarified context handoff.
 3. Read the specific note files or note paths supplied by the user.
    Supplied context may include a semantic `note-search` context capsule, but `Note Manager` should not run search as its own discovery step.
 4. Read the local note templates that match the chosen or strongly indicated note type.
-5. Read [references/v1-note-rules.md](references/v1-note-rules.md) when note splitting, grouping, or type selection needs a closer pass, especially when choosing between hub roles and local note-type tags.
+5. Use the note-type, splitting, grouping, index-file, and folder rules defined in this skill.
+   Do not substitute stale local durable notes as runtime authority for those rules.
 
 Avoid broad repository scans. This skill should shape a bounded note action, not discover the whole vault.
 
@@ -100,8 +94,8 @@ When `dw-clarify-intent` produces a visible `ready_for_note_manager` handoff for
 
 Follow this sequence:
 
-1. Identify the durable subject from the clarified context handoff.
-2. Confirm that the current request has already passed through clarification at least once.
+1. Identify the durable subject from the direct request or clarified context handoff.
+2. Confirm that the direct request or clarified handoff gives high enough decision confidence to act.
 3. Confirm the candidate action: `create` or `update`.
 4. Choose and justify the note type, preferring local note-type tags such as `[[idea-note]]`, `[[feature-subject-note]]`, or `[[design-note]]` when they exist.
 5. Read only the provided notes needed for the action.
@@ -113,14 +107,17 @@ Follow this sequence:
 10. Present the draft and wait for confirmation before writing.
 
 If any step depends on unprovided context or unclear structure, stop and escalate instead of improvising.
-If the input did not pass through `dw-clarify-intent`, route it there first and wait for a clarified context handoff before drafting note content.
+If decision confidence is not high enough, route the input to `dw-clarify-intent` and wait for a clarified context handoff before drafting note content.
 
 ## Bundled Intake
 
 `Note Manager` may receive a bundle of clarified durable subjects from upstream context.
 
 A bundle is allowed for intake efficiency, but it must not collapse note-action approval.
-Before drafting note content from a bundle, `Note Manager` must produce a subject-to-note action manifest.
+
+For **single-subject handoffs**, the action header (note action + type + target/title) serves as the manifest. A separate manifest document is not required.
+
+For **multi-subject handoffs**, produce a subject-to-note action manifest before drafting any note content.
 
 If the upstream artifact contains provisional subject bundles from complex-prompt intake, treat them as input evidence rather than final note structure.
 Each bundle should contain one domain or area; branching ideas should remain together only when they are closely related.
@@ -155,7 +152,7 @@ If `Note Manager` cannot map a clarified subject to note actions without mixing 
 
 ## Dynamic Metadata Rules
 
-Refresh dynamic metadata for every durable note mutation.
+Refresh dynamic metadata for every durable note mutation, including small-edit mode patches.
 
 At minimum, evaluate:
 - `Status`,
@@ -166,105 +163,97 @@ At minimum, evaluate:
 - `Tasks`,
 - and `Decisions`.
 
-Use only approved status tags:
-- `[[status-draft]]`,
-- `[[status-active]]`,
-- `[[status-pending]]`,
-- `[[status-settled]]`,
-- `[[status-archived]]`.
+### Status Transition Table
 
-Status drift must be handled explicitly:
-- use or evaluate `[[status-archived]]` when a note becomes historical, legacy, deprecated, replaced, or no longer part of active working context,
-- use or evaluate `[[status-settled]]` when a note has been worked through and remains active reliable context,
-- use or evaluate `[[status-active]]` when an idea note has been promoted out of draft/backlog and is now active working context but not yet settled,
-- use or evaluate `[[status-draft]]` when a note is still forming,
-- use or evaluate `[[status-pending]]` when a note remains relevant but deferred.
+Status tags are defined in `vocabulary.md` (see also `docs/Durable Notes/Status Tag Registry.md`). Allowed transitions:
+
+| From | To | Condition | Who decides |
+|---|---|---|---|
+| (new) | `[[status-draft]]` | Note is forming; intent not yet solidified | Note Manager |
+| `[[status-draft]]` | `[[status-active]]` | Subject promoted, now active working context | User or handoff |
+| `[[status-draft]]` | `[[status-pending]]` | Relevant but deferred | User or handoff |
+| `[[status-active]]` | `[[status-settled]]` | Worked through; remains reliable context | User or handoff |
+| `[[status-active]]` or `[[status-settled]]` | `[[status-archived]]` | Historical, deprecated, replaced, or removed from active context | User or handoff |
+| any | `[[status-draft]]` | Significant context drift detected | Note Manager flags; user confirms |
+
+Note Manager may flag a status drift but must not silently downgrade a settled or archived note.
+
+### Header Format
+
+Detect whether the existing note uses YAML frontmatter (`--- ... ---`) or inline-callout style (`Status: [[Tags/...]]` in the note body).
+Preserve the existing format. Do not convert between YAML frontmatter and inline style.
 
 Do not preserve stale metadata just because the body edit is small.
 
 ## Note-Type Selection
 
-Prefer the local dev-workflow note-type tags when they exist:
-- `[[idea-note]]` for draft ideas, future plans, exploratory questions, and possible directions that are not yet active durable project subjects. These notes usually live in `docs/Idea Backlog/` and should not depend on a separate idea hub.
-- `[[feature-subject-note]]` for promoted project subjects that started as ideas and are now active or settled project knowledge. Use this for one feature, workflow behavior, implementation concept, or action area. Preserve the subject's own design choices, technical details, implementation notes, open questions, and related tasks or reports in the note.
-- `[[design-note]]` for coherent design areas or cross-cutting system behavior. Use this when the design spans multiple feature subject notes, constrains future work, or should explain how a related feature set works from one place.
+Prefer the local dev-workflow note-type tags when they exist. Full tag semantics live in `docs/Tags/`; the key role distinctions are:
 
-Keep this structural role available:
-- `Main Hub` only for a lightweight top-level index role. It should stay mostly empty, should not become the primary hierarchical center of the vault, and should usually link to stable workflow entry points rather than broadly across the note graph.
+- `[[idea-note]]` — draft, exploratory, or not-yet-promoted. Preserve live thinking: questions, tensions, unresolved options, and branching thoughts are first-class content. Do not smooth them into recommendations unless the handoff explicitly marks them as decided.
+- `[[feature-subject-note]]` — one promoted active or settled project subject. Owns that subject's design choices, technical details, open questions, and related tasks. Prefer this over `[[design-note]]` when promoting an idea.
+- `[[design-note]]` — spans multiple feature subjects or constrains future work from one place. Use after the feature set is active; it does not replace per-subject design trails inside `[[feature-subject-note]]` notes.
 
-Do not use `General Note` as a normal fallback in `dev-workflow`.
-The `[[feature-subject-note]]` template is the default durable subject template for notes that would previously have been generic durable notes.
-
-Do not expose `Sub Hub` as a normal note-creation path in `dev-workflow`.
-When a related subject set needs one shared explanation, prefer a `[[design-note]]`; its links to related subject notes provide the natural organizing layer.
-
-`[[idea-note]]` content should preserve live thinking.
-When the source handoff is exploratory, use questions, tensions, candidate options, assumptions to test, branching thoughts, and unresolved decisions as first-class content.
-Do not smooth these into recommendations or settled direction unless the handoff explicitly marks them as decided.
-
-When promoting an idea, prefer creating or updating a `[[feature-subject-note]]` rather than a `[[design-note]]`.
-Use a `[[design-note]]` later when an active or settled feature set needs a broader design explanation.
-A design note does not replace the local `Design Choices` or equivalent decision trail inside the feature subject notes.
-
-Do not use `Sub Hub` as a generic wrapper for every small topic cluster.
-Do not promote a note to `Main Hub` just because it is high-level.
-If a future project truly needs a hub-like note beyond the starter main hubs, escalate instead of silently creating a sub hub.
+Use managed hub or index files only when explicitly requested or supplied by local context. Do not promote a note into a hub just because it is high-level; escalate if a new hub-like note is genuinely needed.
 
 ## Vault Folder Handling
 
-Treat vault folders as a readability layer for the human, not as the main governance model for the note system.
+Treat vault folders as a readability layer for the human, not as the primary governance model.
 
-The primary governance model is:
-- note metadata,
-- status tags,
-- intentional links,
-- backlinks when relevant,
-- and explicit one-way or two-way note relationships.
+The primary governance model is note metadata, status tags, intentional links, backlinks, and explicit note relationships.
+Folder placement and note type are separate concepts; a note's operational meaning comes from its role, metadata, and supplied context — not its folder.
 
-Folder placement and note type are separate concepts.
-A note's operational meaning should come from its role, metadata, links, and supplied context, not from its folder alone.
+For the authoritative folder list, read `atlas.yaml` (or the local `manifest.yaml`) `vault.folders`.
+Apply this readability-vs-governance rule on top of whatever that config defines.
 
-When a vault has a local folder policy, follow it only as a placement/readability rule.
-For the current dev-workflow structure, the base folders are:
-- `Idea Backlog` for `[[idea-note]]` notes and early capture,
-- `Durable Notes` for active or settled project knowledge such as `[[feature-subject-note]]` and `[[design-note]]` notes,
-- `Tasks` for implementation packets and task-facing workflow artifacts,
-- `Reports` for implementation, verification, and review/sync reports,
-- `Tags` for note-based tags,
-- `Main Hubs` for hub notes,
-- and `Templates` for note and artifact templates.
-
-Project-specific folders may be valid when the project type benefits from them, such as `Tests`, `Features`, or `Reports`.
-Those folders should be proposed or constrained by the project's local `AGENTS.md` or supplied project context.
-
-Do not create domain hierarchy folders such as `Backend notes` just to group related subjects.
-Domain grouping should be handled through links, tags, hubs, and backlinks unless the user or local project policy explicitly approves a readability folder for that project type.
+Do not create domain hierarchy folders (e.g., `Backend notes`) to group related subjects.
+Domain grouping belongs in links, tags, hubs, and backlinks unless the user or local `AGENTS.md` explicitly approves a readability folder for that project type.
 
 ## Output Contract
 
-Default output should be a draft-first note action.
-Direct durable writes require both satisfied upstream gates and clear authorization from the prompt and current workflow state.
-If write authorization is ambiguous, produce draft-only output.
+Default output is draft-first. A durable write requires one of these three explicit authorization signals:
+1. The user message contains a direct write directive ("apply", "write", "commit", or equivalent).
+2. The upstream handoff contains `direct_write: true`.
+3. An approved execution packet explicitly authorizes the write.
 
-When the action is `create`, provide:
+Anything outside these three signals → draft-only output.
+
+### Small-Edit Mode
+
+When the change is metadata-only (e.g., a status flip) or a single isolated line, produce a patch instead of a full note output:
+
+```
+target   | <note path or title>
+field    | <metadata field or line description>
+old      | <current value>
+new      | <proposed value>
+reason   | <why this change is correct>
+```
+
+Dynamic metadata must still be evaluated and the `Last Reviewed` field updated even for small-edit mode patches.
+
+### Full-Edit Mode
+
+**When the action is `create`**, provide:
 - note action,
 - note type,
 - proposed title,
 - proposed related links from the provided context,
-- proposed parent link only when explicitly justified by the provided context,
-- refreshed dynamic metadata appropriate for the new note state,
+- proposed parent link only when explicitly justified,
+- refreshed dynamic metadata for the new note state,
 - and the full draft note body.
 
-When the action is `update`, provide:
+**When the action is `update`**, provide:
 - note action,
 - target note,
 - why this note is the correct target,
-- refreshed dynamic metadata appropriate for the updated note state,
+- refreshed dynamic metadata for the updated note state,
 - and the exact proposed updated content or patch-shaped replacement text.
+
+### Return to Clarification
 
 If the request should return to clarification, state:
 - the blocking ambiguity,
-- why `Note Manager` would be guesswork,
+- why `Note Manager` would be guesswork here,
 - and the minimum clarification needed next.
 
 ## Output Style
@@ -280,19 +269,13 @@ Do not silently expand a local note edit into vault maintenance.
 
 ## Final Check
 
-Before finishing, check:
-- Is the subject durable enough to merit a note?
-- Is the note type justified?
-- Is the action clearly `create` or `update`?
-- Is the draft based only on provided context plus local templates?
-- If this is an `Idea Note`, did I preserve unresolved questions instead of converting them into conclusions?
-- If the handoff was complex, did I avoid treating provisional subject bundles as final note structure without evaluation?
-- Were dynamic metadata fields refreshed so status and other changing headers are current rather than stale?
-- Does `Status` match the current body and role of the note, especially for legacy or archived notes?
-- Do `Last Reviewed`, `Related`, `Parent`, `Tasks`, and `Decisions` still match the updated note?
-- Are links minimal and intentional?
-- Would this note still be useful beyond the current chat?
-- Should this be one note, or a small obvious set of notes?
-- Is any durable write clearly authorized by the prompt and workflow state, or should the output remain draft-only?
+Before finishing, verify the four things the workflow does not automatically enforce:
 
-If any answer is no, refine the draft or return the work to clarification.
+1. **Subject durability** — Is this worth a note at all, or does it belong only in the conversation?
+2. **Idea-note fidelity** — If the type is `[[idea-note]]`, are unresolved questions still questions rather than conclusions?
+3. **Scope** — Should this be one note or a small obvious set? Did I resist the pull toward a hub or index file?
+4. **Write authorization** — Is a durable write clearly authorized by one of the three signals in the Output Contract, or must the output remain draft-only?
+
+For everything else (note type, metadata freshness, link minimalism, format preservation, status transitions), the workflow steps above are the check. If you reached this point following them, those are satisfied.
+
+If any of the four answers above is no, refine the draft or return the work to clarification.

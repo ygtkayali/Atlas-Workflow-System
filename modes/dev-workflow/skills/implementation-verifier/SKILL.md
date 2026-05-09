@@ -1,6 +1,6 @@
 ---
 name: implementation-verifier
-description: Verify implementation-like changes after they are made and before final commit. Use when Codex should inspect the diff, create or update context-appropriate tests, run verification, optionally use subagents as independent validation, assess completeness, recommend commit readiness, and commit only when explicitly authorized.
+description: Use after implementation-like changes are complete and before final commit — inspect the diff, run or create tests, assess commit readiness, and commit only when explicitly authorized.
 ---
 
 # Implementation Verifier
@@ -11,15 +11,6 @@ Use this skill when the user manually invokes verification after code, scripts, 
 
 This skill is a verification and commit-prep role.
 It is not the default path for pure static note or text-only changes.
-
-## Local Authority
-
-Use this skill across repositories without relying on any specific workflow-design repo.
-
-If the active workspace contains a local `AGENTS.md`, read it first and treat it as the repository-local operating contract.
-Apply this skill beneath that local authority.
-
-If no local `AGENTS.md` exists, use this skill as the default verification contract.
 
 ## Responsibilities
 
@@ -87,7 +78,7 @@ Follow this sequence:
 4. Decide whether durable tests should be created or updated.
 5. Create or update tests only when they validate lasting behavior and fit the project's normal test structure.
 6. Use temporary probes only when they are useful for diagnosis; remove or leave them untracked unless the user explicitly wants them preserved.
-7. Run the strongest practical checks for the changed area.
+7. Run the strongest practical checks for the changed area. If a test fails intermittently across independent runs, do not classify as `commit_with_caution` — re-run at least twice more; if intermittence continues, escalate with the flakiness pattern instead of recommending commit.
 8. Use subagents for independent validation when their perspective adds value and does not block the main path.
 9. Review results and compare the implementation against the stated scope.
 10. Recommend one outcome: `ready_to_commit`, `commit_with_caution`, `needs_revision`, or `blocked`.
@@ -109,6 +100,13 @@ Write a durable verification report only when:
 - or the user explicitly asks for a report file.
 
 ## Subagent Validation
+
+Use a subagent only when all three conditions hold:
+- the change has executable behavior,
+- executable tests for that behavior are not available or would require disproportionate setup,
+- and the cost of an incorrect commit is high (behavior-visible, architectural, or user-facing).
+
+If these conditions are not met, skip subagent validation and note the reason in the report.
 
 Use subagents only when available and useful.
 They are an additional validation surface, not the source of truth.
@@ -137,12 +135,13 @@ Commit only when:
 - or an approved execution artifact clearly authorizes committing.
 
 Before committing:
-- check `git status`,
+- check `git status`; if pre-existing changes are entangled with the verified diff, stop and report the entanglement rather than staging a mixed diff,
 - stage only files related to the verified change,
 - review the staged diff,
 - avoid staging unrelated user changes,
 - run or report the strongest practical checks,
-- and use the repository's commit-message convention when one exists.
+- produce a draft commit message inside the report following the repository's commit-message convention — include this even when commit is authorized so the user can review wording before the commit lands,
+- and commit using that draft message when commit is authorized.
 
 Passing tests are necessary evidence, but they are not sufficient by themselves.
 Also assess whether:
@@ -155,12 +154,31 @@ Also assess whether:
 
 ## Outcome Labels
 
-Use exactly one primary recommendation:
+Verification outcome labels are defined in `vocabulary.md`. Use exactly one primary recommendation.
 
-- `ready_to_commit`: tests and review support committing the current scoped change
-- `commit_with_caution`: commit is possible, but known risks or gaps should be called out
-- `needs_revision`: tests may pass or fail, but the implementation should change before commit
-- `blocked`: verification cannot complete because of missing dependencies, failing setup, unclear scope, or another blocker
+### Decision Criteria
+
+`ready_to_commit` requires all of:
+- all scheduled tests pass,
+- implementation scope matches the approved artifact,
+- all stated acceptance criteria are addressed,
+- no temporary probes are staged,
+- no unresolved blocking issues.
+
+`commit_with_caution` applies when committing is reasonable but at least one of:
+- a test gap exists that is documented and non-blocking,
+- a risk is identified that the user should know before merge,
+- a minor acceptance criterion is partially met with a stated reason.
+
+`needs_revision` applies when:
+- a planned test fails and the test itself is correct,
+- the implementation does not match the approved scope,
+- or acceptance criteria are materially unmet.
+
+`blocked` applies when:
+- required dependencies are missing or broken,
+- the target behavior is too ambiguous to test,
+- or pre-existing entangled changes cannot be separated from the diff.
 
 ## Output Report
 
@@ -182,10 +200,6 @@ If tests pass but revision is still recommended, state the reason directly.
 ## Final Check
 
 Before finishing, check:
-- Did verification target the actual changed behavior?
-- Were durable tests created only where they fit the project?
+- Was commit creation explicitly authorized before any commit?
 - Were temporary probes kept out of the commit scope?
 - Were checks actually run or clearly reported as not run?
-- Did subagent validation supplement rather than replace executable tests?
-- Did the recommendation account for completeness, not only test status?
-- Was commit creation explicitly authorized before any commit?
