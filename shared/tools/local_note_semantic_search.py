@@ -259,6 +259,7 @@ def build_or_refresh_index(
     model_name: str,
     reindex: str,
     max_body_chars: int,
+    model: Any | None = None,
 ) -> tuple[dict[str, Any], Any, dict[str, int]]:
     np = import_numpy()
     index_dir, manifest, existing_embeddings = read_index(vault_root)
@@ -284,9 +285,9 @@ def build_or_refresh_index(
             refresh_reasons[document.path] = reason
 
     if refresh_reasons:
-        model = load_model(model_name)
+        active_model = model if model is not None else load_model(model_name)
         refresh_paths = sorted(refresh_reasons, key=str.casefold)
-        vectors = encode_texts(model, [by_path[path].text for path in refresh_paths])
+        vectors = encode_texts(active_model, [by_path[path].text for path in refresh_paths])
         for path, vector in zip(refresh_paths, vectors):
             previous_vectors[path] = vector
 
@@ -601,6 +602,13 @@ def serve_socket(
                         query = str(request.get("query", "")).strip()
                         if not query:
                             raise RuntimeError("request missing query")
+                        manifest, embeddings, index_status = build_or_refresh_index(
+                            vault_root=vault_root,
+                            model_name=model_name,
+                            reindex="changed-only",
+                            max_body_chars=max(max_body_chars, 0),
+                            model=model,
+                        )
                         payload = semantic_search_prepared(
                             vault_root=vault_root,
                             query=query,
