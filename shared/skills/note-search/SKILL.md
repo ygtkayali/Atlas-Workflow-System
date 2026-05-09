@@ -1,6 +1,6 @@
 ---
 name: note-search
-description: Retrieve bounded note context from a local markdown vault by routing known-seed requests to graph search and concept-level discovery requests to semantic embedding search. Use when Codex needs nearby notes, similar notes, or a query-first context capsule without broad vault reads.
+description: Use when bounded note retrieval is needed — graph search from a known seed note, or semantic search from a concept — without broad vault reads.
 ---
 
 # Note Search
@@ -14,12 +14,27 @@ Use it for:
 
 This skill is the stable interface layer for note retrieval.
 It does not implement graph traversal, embedding, or ranking itself.
-It calls the local retrieval scripts:
+It calls the local retrieval scripts resolved from platform config.
 
-- graph search: `~/.codex/tools/local_note_search.py`
-- semantic search: `~/.codex/tools/local_note_semantic_search.py`
+## Tool Path Resolution
+
+Before calling either script, resolve `tools_root` from `platforms.yaml`:
+
+1. Read `platforms.yaml` from the atlas source checkout.
+2. Identify the current platform: `codex` when running under Codex, `claude` when running under Claude Code.
+3. Read `tools_root` for that platform entry.
+4. Use `<tools_root>/local_note_search.py` for graph search and `<tools_root>/local_note_semantic_search.py` for semantic search.
+
+Never hardcode `~/.codex/tools/` or any platform-specific prefix directly in calls.
 
 In an Atlas workflow source checkout, skill-related tool sources live under `shared/tools/`; those sources should stay synchronized with the installed helpers when behavior changes.
+
+## vault_root Resolution
+
+When `vault_root` is not supplied by the caller:
+
+1. Read `atlas.yaml` from the repository root.
+2. Use `vault.path` as the vault root, resolved relative to the repository root.
 
 ## Responsibilities
 
@@ -43,11 +58,12 @@ Do not:
 ## Required Inputs
 
 Provide:
-- `vault_root`
 - either `seed_path`, `seed_title`, or `query`
 
+`vault_root` is optional; resolve from `atlas.yaml` when not supplied.
+
 Optional controls:
-- `limit`
+- `limit` (default: 10)
 - `max_hops`
 - `sparse_threshold`
 - `debug`
@@ -67,15 +83,15 @@ Use semantic search when:
 - the prompt gives only a concept, question, or rough subject,
 - a role needs a bounded context capsule before deciding which notes to read.
 
+Fallback rule: if graph search by title returns no match, fall back to a semantic query using that title as the query string rather than failing.
+
 Prefer semantic search over manual `rg` or broad file scanning for concept-level note discovery.
 Manual text search remains acceptable for exact strings, filenames, or implementation code checks.
 
 ## Graph Call Pattern
 
-Use JSON by default.
-
 ```bash
-python3 ~/.codex/tools/local_note_search.py \
+python3 <tools_root>/local_note_search.py \
   --vault-root "<vault-root>" \
   --seed-path "<note-path>" \
   --format json
@@ -84,16 +100,16 @@ python3 ~/.codex/tools/local_note_search.py \
 When only the note title is known:
 
 ```bash
-python3 ~/.codex/tools/local_note_search.py \
+python3 <tools_root>/local_note_search.py \
   --vault-root "<vault-root>" \
   --seed-title "<note-title>" \
   --format json
 ```
 
-Use debug mode only when you need scoring, hop reasons, or unresolved-link diagnostics:
+Use debug mode only when scoring, hop reasons, or unresolved-link diagnostics are needed:
 
 ```bash
-python3 ~/.codex/tools/local_note_search.py \
+python3 <tools_root>/local_note_search.py \
   --vault-root "<vault-root>" \
   --seed-path "<note-path>" \
   --format json \
@@ -102,51 +118,56 @@ python3 ~/.codex/tools/local_note_search.py \
 
 ## Semantic Call Pattern
 
-When a warm semantic search service is running, use the fast socket client with plain `python3`:
+Default to warm (socket) and fall back to cold (conda) if the socket is unavailable.
+
+**Warm (default):** try this first.
 
 ```bash
-python3 ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --expand-graph --require-socket --format json
+python3 <tools_root>/local_note_semantic_search.py \
+  --vault-root "<vault-root>" \
+  --query "<query>" \
+  --expand-graph \
+  --require-socket \
+  --format json
+```
+
+**Cold (fallback):** use when the warm call exits non-zero or reports no socket.
+
+```bash
+conda run --no-capture-output -n base-ml \
+  python <tools_root>/local_note_semantic_search.py \
+  --vault-root "<vault-root>" \
+  --query "<query>" \
+  --expand-graph \
+  --format json
 ```
 
 Start the warm service in a separate terminal when repeated semantic queries are expected:
 
 ```bash
-conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --serve-socket --no-refresh
-```
-
-Use cold semantic discovery through the `base-ml` conda environment when no service is running:
-
-```bash
-conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --expand-graph --format json
-```
-
-Use `--no-refresh` only when the caller explicitly wants to avoid checking changed files:
-
-```bash
-conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --no-refresh --format json
+conda run --no-capture-output -n base-ml \
+  python <tools_root>/local_note_semantic_search.py \
+  --vault-root "<vault-root>" \
+  --serve-socket
 ```
 
 Semantic search uses `sentence-transformers/all-MiniLM-L6-v2` and stores a vault-local cache at `.codex-note-search/`.
 
+### Refresh behavior
+
+Refresh is the default: each query checks for changed files and updates the index before searching.
+Use `--no-refresh` only when the caller explicitly wants to skip index updates for speed.
+
+### Result size
+
+Default limit is 10 results. If results would exceed roughly 4 000 tokens of context, truncate to the top results that fit rather than returning the full set. Surface the truncation count to the caller.
+
 ## Output Handling
 
-Graph JSON output:
-- `seed_path`
-- `candidates`
+Graph search returns `seed_path` and `candidates`.
+Semantic search returns `read_first` (primary bounded context set) and optionally `graph_expansion` (adjacent context).
 
-Debug JSON output may also include:
-- scored candidate objects with `path`, `score`, and `reasons`
-- `unresolved_link_count`
-
-Semantic JSON output may include:
-- `read_first`
-- `graph_expansion`
-- `index_status`
-- `score`
-- `semantic_score`
-- `why`
-
-Treat `read_first` as the primary bounded context set and `graph_expansion` as optional adjacent context.
+Treat `read_first` as the primary set. `graph_expansion` is optional.
 
 If the script returns an `error`, treat retrieval as failed and surface the reason directly rather than guessing.
 

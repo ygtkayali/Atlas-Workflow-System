@@ -1,0 +1,13 @@
+platforms:
+  codex:
+    skills_root: ~/.codex/skills
+    tools_root: ~/.codex/tools
+    agent_file: AGENTS.md
+  claude:
+    skills_root: ~/.claude/skills
+    tools_root: ~/.claude/tools
+    agent_file: CLAUDE.md
+
+defaults:
+  init_platforms:
+    - codex

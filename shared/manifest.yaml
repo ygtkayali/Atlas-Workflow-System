@@ -12,7 +12,6 @@ managed_skills:
   items:
     - id: note-search
       source: skills/note-search
-      installed_path: ~/.codex/skills/note-search
       required: true
 
 managed_tools:
@@ -20,11 +19,11 @@ managed_tools:
   items:
     - id: local_note_search
       source: tools/local_note_search.py
-      installed_path: ~/.codex/tools/local_note_search.py
+      install_name: local_note_search.py
       required: true
     - id: local_note_semantic_search
       source: tools/local_note_semantic_search.py
-      installed_path: ~/.codex/tools/local_note_semantic_search.py
+      install_name: local_note_semantic_search.py
       required: true
 
 health_checks:
@@ -37,10 +36,8 @@ health_checks:
         - shared/tools
       severity: error
     - id: shared-skills-installed
-      type: paths_exist
-      targets_from: managed_skills.items.installed_path
+      type: per_platform_skill_paths_exist
       severity: warning
     - id: shared-tools-installed
-      type: paths_exist
-      targets_from: managed_tools.items.installed_path
+      type: per_platform_tool_paths_exist
       severity: warning

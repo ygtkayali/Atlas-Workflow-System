@@ -135,13 +135,14 @@ Use this file to choose the skill and gate; then follow that skill's own instruc
 | Approved packet or sufficiently specific direct coding request | `project-implementer` | Operation-scoped change plus implementation report |
 | Verification before closeout for implementation-like changes | `implementation-verifier` | Verification result, durable tests when appropriate, and explicit remaining risk |
 | Completed implementation review, documentation-sync routing, or bounded maintenance review | `project-review-sync` | Review or maintenance report with disposition |
-| Note-related retrieval needed by clarification, planning, or review | shared `note-search` helper | Candidate note paths or local context capsule; caller supplies task context and `note-search` chooses retrieval mode |
+| Note-related retrieval needed by clarification, planning, review, or other workflow roles | shared `note-search` helper | Default note search/retrieval tool for dev-workflow; candidate note paths or local context capsule; caller supplies task context and `note-search` chooses retrieval mode |
 
 ### Routing Rules
 - Ask which skill or skills the prompt requires, and in what order, before non-trivial work.
 - Choose the smallest valid sequence that preserves the gates.
-- If note-related retrieval is needed, use `note-search`; do not manually perform broad vault discovery.
+- If note-related retrieval is needed, use `note-search` as the default search/retrieval tool for dev-workflow; do not manually perform broad vault discovery.
 - If a prompt spans multiple phases, stop at the first unresolved gate.
+- If confidence is not high enough to choose a durable note action, target, note type, or durable meaning safely, route to `dw-clarify-intent` before `dw-note-manager`.
 - A visible `ready_for_note_manager` handoff with supplied relevant note context is enough to route into `dw-note-manager`; the approval gate applies to the resulting draft or durable write.
 - A sufficiently specific direct coding request may route directly to `project-implementer` when objective, scope, constraints, and intended behavior are clear enough.
 - Planning is downstream from note-backed project state; clarification should not default to a planner-shaped artifact.
@@ -153,16 +154,26 @@ Phase transitions are strict gates.
 Private reasoning does not satisfy a gate.
 When a gate requires a clarification state, context handoff, draft, review report, packet, or approval, that artifact or decision must be visible in the conversation or in an approved workflow file before the next phase begins.
 For the clarification-to-note-management boundary, a visible `ready_for_note_manager` handoff satisfies the phase-transition artifact requirement.
+
+Hard-gate artifacts must be persisted to disk when produced, not only stated in the conversation. Write each artifact to `docs/Reports/in-flight/` when created:
+- `ready_for_note_manager` handoff -> `docs/Reports/in-flight/handoff-<slug>.md`
+- approved implementation packet -> `docs/Reports/in-flight/packet-<slug>.md`
+- implementation report -> `docs/Reports/in-flight/report-<slug>.md`
+
+A conversation-only artifact does not satisfy a gate requirement after compaction; only the disk copy is authoritative.
 When the user has requested or accepted a durable note change and the supplied note context is sufficient, the agent should invoke `dw-note-manager` in the same turn by default; separate user approval is required for the resulting draft or durable write, not merely for calling `dw-note-manager`.
 
 Hard gate sequence:
-- raw idea, complex prompt, or ambiguous request -> `dw-clarify-intent`
+- raw idea, complex prompt, ambiguous request, or low-confidence durable note decision -> `dw-clarify-intent`
 - visible `ready_for_note_manager` clarified context handoff -> `dw-note-manager` draft
 - approved note-manager draft and clear workflow authorization -> durable note write
 - note-backed implementation need -> `project-planner`
 - approved packet or sufficiently specific direct coding request -> `project-implementer`
 - implementation-like changes -> `implementation-verifier` when verification is requested, required, or materially useful before closeout
 - completed implementation or bounded maintenance task -> `project-review-sync`
+
+### Session Continuity After Compaction
+When returning to in-progress work and recent conversation has been compressed, read `active-context.md` before proceeding. Do not trust recovered conversation snippets as the ground truth for workflow state. The `active-context.md` file and the in-flight artifacts it references are authoritative.
 
 Dynamic routing should improve the quality of the current phase.
 It must not be used to complete multiple phases silently.
@@ -180,6 +191,12 @@ Durable note mutation rule:
 - file-edit tools may apply the resulting note-manager decision, but they do not replace the note-manager gate
 - this applies even when the requested change appears small, obvious, or purely mechanical
 
+File change approval rule:
+- before editing any file, the agent must prompt the user for approval and summarize the intended change
+- for wording-sensitive files, including workflow rules, reusable skills, governance docs, prompts, schemas, and `AGENTS.md` files, the agent should provide exact proposed wording or a patch-shaped draft before editing
+- the agent may apply very small mechanical corrections directly only when the change is low-risk and does not alter behavior, meaning, workflow gates, architecture, or public interfaces
+- when unsure whether a change qualifies as a very small correction, ask before editing
+
 ## Common Workflow Shapes
 These are common paths, not mandatory full sequences.
 Use the smallest valid path that satisfies the current gate, and stop at the first unresolved gate.
@@ -188,6 +205,12 @@ For ideas and durable note work:
 
 ```text
 idea -> dw-clarify-intent -> ready_for_note_manager handoff -> dw-note-manager draft -> approved durable write when authorized
+```
+
+For clear durable note mutation requests:
+
+```text
+clear bounded note request -> dw-note-manager draft -> approved durable write when authorized
 ```
 
 For note-backed implementation:
@@ -224,7 +247,16 @@ Core artifacts:
 - `architecture-hub.md`
 - `priority-queue.md`
 - `decision-log.md`
-- `active-context.md`
+- `active-context.md` — workflow-state pointer
+
+`active-context.md` is the single source of truth for current workflow state. It must record:
+- `current_phase`: the active workflow phase
+- `current_gate`: the gate that must be satisfied before the next phase
+- `last_handoff_path`: path to the most recent `ready_for_note_manager` handoff file
+- `last_packet_path`: path to the most recent approved implementation packet
+- `last_report_path`: path to the most recent implementation or review report
+
+Skills must read `active-context.md` on entry when workflow state is relevant and update it on exit when workflow state changes.
 
 Task artifacts:
 - feature notes
@@ -253,7 +285,7 @@ Documentation updates after implementation should be traceable to a task, report
 ### Default Policy
 - clarification and planning roles: read docs, inspect relevant project context, and prepare context for downstream note work
 - `dw-note-manager`: read docs, update docs, inspect relevant project context, and own durable note mutation
-- clarification, planning, and review roles must use shared `note-search` for note-related retrieval; they provide task context while `note-search` chooses graph or semantic mode and formulates any semantic query
+- clarification, planning, review, and other workflow roles must use shared `note-search` as the default note search/retrieval tool; they provide task context while `note-search` chooses graph or semantic mode and formulates any semantic query
 - implementation role: edit code, inspect files, run checks, produce report
 - review role: inspect code and docs, suggest or apply scoped sync routing
 
@@ -274,6 +306,23 @@ When possible, verify with:
 - command output,
 - file diffs,
 - explicit note updates.
+
+## Shared Skill Policy
+
+All dev-workflow skills inherit these base rules. Skills reference rather than repeat them and may add role-specific constraints on top.
+
+### Local Authority
+Read the active workspace's `AGENTS.md` first when it exists and treat it as the repository-local operating contract.
+Apply each skill beneath that local authority.
+If no local `AGENTS.md` exists, use the skill's own contract as the default for that role.
+
+### Portability
+Skills must work across repositories. Do not rely on files from a workflow-design repository, a fixed folder structure, specific note names the local project does not define, or undocumented project conventions.
+
+### Vocabulary
+Label sets for this workflow are defined in `vocabulary.md` at the mode root (installed alongside `AGENTS.md`).
+Use those labels for note status, uncertainty, clarification state, packet status, verification outcomes, and review dispositions.
+Skills define decision criteria, transition logic, and output shapes on top of the labels; they do not redefine or vary the labels themselves.
 
 ## Git Governance
 Git is the default review and change-boundary mechanism when the project is a git repository.

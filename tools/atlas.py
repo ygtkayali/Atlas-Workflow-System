@@ -16,6 +16,49 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 MODES_ROOT = REPO_ROOT / "modes"
 SHARED_ROOT = REPO_ROOT / "shared"
 SHARED_MANIFEST_PATH = SHARED_ROOT / "manifest.yaml"
+PLATFORMS_PATH = REPO_ROOT / "platforms.yaml"
+
+
+def load_platforms() -> dict[str, Any]:
+    if not PLATFORMS_PATH.exists():
+        return {"platforms": {}, "defaults": {}}
+    return load_yaml(PLATFORMS_PATH)
+
+
+def platform_registry() -> dict[str, dict[str, Any]]:
+    data = load_platforms().get("platforms", {})
+    return {str(k): v for k, v in data.items() if isinstance(v, dict)}
+
+
+def platform_config(name: str) -> dict[str, Any]:
+    registry = platform_registry()
+    if name not in registry:
+        raise ValueError(f"Unknown platform: {name} (known: {sorted(registry)})")
+    return registry[name]
+
+
+def all_platform_names() -> list[str]:
+    return list(platform_registry().keys())
+
+
+def default_init_platforms() -> list[str]:
+    defaults = load_platforms().get("defaults", {})
+    if isinstance(defaults, dict):
+        names = defaults.get("init_platforms")
+        if isinstance(names, list) and names:
+            return [str(n) for n in names]
+    names = all_platform_names()
+    return names[:1] if names else ["codex"]
+
+
+def skill_install_path(platform_cfg: dict[str, Any], item: dict[str, Any]) -> Path:
+    sid = str(item.get("id") or Path(str(item.get("source", ""))).name)
+    return expand_user_path(str(platform_cfg["skills_root"])) / sid
+
+
+def tool_install_path(platform_cfg: dict[str, Any], item: dict[str, Any]) -> Path:
+    name = str(item.get("install_name") or Path(str(item.get("source", ""))).name)
+    return expand_user_path(str(platform_cfg["tools_root"])) / name
 
 
 Action = dict[str, Any]
@@ -100,6 +143,18 @@ def read_project_mode(project_root: Path) -> str | None:
         raise ValueError(f"{config_path} has no atlas mapping")
     mode = atlas.get("mode")
     return str(mode) if mode else None
+
+
+def read_project_platforms(project_root: Path) -> list[str]:
+    config_path = project_atlas_config_path(project_root)
+    if config_path.exists():
+        config = load_yaml(config_path)
+        atlas = config.get("atlas", {})
+        if isinstance(atlas, dict):
+            platforms = atlas.get("platforms")
+            if isinstance(platforms, list) and platforms:
+                return [str(p) for p in platforms]
+    return default_init_platforms()
 
 
 def default_mode() -> str:
@@ -302,6 +357,66 @@ def apply_action(action: Action) -> None:
         raise ValueError(f"Unknown sync action kind: {kind}")
 
 
+def manifest_agent_bridge_source(manifest_path: Path, manifest: dict[str, Any]) -> Path | None:
+    agent_bridge = manifest.get("agent_bridge", {})
+    if not isinstance(agent_bridge, dict):
+        return None
+    source_rel = agent_bridge.get("source")
+    if not source_rel:
+        return None
+    return manifest_path.parent / str(source_rel)
+
+
+def agent_bridge_actions_for_project(
+    project_root: Path,
+    manifest_path: Path,
+    manifest: dict[str, Any],
+    project_platforms: list[str],
+) -> tuple[list[Action], list[Action]]:
+    actions: list[Action] = []
+    skipped: list[Action] = []
+
+    bridge_source = manifest_agent_bridge_source(manifest_path, manifest)
+    if bridge_source is None:
+        return actions, skipped
+
+    if not bridge_source.is_file() or not has_payload(bridge_source):
+        skipped.append({
+            "kind": "missing_source",
+            "target": str(project_root),
+            "detail": f"agent bridge source not found: {relative_to_repo(bridge_source)}",
+        })
+        return actions, skipped
+
+    for platform_name in project_platforms:
+        try:
+            cfg = platform_config(platform_name)
+        except ValueError:
+            continue
+        agent_file = cfg.get("agent_file")
+        if not agent_file:
+            continue
+        target = project_root / str(agent_file)
+        if target.exists():
+            content = prepended_file_content(bridge_source, target)
+            if content is not None:
+                actions.append({
+                    "kind": "prepend_file",
+                    "source": str(bridge_source),
+                    "target": str(target),
+                    "detail": f"[{platform_name}] prepend/update bridge in {agent_file}",
+                })
+        else:
+            actions.append({
+                "kind": "copy_file",
+                "source": str(bridge_source),
+                "target": str(target),
+                "detail": f"[{platform_name}] create {agent_file} from bridge",
+            })
+
+    return actions, skipped
+
+
 def source_asset_root(manifest_path: Path, manifest: dict[str, Any]) -> Path:
     source_assets = manifest.get("source_assets", {})
     if isinstance(source_assets, dict) and source_assets.get("root"):
@@ -331,23 +446,52 @@ def check_source_asset_folders(manifest_path: Path, manifest: dict[str, Any], ke
     return failures
 
 
-def check_installed_assets(manifest: dict[str, Any], section: str, label: str) -> int:
+def check_installed_assets(
+    manifest_path: Path,
+    manifest: dict[str, Any],
+    section: str,
+    label: str,
+    platforms: list[str],
+) -> int:
     warnings = 0
     managed = manifest.get(section, {})
     if not isinstance(managed, dict):
         return warnings
+    is_skill = section == "managed_skills"
+    root = source_asset_root(manifest_path, manifest)
     for item in managed.get("items", []):
         if not isinstance(item, dict):
             continue
-        installed_path = item.get("installed_path")
-        asset_id = item.get("id", installed_path)
-        if not installed_path:
+        asset_id = item.get("id", item.get("source", ""))
+        if not item.get("source"):
             continue
-        if expand_user_path(str(installed_path)).exists():
-            print_check("ok", f"{label} {asset_id}", str(installed_path))
-        else:
-            print_check("warning", f"{label} {asset_id}", f"missing: {installed_path}")
-            warnings += 1
+        source = root / str(item["source"])
+        for platform_name in platforms:
+            try:
+                cfg = platform_config(platform_name)
+            except ValueError:
+                continue
+            target = skill_install_path(cfg, item) if is_skill else tool_install_path(cfg, item)
+            tag = f"[{platform_name}] {label} {asset_id}"
+            if is_skill and not has_payload(source):
+                print_check("warning", tag, f"source not populated: {relative_to_repo(source)}")
+                warnings += 1
+                continue
+            if target.exists():
+                if is_skill:
+                    if source_files_differ(source, target):
+                        print_check("warning", tag, f"outdated: {target}")
+                        warnings += 1
+                    else:
+                        print_check("ok", tag, str(target))
+                elif not source.is_file() or source.read_bytes() != target.read_bytes():
+                    print_check("warning", tag, f"outdated: {target}")
+                    warnings += 1
+                else:
+                    print_check("ok", tag, str(target))
+            else:
+                print_check("warning", tag, f"missing: {target}")
+                warnings += 1
     return warnings
 
 
@@ -386,12 +530,22 @@ def command_health_check(args: argparse.Namespace) -> int:
         print_check("warning", "project atlas.yaml", "missing")
         warnings += 1
 
-    agents_path = project_root / "AGENTS.md"
-    if agents_path.exists():
-        print_check("ok", "local AGENTS.md", "exists and may receive the managed bridge")
-    else:
-        print_check("warning", "local AGENTS.md", "missing")
-        warnings += 1
+    project_platforms = read_project_platforms(project_root)
+    for platform_name in project_platforms:
+        try:
+            cfg = platform_config(platform_name)
+        except ValueError:
+            continue
+        agent_file = cfg.get("agent_file")
+        if not agent_file:
+            continue
+        agent_path = project_root / str(agent_file)
+        label = f"[{platform_name}] {agent_file}"
+        if agent_path.exists():
+            print_check("ok", label, "exists and will receive the managed bridge")
+        else:
+            print_check("warning", label, "missing")
+            warnings += 1
 
     vault_root = vault_path_for_project(project_root, manifest)
     if vault_root.exists():
@@ -409,12 +563,12 @@ def command_health_check(args: argparse.Namespace) -> int:
             warnings += 1
 
     if shared_manifest:
-        _, shared = shared_manifest
-        warnings += check_installed_assets(shared, "managed_skills", "shared skill")
-        warnings += check_installed_assets(shared, "managed_tools", "shared tool")
+        shared_manifest_path, shared = shared_manifest
+        warnings += check_installed_assets(shared_manifest_path, shared, "managed_skills", "shared skill", project_platforms)
+        warnings += check_installed_assets(shared_manifest_path, shared, "managed_tools", "shared tool", project_platforms)
 
-    warnings += check_installed_assets(manifest, "managed_skills", "skill")
-    warnings += check_installed_assets(manifest, "managed_tools", "tool")
+    warnings += check_installed_assets(manifest_path, manifest, "managed_skills", "skill", project_platforms)
+    warnings += check_installed_assets(manifest_path, manifest, "managed_tools", "tool", project_platforms)
 
     sync_actions, sync_skipped = project_sync_plan(project_root, mode, manifest_path, manifest)
     for action in sync_actions:
@@ -436,7 +590,7 @@ def command_health_check(args: argparse.Namespace) -> int:
     return 1 if failures else 0
 
 
-def atlas_config_for_mode(manifest: dict[str, Any], mode: str) -> dict[str, Any]:
+def atlas_config_for_mode(manifest: dict[str, Any], mode: str, platforms: list[str] | None = None) -> dict[str, Any]:
     vault = manifest.get("vault", {})
     managed_skills = manifest.get("managed_skills", {})
     managed_tools = manifest.get("managed_tools", {})
@@ -462,11 +616,14 @@ def atlas_config_for_mode(manifest: dict[str, Any], mode: str) -> dict[str, Any]
                 if isinstance(item, dict)
             ]
 
+    atlas_block: dict[str, Any] = {
+        "mode": manifest_mode_name(manifest, mode),
+        "version": manifest_mode_version(manifest),
+    }
+    if platforms:
+        atlas_block["platforms"] = list(platforms)
     return {
-        "atlas": {
-            "mode": manifest_mode_name(manifest, mode),
-            "version": manifest_mode_version(manifest),
-        },
+        "atlas": atlas_block,
         "vault": {
             "name": vault.get("default_name", "docs") if isinstance(vault, dict) else "docs",
             "path": vault.get("default_path", "docs") if isinstance(vault, dict) else "docs",
@@ -497,6 +654,26 @@ def configured_item_ids(project_root: Path, section: str) -> set[str] | None:
     return {str(value) for value in values if value is not None}
 
 
+def synced_project_atlas_config(project_root: Path, manifest: dict[str, Any], mode: str) -> dict[str, Any]:
+    config_path = project_atlas_config_path(project_root)
+    current = load_yaml(config_path) if config_path.exists() else {}
+    atlas = current.get("atlas", {})
+    platforms = None
+    if isinstance(atlas, dict):
+        platform_values = atlas.get("platforms")
+        if isinstance(platform_values, list):
+            platforms = [str(value) for value in platform_values if value is not None]
+
+    synced = dict(current)
+    generated = atlas_config_for_mode(manifest, mode, platforms=platforms)
+    synced["atlas"] = generated["atlas"]
+    if "vault" not in synced:
+        synced["vault"] = generated["vault"]
+    for section in ("managed_files", "managed_tags", "managed_skills", "managed_tools"):
+        synced[section] = generated[section]
+    return synced
+
+
 def copy_managed_vault_files(manifest: dict[str, Any], mode_root: Path, vault_root: Path, created: list[Path], kept: list[Path]) -> None:
     for section, base_target in (
         ("managed_templates", vault_root),
@@ -518,11 +695,37 @@ def copy_managed_vault_files(manifest: dict[str, Any], mode_root: Path, vault_ro
                 created.append(target)
 
 
+def resolve_platforms_arg(arg_value: list[str] | None) -> list[str]:
+    known = all_platform_names()
+    if not arg_value:
+        return default_init_platforms()
+    resolved: list[str] = []
+    for entry in arg_value:
+        for name in entry.split(","):
+            name = name.strip()
+            if not name:
+                continue
+            if name == "all":
+                resolved.extend(known)
+            else:
+                if name not in known:
+                    raise ValueError(f"Unknown platform: {name} (known: {sorted(known)})")
+                resolved.append(name)
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for n in resolved:
+        if n not in seen:
+            seen.add(n)
+            ordered.append(n)
+    return ordered or default_init_platforms()
+
+
 def command_init(args: argparse.Namespace) -> int:
     project_root = Path(args.path).resolve()
     project_root.mkdir(parents=True, exist_ok=True)
     manifest_path, manifest = load_mode_manifest(args.mode)
     mode_root = manifest_path.parent
+    platforms = resolve_platforms_arg(getattr(args, "platform", None))
 
     created: list[Path] = []
     updated: list[Path] = []
@@ -532,7 +735,7 @@ def command_init(args: argparse.Namespace) -> int:
     if config_path.exists():
         kept.append(config_path)
     else:
-        config = atlas_config_for_mode(manifest, args.mode)
+        config = atlas_config_for_mode(manifest, args.mode, platforms=platforms)
         config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
         created.append(config_path)
 
@@ -581,7 +784,32 @@ def command_init(args: argparse.Namespace) -> int:
 
     copy_managed_vault_files(manifest, mode_root, vault_root, created, kept)
 
-    print(f"Initialized mode {manifest_mode_name(manifest, args.mode)} from {manifest_path.relative_to(REPO_ROOT)}")
+    bridge_source = manifest_agent_bridge_source(manifest_path, manifest)
+    if bridge_source and bridge_source.is_file() and has_payload(bridge_source):
+        for platform_name in platforms:
+            try:
+                cfg = platform_config(platform_name)
+            except ValueError:
+                continue
+            agent_file = cfg.get("agent_file")
+            if not agent_file:
+                continue
+            target = project_root / str(agent_file)
+            if target.exists():
+                content = prepended_file_content(bridge_source, target)
+                if content is not None:
+                    target.write_text(content, encoding="utf-8")
+                    updated.append(target)
+                else:
+                    kept.append(target)
+            else:
+                copy_file(bridge_source, target)
+                created.append(target)
+
+    print(
+        f"Initialized mode {manifest_mode_name(manifest, args.mode)} from "
+        f"{manifest_path.relative_to(REPO_ROOT)} for platforms: {', '.join(platforms)}"
+    )
     for path in created:
         print_check("created", str(path))
     for path in updated:
@@ -604,6 +832,15 @@ def project_sync_plan(project_root: Path, mode: str, manifest_path: Path, manife
             "content": atlas_config_for_mode(manifest, mode),
             "detail": "create missing atlas.yaml",
         })
+    else:
+        synced_config = synced_project_atlas_config(project_root, manifest, mode)
+        if load_yaml(config_path) != synced_config:
+            actions.append({
+                "kind": "write_atlas_config",
+                "target": str(config_path),
+                "content": synced_config,
+                "detail": "refresh managed asset inventory",
+            })
 
     vault_root = vault_path_for_project(project_root, manifest)
     if not vault_root.exists():
@@ -731,13 +968,20 @@ def project_sync_plan(project_root: Path, mode: str, manifest_path: Path, manife
                     "detail": f"source not populated: {relative_to_repo(source)}",
                 })
 
+    project_platforms = read_project_platforms(project_root)
+    bridge_actions, bridge_skipped = agent_bridge_actions_for_project(
+        project_root, manifest_path, manifest, project_platforms
+    )
+    actions.extend(bridge_actions)
+    skipped.extend(bridge_skipped)
+
     return actions, skipped
 
 
 def command_sync(args: argparse.Namespace) -> int:
     if args.path == "skills":
         project_mode = read_project_mode(Path.cwd()) or default_mode()
-        return command_skills_sync(argparse.Namespace(mode=project_mode))
+        return command_skills_sync(argparse.Namespace(mode=project_mode, platform=None))
 
     project_root = Path(args.path).resolve()
     mode = read_project_mode(project_root)
@@ -758,7 +1002,7 @@ def command_sync(args: argparse.Namespace) -> int:
     return 0
 
 
-def skill_sync_plan(mode: str, manifest_path: Path, manifest: dict[str, Any]) -> tuple[list[Action], list[Action]]:
+def skill_sync_plan(mode: str, manifest_path: Path, manifest: dict[str, Any], platform_name: str, platform_cfg: dict[str, Any]) -> tuple[list[Action], list[Action]]:
     actions: list[Action] = []
     skipped: list[Action] = []
     mode_root = source_asset_root(manifest_path, manifest)
@@ -767,17 +1011,17 @@ def skill_sync_plan(mode: str, manifest_path: Path, manifest: dict[str, Any]) ->
         return actions, skipped
 
     for item in managed_skills.get("items", []):
-        if not isinstance(item, dict) or not item.get("source") or not item.get("installed_path"):
+        if not isinstance(item, dict) or not item.get("source"):
             continue
         source = mode_root / str(item["source"])
-        target = expand_user_path(str(item["installed_path"]))
+        target = skill_install_path(platform_cfg, item)
         skill_id = item.get("id", source.name)
 
         if not has_payload(source):
             skipped.append({
                 "kind": "missing_source",
                 "target": str(target),
-                "detail": f"skill {skill_id} source not populated: {relative_to_repo(source)}",
+                "detail": f"[{platform_name}] skill {skill_id} source not populated: {relative_to_repo(source)}",
             })
             continue
 
@@ -786,20 +1030,20 @@ def skill_sync_plan(mode: str, manifest_path: Path, manifest: dict[str, Any]) ->
                 "kind": "copy_tree",
                 "source": str(source),
                 "target": str(target),
-                "detail": f"install missing skill {skill_id}",
+                "detail": f"[{platform_name}] install missing skill {skill_id}",
             })
         elif source_files_differ(source, target):
             actions.append({
                 "kind": "copy_tree",
                 "source": str(source),
                 "target": str(target),
-                "detail": f"update changed files for skill {skill_id}",
+                "detail": f"[{platform_name}] update changed files for skill {skill_id}",
             })
 
     return actions, skipped
 
 
-def tool_sync_plan(manifest_path: Path, manifest: dict[str, Any]) -> tuple[list[Action], list[Action]]:
+def tool_sync_plan(manifest_path: Path, manifest: dict[str, Any], platform_name: str, platform_cfg: dict[str, Any]) -> tuple[list[Action], list[Action]]:
     actions: list[Action] = []
     skipped: list[Action] = []
     root = source_asset_root(manifest_path, manifest)
@@ -808,17 +1052,17 @@ def tool_sync_plan(manifest_path: Path, manifest: dict[str, Any]) -> tuple[list[
         return actions, skipped
 
     for item in managed_tools.get("items", []):
-        if not isinstance(item, dict) or not item.get("source") or not item.get("installed_path"):
+        if not isinstance(item, dict) or not item.get("source"):
             continue
         source = root / str(item["source"])
-        target = expand_user_path(str(item["installed_path"]))
+        target = tool_install_path(platform_cfg, item)
         tool_id = item.get("id", source.name)
 
         if not source.is_file() or not has_payload(source):
             skipped.append({
                 "kind": "missing_source",
                 "target": str(target),
-                "detail": f"tool {tool_id} source not populated: {relative_to_repo(source)}",
+                "detail": f"[{platform_name}] tool {tool_id} source not populated: {relative_to_repo(source)}",
             })
             continue
 
@@ -827,14 +1071,14 @@ def tool_sync_plan(manifest_path: Path, manifest: dict[str, Any]) -> tuple[list[
                 "kind": "copy_file",
                 "source": str(source),
                 "target": str(target),
-                "detail": f"install missing tool {tool_id}",
+                "detail": f"[{platform_name}] install missing tool {tool_id}",
             })
         elif source.read_bytes() != target.read_bytes():
             actions.append({
                 "kind": "copy_file",
                 "source": str(source),
                 "target": str(target),
-                "detail": f"update changed tool {tool_id}",
+                "detail": f"[{platform_name}] update changed tool {tool_id}",
             })
 
     return actions, skipped
@@ -842,24 +1086,35 @@ def tool_sync_plan(manifest_path: Path, manifest: dict[str, Any]) -> tuple[list[
 
 def command_skills_sync(args: argparse.Namespace) -> int:
     manifest_path, manifest = load_mode_manifest(args.mode)
+    platforms_arg = getattr(args, "platform", None)
+    if platforms_arg:
+        platforms = resolve_platforms_arg(platforms_arg)
+    else:
+        platforms = all_platform_names()
+    if not platforms:
+        print("No platforms registered in platforms.yaml.", file=sys.stderr)
+        return 1
+
     actions: list[Action] = []
     skipped: list[Action] = []
-
     shared_manifest = load_shared_manifest()
-    if shared_manifest:
-        shared_manifest_path, shared = shared_manifest
-        shared_actions, shared_skipped = skill_sync_plan("shared", shared_manifest_path, shared)
-        shared_tool_actions, shared_tool_skipped = tool_sync_plan(shared_manifest_path, shared)
-        actions.extend(shared_actions)
-        actions.extend(shared_tool_actions)
-        skipped.extend(shared_skipped)
-        skipped.extend(shared_tool_skipped)
 
-    mode_actions, mode_skipped = skill_sync_plan(args.mode, manifest_path, manifest)
-    actions.extend(mode_actions)
-    skipped.extend(mode_skipped)
+    for platform_name in platforms:
+        platform_cfg = platform_config(platform_name)
+        if shared_manifest:
+            shared_manifest_path, shared = shared_manifest
+            s_actions, s_skipped = skill_sync_plan("shared", shared_manifest_path, shared, platform_name, platform_cfg)
+            t_actions, t_skipped = tool_sync_plan(shared_manifest_path, shared, platform_name, platform_cfg)
+            actions.extend(s_actions + t_actions)
+            skipped.extend(s_skipped + t_skipped)
 
-    print_plan(f"Atlas skill sync plan: {args.mode}", actions, skipped)
+        m_actions, m_skipped = skill_sync_plan(args.mode, manifest_path, manifest, platform_name, platform_cfg)
+        m_tool_actions, m_tool_skipped = tool_sync_plan(manifest_path, manifest, platform_name, platform_cfg)
+        actions.extend(m_actions + m_tool_actions)
+        skipped.extend(m_skipped + m_tool_skipped)
+
+    title = f"Atlas skill sync plan: mode={args.mode} platforms={','.join(platforms)}"
+    print_plan(title, actions, skipped)
     if not actions:
         return 0
     if not approve_or_cancel("Apply the full skill sync plan?"):
@@ -867,7 +1122,7 @@ def command_skills_sync(args: argparse.Namespace) -> int:
         return 1
     for action in actions:
         apply_action(action)
-    print(f"Applied {len(actions)} skill sync action(s).")
+    print(f"Applied {len(actions)} skill sync action(s) across {len(platforms)} platform(s).")
     return 0
 
 
@@ -888,6 +1143,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     init_parser = subparsers.add_parser("init", help="Initialize a project for a mode")
     init_parser.add_argument("--mode", required=True)
+    init_parser.add_argument(
+        "--platform",
+        action="append",
+        help="Platform to initialize for (codex, claude, ...). Repeat or pass comma-separated. 'all' selects every registered platform.",
+    )
     init_parser.add_argument("path")
     init_parser.set_defaults(func=command_init)
 
@@ -897,8 +1157,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     skills_parser = subparsers.add_parser("skills", help="Synchronize global skills")
     skills_subparsers = skills_parser.add_subparsers(dest="skills_command", required=True)
-    skills_sync = skills_subparsers.add_parser("sync", help="Synchronize skills for a mode")
+    skills_sync = skills_subparsers.add_parser("sync", help="Synchronize skills for a mode (defaults to all registered platforms)")
     skills_sync.add_argument("--mode", required=True)
+    skills_sync.add_argument(
+        "--platform",
+        action="append",
+        help="Limit sync to specific platform(s). Repeat or pass comma-separated. Omit to sync all.",
+    )
     skills_sync.set_defaults(func=command_skills_sync)
 
     return parser

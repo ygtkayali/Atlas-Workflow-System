@@ -23,12 +23,18 @@ vault:
       purpose: Implementation packets and task-facing workflow artifacts.
     - path: Reports
       purpose: Implementation reports, verification reports, and review/sync artifacts.
+    - path: Reports/in-flight
+      purpose: In-progress hard-gate artifacts that must survive session compaction.
     - path: Templates
       purpose: Reusable note and artifact templates.
     - path: Tags
       purpose: Linked status and classification tags.
     - path: Main Hubs
       purpose: Lightweight index hubs for the workflow surface.
+
+agent_bridge:
+  source: agents-bridge.md
+  purpose: Prepend the dev-workflow runtime contract to each platform's agent file, preserving project-specific instructions below the managed block.
 
 managed_files:
   - id: atlas-config
@@ -38,13 +44,6 @@ managed_files:
     sync: create_if_missing
     protect_existing: true
     purpose: Record the active mode, configured vault path, and managed asset inventory for a project.
-  - id: agents-bridge
-    source: AGENTS.md
-    target: AGENTS.md
-    required: false
-    sync: prepend_to_existing
-    protect_existing: false
-    purpose: Ensure the dev-workflow bridge appears at the top of local AGENTS.md while preserving project-specific instructions below it.
 
 managed_templates:
   - id: idea-note-template
@@ -107,27 +106,21 @@ managed_skills:
   items:
     - id: dw-clarify-intent
       source: skills/dw-clarify-intent
-      installed_path: ~/.codex/skills/dw-clarify-intent
       required: true
     - id: dw-note-manager
       source: skills/dw-note-manager
-      installed_path: ~/.codex/skills/dw-note-manager
       required: true
     - id: project-planner
       source: skills/project-planner
-      installed_path: ~/.codex/skills/project-planner
       required: true
     - id: project-implementer
       source: skills/project-implementer
-      installed_path: ~/.codex/skills/project-implementer
       required: true
     - id: implementation-verifier
       source: skills/implementation-verifier
-      installed_path: ~/.codex/skills/implementation-verifier
       required: true
     - id: project-review-sync
       source: skills/project-review-sync
-      installed_path: ~/.codex/skills/project-review-sync
       required: true
 
 managed_tools:
@@ -154,9 +147,8 @@ health_checks:
       type: file_exists
       target: atlas.yaml
       severity: warning
-    - id: local-agents-bridge
-      type: existing_file_policy
-      target: AGENTS.md
+    - id: local-agent-bridges
+      type: per_platform_agent_file_policy
       policy: create_if_missing_or_prepend_bridge_with_explicit_sync_approval
       severity: error
     - id: vault-folders-present
@@ -164,12 +156,10 @@ health_checks:
       targets_from: vault.folders
       severity: warning
     - id: managed-skills-installed
-      type: paths_exist
-      targets_from: managed_skills.items.installed_path
+      type: per_platform_skill_paths_exist
       severity: warning
     - id: managed-tools-installed
-      type: paths_exist
-      targets_from: managed_tools.items.installed_path
+      type: per_platform_tool_paths_exist
       severity: warning
 
 sync_policy:
@@ -179,21 +169,19 @@ sync_policy:
   project_sync_command: atlas sync
   project_sync_requires_explicit_approval: true
   approval_granularity: whole_sync_run
-  prepend_existing_files:
-    - AGENTS.md
-  never_overwrite_without_explicit_approval:
-    - AGENTS.md
-  existing_agents_md_behavior: create_if_missing_or_prepend_bridge_after_sync_approval
+  prepend_existing_agent_files: all_project_platforms
+  never_overwrite_agent_files_without_explicit_approval: true
+  existing_agent_file_behavior: create_if_missing_or_prepend_bridge_after_sync_approval
   allowed_project_sync_actions:
     - create_missing_managed_files
-    - prepend_agents_bridge_to_existing_agents_md
+    - prepend_bridge_to_platform_agent_files
     - create_missing_vault_folders
     - update_managed_tools_after_approval
     - update_managed_templates_after_approval
     - update_managed_starter_notes_after_approval
     - update_managed_tags_after_approval
   disallowed_implicit_actions:
-    - replace_existing_agents_md
+    - replace_existing_agent_files
     - install_global_skills_during_project_init
     - mutate_files_during_health_check
     - update_unmanaged_project_notes

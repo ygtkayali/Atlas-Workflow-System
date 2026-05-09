@@ -1,12 +1,18 @@
 atlas:
   mode: dev-workflow
   version: 0.1.0
+  platforms:
+  - codex
+  - claude
 vault:
   name: docs
   path: docs
 managed_files:
 - atlas-config
 managed_tags:
+- design-note
+- feature-subject-note
+- idea-note
 - status-active
 - status-draft
 - status-pending
