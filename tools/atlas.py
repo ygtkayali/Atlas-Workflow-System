@@ -620,8 +620,8 @@ def atlas_config_for_mode(manifest: dict[str, Any], mode: str, platforms: list[s
         "mode": manifest_mode_name(manifest, mode),
         "version": manifest_mode_version(manifest),
     }
-    if platforms:
-        atlas_block["platforms"] = list(platforms)
+    selected_platforms = platforms or default_init_platforms()
+    atlas_block["platforms"] = list(selected_platforms)
     return {
         "atlas": atlas_block,
         "vault": {
@@ -654,15 +654,22 @@ def configured_item_ids(project_root: Path, section: str) -> set[str] | None:
     return {str(value) for value in values if value is not None}
 
 
-def synced_project_atlas_config(project_root: Path, manifest: dict[str, Any], mode: str) -> dict[str, Any]:
+def synced_project_atlas_config(
+    project_root: Path,
+    manifest: dict[str, Any],
+    mode: str,
+    default_platforms: list[str] | None = None,
+) -> dict[str, Any]:
     config_path = project_atlas_config_path(project_root)
     current = load_yaml(config_path) if config_path.exists() else {}
     atlas = current.get("atlas", {})
     platforms = None
     if isinstance(atlas, dict):
         platform_values = atlas.get("platforms")
-        if isinstance(platform_values, list):
+        if isinstance(platform_values, list) and platform_values:
             platforms = [str(value) for value in platform_values if value is not None]
+    if platforms is None:
+        platforms = default_platforms
 
     synced = dict(current)
     generated = atlas_config_for_mode(manifest, mode, platforms=platforms)
@@ -733,7 +740,17 @@ def command_init(args: argparse.Namespace) -> int:
 
     config_path = project_atlas_config_path(project_root)
     if config_path.exists():
-        kept.append(config_path)
+        synced_config = synced_project_atlas_config(
+            project_root,
+            manifest,
+            args.mode,
+            default_platforms=platforms,
+        )
+        if load_yaml(config_path) != synced_config:
+            config_path.write_text(yaml.safe_dump(synced_config, sort_keys=False), encoding="utf-8")
+            updated.append(config_path)
+        else:
+            kept.append(config_path)
     else:
         config = atlas_config_for_mode(manifest, args.mode, platforms=platforms)
         config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
@@ -813,7 +830,8 @@ def command_init(args: argparse.Namespace) -> int:
     for path in created:
         print_check("created", str(path))
     for path in updated:
-        print_check("updated", str(path), "prepended managed bridge")
+        detail = "refreshed managed project config" if path == config_path else "prepended managed bridge"
+        print_check("updated", str(path), detail)
     for path in kept:
         print_check("kept", str(path), "already exists")
     return 0
