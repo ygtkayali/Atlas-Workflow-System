@@ -2,10 +2,10 @@
 
 Status: [[Tags/status-draft]]
 Type: [[idea-note]]
-Parent:
 Related: [[note-search-skill]]
 Created: 05-05-2026
 Last Reviewed: 2026-05-07
+Priority:[[priority-mid]] 
 
 ---
 

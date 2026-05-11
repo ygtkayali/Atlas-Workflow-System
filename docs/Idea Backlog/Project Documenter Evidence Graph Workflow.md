@@ -2,10 +2,10 @@
 
 Status: [[Tags/status-draft]]
 Type: [[idea-note]]
-Parent:
 Related: [[note-search-skill]], [[Local Note Search Script]], [[note-manager]], [[LLM Wiki Lossy Compression and Integrity Risks]]
 Created: 07-05-2026
 Last Reviewed: 2026-05-07
+Priority:[[priority-high]] 
 
 ---
 

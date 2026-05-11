@@ -2,9 +2,9 @@
 
 Status: [[Tags/status-pending]]
 Type: [[idea-note]]
-Parent:
 Related: [[note-manager]], [[Workflow Mode Skill Governance]]
 Created: 2026-05-08
+Priority: [[priority-low]]
 
 ---
 

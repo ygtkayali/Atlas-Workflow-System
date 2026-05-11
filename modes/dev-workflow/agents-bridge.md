@@ -243,20 +243,11 @@ bounded maintenance request -> project-review-sync -> dw-clarify-intent or follo
 The workflow should revolve around stable markdown artifacts.
 
 Core artifacts:
-- `project-hub.md`
-- `architecture-hub.md`
-- `priority-queue.md`
-- `decision-log.md`
-- `active-context.md` — workflow-state pointer
+- `context-map.md` — stable project structure and context-entry guide; identifies authoritative files, metadata, and recommended entry points for common task types.
+- `active-context.md` — compact pointer to the current workflow phase, gate, active subject, and next expected action.
+- `docs/Reports/in-flight/` — active handoffs, packets, and reports that still affect the next workflow step.
 
-`active-context.md` is the single source of truth for current workflow state. It must record:
-- `current_phase`: the active workflow phase
-- `current_gate`: the gate that must be satisfied before the next phase
-- `last_handoff_path`: path to the most recent `ready_for_note_manager` handoff file
-- `last_packet_path`: path to the most recent approved implementation packet
-- `last_report_path`: path to the most recent implementation or review report
-
-Skills must read `active-context.md` on entry when workflow state is relevant and update it on exit when workflow state changes.
+Projects may also keep hubs, queues, decision logs, or architecture notes when useful locally. These are not required default workflow state files.
 
 Task artifacts:
 - feature notes

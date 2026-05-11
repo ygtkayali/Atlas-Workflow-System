@@ -69,13 +69,12 @@ The planner does not directly create or update durable notes.
 ## Inputs
 The planner agent may begin from any of the following:
 - a human request,
-- a project hub,
+- context-map.md (project structure and context entry),
+- a feature subject note or feature hub,
 - an architecture note,
-- a feature note,
 - a task note,
-- a priority queue item,
-- an active context note,
-- a decision log entry,
+- active-context.md (current workflow state),
+- a decision note (optional, project-specific),
 - a prior implementation packet,
 - or a prior implementation report.
 

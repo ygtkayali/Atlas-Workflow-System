@@ -2,8 +2,9 @@
 
 Status: 
 Type: [[idea-note]]
-Parent:
 Related:
 Created: {{date:DD-MM-YYYY}}
+Last Reviewed:{{date:DD-MM-YYYY}}
+Priority:
 
 ---

@@ -17,13 +17,11 @@ Do not make raw direct durable note updates outside `Note Manager`.
 Do:
 - read the clarified context handoff,
 - read the direct note-action request when it is already clear enough to act on,
-- route behavior using an explicit `owner` field in the input context when the local workflow provides one,
 - read only the specific relevant notes the user provides,
 - consume supplied `note-search` context capsules as upstream context when provided,
 - read the local note templates when they exist,
 - decide whether the bounded action is `create` or `update`,
 - decide note type, target note, title, links, and final durable note structure from the provided context,
-- use the local note-type tags when the project provides them, especially `[[idea-note]]`, `[[feature-subject-note]]`, and `[[design-note]]`,
 - choose folder placement only from the provided context, local folder policy, or local `AGENTS.md`, treating folder placement as readability rather than governance,
 - refresh dynamic metadata on every create or update so status and other changing header fields reflect the current note state rather than stale template or prior values,
 - evaluate context drift on every update, including whether status should become `[[status-draft]]`, `[[status-active]]`, `[[status-pending]]`, `[[status-settled]]`, or `[[status-archived]]`,
