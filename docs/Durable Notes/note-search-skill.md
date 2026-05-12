@@ -4,7 +4,7 @@ Status: [[Tags/status-settled]]
 Parent:
 Related: [[Local Note Search Script]], [[Semantic Search Model Reload Delay]]
 Created: 18-04-2026
-Last Reviewed: 2026-05-07
+Last Reviewed: 2026-05-12
 Source:
 Decisions:
 Dependencies:
@@ -34,6 +34,7 @@ Current expectations:
 - accept the retrieval need from another skill
 - choose graph search when a known seed note path or title is supplied
 - choose semantic search when the prompt asks whether something exists, asks for similar notes, or provides only a concept without a seed note
+- use the semantic auto-start socket path by default so repeated semantic queries reuse the loaded model
 - call the appropriate local script
 - return candidate note paths or a semantic context capsule from the script result
 - let calling skills consume retrieval results instead of reimplementing separate context search behavior
@@ -66,6 +67,7 @@ The current skill depends on:
 
 Graph search is path or title seeded.
 Semantic search uses `sentence-transformers/all-MiniLM-L6-v2` through the `base-ml` conda environment and stores a vault-local cache at `.codex-note-search/`.
+The semantic helper also supports a vault/model-specific Unix socket service so the model can stay warm across repeated queries.
 
 If the script interface changes later, the skill should absorb that change so other skills can continue using one stable search entry point.
 
@@ -104,13 +106,19 @@ Manual text search remains acceptable for exact strings, filenames, or implement
 Use this command pattern for semantic discovery:
 
 ```bash
-conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --expand-graph --format json
+conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --expand-graph --auto-socket --format json
 ```
 
 Use `--no-refresh` only when the caller explicitly wants to avoid checking changed files:
 
 ```bash
-conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --no-refresh --format json
+conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --no-refresh --auto-socket --format json
+```
+
+Use `--no-socket` only when the caller explicitly wants a cold one-off query:
+
+```bash
+conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --expand-graph --no-socket --format json
 ```
 
 Semantic output may include:
@@ -125,6 +133,6 @@ Calling skills should treat `read_first` as the primary bounded context set and 
 
 ## Open Questions
 
-- Should the semantic script gain a long-running mode or local server to avoid repeated model-load latency?
+- Should the semantic script gain explicit idle timeout or stop controls for auto-started socket services?
 - Should semantic results be benchmarked against a fixed set of real vault queries?
 - Should query routing eventually support multi-vault search through a registry while keeping per-vault indexes as the default?

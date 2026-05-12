@@ -118,20 +118,9 @@ python3 <tools_root>/local_note_search.py \
 
 ## Semantic Call Pattern
 
-Default to warm (socket) and fall back to cold (conda) if the socket is unavailable.
+Default to the auto-start warm socket path for semantic search.
 
-**Warm (default):** try this first.
-
-```bash
-python3 <tools_root>/local_note_semantic_search.py \
-  --vault-root "<vault-root>" \
-  --query "<query>" \
-  --expand-graph \
-  --require-socket \
-  --format json
-```
-
-**Cold (fallback):** use when the warm call exits non-zero or reports no socket.
+**Warm auto-start (default):** use this for normal semantic discovery. It reuses an existing vault/model socket service, or starts one on demand before running the query.
 
 ```bash
 conda run --no-capture-output -n base-ml \
@@ -139,10 +128,23 @@ conda run --no-capture-output -n base-ml \
   --vault-root "<vault-root>" \
   --query "<query>" \
   --expand-graph \
+  --auto-socket \
   --format json
 ```
 
-Start the warm service in a separate terminal when repeated semantic queries are expected:
+**Cold fallback:** use when auto-start fails and the caller explicitly accepts model-load latency for a one-off query.
+
+```bash
+conda run --no-capture-output -n base-ml \
+  python <tools_root>/local_note_semantic_search.py \
+  --vault-root "<vault-root>" \
+  --query "<query>" \
+  --expand-graph \
+  --no-socket \
+  --format json
+```
+
+Manual service startup remains available for debugging or explicit long-lived sessions, but normal callers should not require it:
 
 ```bash
 conda run --no-capture-output -n base-ml \

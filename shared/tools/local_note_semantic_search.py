@@ -9,7 +9,9 @@ import os
 import re
 import socket
 import stat
+import subprocess
 import sys
+import time
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -549,6 +551,78 @@ def request_socket_search(socket_path: Path, request: dict[str, Any], timeout: f
     return response
 
 
+def socket_accepts_connections(socket_path: Path, timeout: float = 0.25) -> bool:
+    if not socket_available(socket_path):
+        return False
+    try:
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+            client.settimeout(timeout)
+            client.connect(socket_path.as_posix())
+            client.sendall(b'{"health": true}\n')
+            raw_response = client.recv(4096).decode("utf-8").strip()
+            response = json.loads(raw_response)
+            return bool(response.get("ok"))
+    except OSError:
+        return False
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return False
+
+
+def start_socket_service(
+    vault_root: Path,
+    socket_path: Path,
+    model_name: str,
+    max_body_chars: int,
+    start_timeout: float,
+    log_path: Path | None,
+) -> None:
+    if socket_accepts_connections(socket_path):
+        return
+
+    if socket_path.exists():
+        if socket_available(socket_path):
+            socket_path.unlink()
+        else:
+            raise RuntimeError(f"Socket path exists and is not a socket: {socket_path}")
+
+    resolved_log_path = log_path or socket_path.with_suffix(".log")
+    resolved_log_path.parent.mkdir(parents=True, exist_ok=True)
+    with resolved_log_path.open("ab") as log_file:
+        process = subprocess.Popen(
+            [
+                sys.executable,
+                Path(__file__).resolve().as_posix(),
+                "--vault-root",
+                vault_root.as_posix(),
+                "--model",
+                model_name,
+                "--serve-socket",
+                "--socket",
+                socket_path.as_posix(),
+                "--max-body-chars",
+                str(max(max_body_chars, 0)),
+            ],
+            stdin=subprocess.DEVNULL,
+            stdout=log_file,
+            stderr=log_file,
+            start_new_session=True,
+        )
+
+    deadline = time.monotonic() + max(start_timeout, 0.1)
+    while time.monotonic() < deadline:
+        if socket_accepts_connections(socket_path):
+            return
+        exit_code = process.poll()
+        if exit_code is not None:
+            raise RuntimeError(
+                f"semantic search socket service exited during startup with code {exit_code}; "
+                f"see log: {resolved_log_path}"
+            )
+        time.sleep(0.25)
+
+    raise RuntimeError(f"timed out waiting for semantic search socket service; see log: {resolved_log_path}")
+
+
 def serve_socket(
     vault_root: Path,
     socket_path: Path,
@@ -597,8 +671,14 @@ def serve_socket(
                 connection, _address = server.accept()
                 with connection:
                     request_bytes = connection.recv(65536)
+                    if not request_bytes:
+                        continue
                     try:
                         request = json.loads(request_bytes.decode("utf-8"))
+                        if request.get("health"):
+                            payload = {"ok": True, "mode": "serve_socket"}
+                            connection.sendall(json.dumps(payload).encode("utf-8") + b"\n")
+                            continue
                         query = str(request.get("query", "")).strip()
                         if not query:
                             raise RuntimeError("request missing query")
@@ -643,9 +723,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--no-refresh", action="store_true", help="Use the existing index without refreshing stale notes.")
     parser.add_argument("--serve-socket", action="store_true", help="Run a long-lived Unix socket service with the model loaded.")
     parser.add_argument("--socket", help="Unix socket path for service mode or client queries. Defaults to a vault/model-specific path in /tmp.")
+    parser.add_argument("--auto-socket", action="store_true", help="Start the vault/model socket service on demand before querying.")
     parser.add_argument("--no-socket", action="store_true", help="Skip the warm socket client path and run the query in this process.")
     parser.add_argument("--require-socket", action="store_true", help="Fail instead of falling back to cold in-process search when no socket service is available.")
     parser.add_argument("--socket-timeout", type=float, default=5.0, help="Seconds to wait for a semantic search socket response.")
+    parser.add_argument("--socket-start-timeout", type=float, default=60.0, help="Seconds to wait for an auto-started socket service.")
+    parser.add_argument("--socket-log", help="Path for auto-started socket service logs. Defaults beside the socket path.")
     parser.add_argument("--max-body-chars", type=int, default=2500, help="Maximum body excerpt chars to embed per note.")
     parser.add_argument(
         "--reindex",
@@ -700,6 +783,20 @@ def main() -> int:
 
         if not args.query:
             return emit_error("Provide --query or --reindex.", args.format)
+
+        if not args.no_socket and not args.reindex and args.auto_socket and not socket_accepts_connections(socket_path):
+            try:
+                start_socket_service(
+                    vault_root=vault_root,
+                    socket_path=socket_path,
+                    model_name=args.model,
+                    max_body_chars=max(args.max_body_chars, 0),
+                    start_timeout=args.socket_start_timeout,
+                    log_path=Path(args.socket_log).expanduser() if args.socket_log else None,
+                )
+            except RuntimeError:
+                if args.require_socket or args.socket or os.environ.get("CODEX_NOTE_SEARCH_SOCKET"):
+                    raise
 
         if not args.no_socket and not args.reindex and socket_available(socket_path):
             payload = request_socket_search(

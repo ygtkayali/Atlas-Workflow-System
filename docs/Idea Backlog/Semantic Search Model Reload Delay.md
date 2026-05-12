@@ -1,42 +1,70 @@
 # Semantic Search Model Reload Delay
 
-Status: [[Tags/status-draft]]
+Status: [[Tags/status-settled]]
 Type: [[idea-note]]
 Related: [[note-search-skill]]
 Created: 05-05-2026
-Priority:[[priority-high]] 
+Last Reviewed: 2026-05-12
+Priority: [[priority-low]]
 
 ---
 
 ## Summary
 
-The semantic note-search script currently reloads the embedding model every time the command is run.
+The semantic note-search tool originally reloaded the embedding model on every CLI invocation.
 
-The note embedding cache avoids re-embedding unchanged files, but it does not avoid model-load latency because each CLI invocation starts a new Python process.
+The note embedding cache already avoided re-embedding unchanged files, but it did not avoid model-load latency because each query started a new Python process.
 
-## Current Observation
+This note is now settled for the current workflow mode: semantic search uses an auto-start warm socket path so repeated queries for the same Atlas project can reuse the loaded model.
+
+## Original Observation
 
 The first run on `Special Image Of My Brain` indexed 412 notes in about 43 seconds.
 
 A cached rerun avoided note re-embedding with `updated: 0`, but still took about 18 seconds because model loading remained part of query execution.
 
-## Candidate Directions
+## Current Behavior
 
-- Keep the current CLI as the simple reliable baseline.
-- Add a long-running stdin mode that loads the model once and accepts repeated queries line by line.
-- Add a small local daemon or server that keeps the model loaded and receives search requests through localhost or a Unix socket.
-- Add a client wrapper that talks to the daemon while preserving the current command-line interface for fallback.
-- Consider preloading the service when Codex starts only after the long-running mode proves useful.
+Semantic search now supports a lazy auto-start Unix socket mode:
 
-## Questions
+- `--auto-socket` checks for a vault/model-specific socket service.
+- If the socket service is already running, the query uses it.
+- If no responsive socket exists, the command starts the socket service on demand and waits for it to become ready.
+- The first auto-started query still pays the model-load cost.
+- Later queries for the same `vault_root` and model reuse the warm service.
+- `--no-socket` preserves explicit cold one-off search.
+- Manual `--serve-socket` remains available for debugging or explicit long-lived sessions.
 
-- Is model-load latency painful enough in real use to justify a persistent process?
-- Should the first improvement be `--serve-stdin` rather than a daemon?
-- How should a long-running process handle multiple vault roots?
-- Should it keep one model loaded and multiple vault indexes cached?
-- What shutdown and stale-index behavior should be expected?
+The `note-search` skill defaults semantic discovery to this auto-start warm socket path, so normal callers no longer need to manually set up the socket.
 
-## Boundary
+## Boundaries
 
-This is an optimization idea, not a required change for semantic search v1.
-The current CLI remains the reliable baseline.
+The reliable CLI baseline remains available.
+
+This settlement does not add:
+
+- Codex or Atlas startup preloading,
+- a global semantic-search broker,
+- idle-timeout or stop commands,
+- multi-vault registry behavior,
+- or changes to semantic ranking and graph expansion.
+
+## Future Possible Step
+
+A stronger long-term design may be a single local semantic-search broker:
+
+- one process keeps the embedding model loaded globally,
+- each request supplies the target `vault_root`,
+- the broker refreshes that vault's index as needed,
+- the broker handles the query and returns results,
+- and lifecycle commands such as `status`, `stop`, cleanup, and idle timeout live in one place.
+
+This would avoid one warm model process per Atlas project and could reduce socket/process pile-up risk.
+
+The broker idea is lower priority now because the current auto-start socket path removes the immediate manual setup pain while preserving the existing CLI fallback.
+
+## Remaining Questions
+
+- Should auto-started socket services gain an explicit idle timeout?
+- Should there be a `status` or `cleanup` command for stale socket files?
+- Should the future broker replace per-vault socket services or only coordinate them?
