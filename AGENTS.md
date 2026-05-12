@@ -89,6 +89,10 @@ Use it to choose the first workflow phase, then follow the selected skill's `SKI
 - Choose the smallest valid skill sequence and stop at the first unresolved gate.
 - Use `note-search` for note-related retrieval instead of broad manual vault discovery.
 - A sufficiently specific direct coding request may route directly to `project-implementer` when objective, scope, constraints, and intended behavior are clear enough.
+- Directive phrasing such as "I need to", "the goal is", "implement", or "make it" is not enough to skip `dw-clarify-intent`; skip clarification only for clear, narrow, low-impact changes.
+- Clarification may be lightweight and conversational; require a handoff only when downstream workflow state needs it.
+- If `dw-clarify-intent` is called, its output should be an explicit handoff or clarification result, not implicit permission to continue into implementation in the same turn.
+- When a role produces a reviewable artifact such as a handoff, note proposal, note draft, task packet, or context proposal, write it first as an approval-pending artifact under `docs/In-flight/`.
 - If confidence is not high enough to choose a durable note action, target, note type, or durable meaning safely, route to `dw-clarify-intent` before `dw-note-manager`.
 - Durable note mutations must route through `dw-note-manager`. File-edit tools may apply an approved note-manager decision, but they do not replace that gate.
 

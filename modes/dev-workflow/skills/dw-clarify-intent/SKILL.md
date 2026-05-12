@@ -13,6 +13,7 @@ Also use it when a review/sync step has implementation-backed documentation-sync
 This skill is not a fast pre-planner handoff.
 Its primary job is to make the entry point into a project or feature as solid as practical without getting stuck on every low-impact detail.
 It preserves clarified context for downstream note work; it does not design the durable note structure itself.
+It has two distinct phases: first clarify through simple interaction, then synthesize the clarified state into a handoff only when downstream workflow state needs it.
 
 ## Clarification Depth
 
@@ -91,9 +92,11 @@ Each bundle uses this shape:
 A bundle holds one domain or area. Branches inside a bundle stay together only when closely related.
 The split is intake evidence, not final note structure; `Note Manager` owns subject-to-note mapping.
 
-## Clarification Loop
+## Phase 1: Clarification Loop
 
-Run this loop until the idea is ready or clearly stuck:
+Run this loop until the idea is clear enough for the current purpose, ready for handoff creation, or clearly stuck.
+This phase is conversational: ask and answer focused questions, approve or disapprove the user's proposed direction, give reasons, challenge weak assumptions, and keep the current state compact.
+Do not synthesize a full handoff during this phase unless the user asks or the state is ready to move into Phase 2.
 
 1. Capture the idea as the user currently states it.
 2. Restate user goal, problem shape, and proposed direction *separately*.
@@ -120,6 +123,15 @@ Produce a `partial_clarification` summary that lists what *is* settled, what is 
 - presentation choices,
 - secondary questions that would not change the downstream note action.
 
+## Phase 2: Handoff Creation
+
+Create a handoff only after Phase 1 has produced enough settled context for downstream workflow state.
+This phase synthesizes the conversation, source context, decisions, unresolved uncertainty, and boundaries into the `references/clarified-context-handoff.md` shape.
+It should not introduce new decisions; it records what has been clarified, what remains proposed, what is unclear, and what is blocked.
+
+When creating a reviewable handoff artifact, write it first as an approval-pending artifact under `docs/In-flight/` and report the path and next gate.
+Do not use the handoff as implicit permission to continue into implementation or durable note mutation in the same turn.
+
 ## Status Rules
 
 Clarification state labels are defined in `vocabulary.md`. Use them exactly as defined there.
@@ -133,7 +145,7 @@ For high-impact areas, confidence requires stronger resolution before downstream
 
 - `continue_clarification` — provide the current state plus the next highest-value questions. Do not repeat a full handoff every turn unless the state has materially changed or the user asks.
 - `end_clarification` — state the clarified result and recommend the next relevant action (note creation, planning, review, no durable action, or a user decision). Use when the idea is clear enough for the current purpose but the next step is not necessarily `Note Manager`.
-- `note_ready_handoff` — produce the `references/clarified-context-handoff.md` artifact. After it is visible and supplied with relevant note context, route to `Note Manager` in the same turn by default. Separate user approval applies to the resulting `Note Manager` draft or durable write, not to switching phases.
+- `note_ready_handoff` — enter Phase 2 and produce the `references/clarified-context-handoff.md` artifact as approval-pending workflow state under `docs/In-flight/`.
 - `partial_clarification` — iteration cap reached; structured pause requesting user direction.
 
 Private reasoning does not satisfy a gate. The clarification state or handoff must be visible in the conversation or in an approved workflow artifact before downstream work begins.
