@@ -119,7 +119,7 @@ Preferred order:
 3. The touched files, diff, or verification results.
 4. `note-search` results when a known note or semantic query can anchor a bounded documentation-sync context.
 5. Relevant notes and hubs that should reflect the new state, if documentation synchronization is needed.
-6. Decision logs or active-context notes only when they materially affect synchronization.
+6. Decision logs or in-flight task lane artifacts only when they materially affect synchronization.
 
 For implementation review, avoid broad documentation sweeps unless the implemented change truly has project-wide impact.
 
@@ -196,7 +196,7 @@ When durable note decisions are needed, the report should be routed to `clarify-
 ## Documentation Responsibilities
 The review / sync agent may:
 - identify factual gaps in implementation reports when missing information affects review or synchronization,
-- propose context for active-context, feature, task, architecture, design, or decision note synchronization through `clarify-intent`,
+- propose context for feature, task, architecture, design, decision, or in-flight workflow-state synchronization through `clarify-intent`,
 - propose context for new durable notes through `clarify-intent` when implementation reveals they may be needed,
 - create or propose follow-up task context,
 - route follow-up note subjects through `clarify-intent` when they need to become durable notes,

@@ -1,6 +1,6 @@
 # Context Map
 
-Last Updated: YYYY-MM-DD
+Last Updated: {{date:DD-MM-YYYY}}
 
 ---
 
@@ -29,42 +29,44 @@ Web application repository for <product>.
 
 ## Root Files
 
-| Path | Purpose |
-| --- | --- |
-| `AGENTS.md` | Runtime contract, local authority, workflow routing, and gates |
-| `atlas.yaml` | Atlas configuration for this workspace, when Atlas is used |
-| `docs/context-map.md` | Stable map of this project's files and folders |
-| `docs/active-context.md` | Current workflow state pointer for phase, gate, active subject, and next expected action |
+| Path                  | Purpose                                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------------------------- |
+| `AGENTS.md`           | Runtime contract, local authority, workflow routing, and gates                                           |
+| `atlas.yaml`          | Atlas configuration for this workspace, when Atlas is used                                               |
+| `docs/context-map.md` | Stable map of this project's files and folders                                                           |
+| `docs/In-flight/`     | Current workflow state folder for active task lanes, handoffs, packets, reports, gates, and next actions |
 
 ---
 
 ## Project Folders
 
-| Path | Purpose |
-| --- | --- |
-| `docs/` | Project documentation and workflow artifacts |
-| `docs/Reports/in-flight/` | Active handoffs, packets, and reports that still affect the next workflow step |
-| `<source-folder>/` | Main implementation source, if applicable |
-| `<test-folder>/` | Tests, checks, or verification fixtures, if applicable |
+| Path               | Purpose                                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------------------ |
+| `docs/`            | Project documentation and workflow artifacts                                                     |
+| `docs/In-flight/`  | Active handoffs, packets, reports, and review artifacts that still affect the next workflow step |
+| `<source-folder>/` | Main implementation source, if applicable                                                        |
+| `<test-folder>/`   | Tests, checks, or verification fixtures, if applicable                                           |
 
 ---
 
 ## Documentation Areas
 
-| Path | Purpose |
-| --- | --- |
-| `docs/Durable Notes/` | Settled or active project notes, if used |
-| `docs/Idea Backlog/` | Exploratory ideas and unresolved directions, if used |
-| `docs/Templates/` | Reusable note or workflow templates, if used |
-| `docs/Tags/` | Tag notes and managed label definitions, if used |
-| `docs/Tasks/` | Task notes, if used |
+| Path                    | Purpose                                                           |
+| ----------------------- | ----------------------------------------------------------------- |
+| `docs/Durable Notes/`   | Settled or active project notes, if used                          |
+| `docs/Idea Backlog/`    | Exploratory ideas and unresolved directions, if used              |
+| `docs/Templates/`       | Reusable note or workflow templates, if used                      |
+| `docs/Tags/`            | Tag notes and managed label definitions, if used                  |
+| `docs/Archieved/Tasks/` | Distilled closeout summaries and archived workflow task artifacts |
+| `docs/Archieved/Notes/` | Archived notes retained for historical reference                  |
 
 ---
 
 ## Generated Or Managed Areas
 
-| Path | Purpose |
-| --- | --- |
-| `docs/.codex-note-search/` | Note-search index/cache files, if present |
-| `docs/Reports/in-flight/` | Active workflow artifacts; not durable project knowledge |
-| `<generated-folder>/` | Generated files, build outputs, or synced assets, if applicable |
+| Path                       | Purpose                                                                                  |
+| -------------------------- | ---------------------------------------------------------------------------------------- |
+| `docs/.codex-note-search/` | Note-search index/cache files, if present                                                |
+| `docs/In-flight/`          | Active workflow artifacts; primary open workflow state and not durable project knowledge |
+| `docs/Archieved/`          | Historical material retained after closeout                                              |
+| `<generated-folder>/`      | Generated files, build outputs, or synced assets, if applicable                          |

@@ -19,12 +19,14 @@ vault:
       purpose: Draft project and workflow ideas waiting for clarification, planning, promotion, implementation, or discard.
     - path: Durable Notes
       purpose: Settled or evolving project knowledge notes.
-    - path: Tasks
-      purpose: Implementation packets and task-facing workflow artifacts.
-    - path: Reports
-      purpose: Implementation reports, verification reports, and review/sync artifacts.
-    - path: Reports/in-flight
-      purpose: In-progress hard-gate artifacts that must survive session compaction.
+    - path: In-flight
+      purpose: Primary workflow-state folder for open task lanes, handoffs, packets, implementation reports, review artifacts, and other hard-gate artifacts that must survive session compaction.
+    - path: Archieved
+      purpose: Historical workflow and note material retained after closeout.
+    - path: Archieved/Tasks
+      purpose: Distilled closeout summaries and archived workflow task artifacts.
+    - path: Archieved/Notes
+      purpose: Archived notes retained for historical reference.
     - path: Templates
       purpose: Reusable note and artifact templates.
     - path: Tags
@@ -58,8 +60,20 @@ managed_templates:
     source: docs/Templates/Design Note Template.md
     target: Templates/Design Note Template.md
     required: true
+  - id: task-archive-summary-template
+    source: docs/Templates/Task Archive Summary Template.md
+    target: Templates/Task Archive Summary Template.md
+    required: true
 
 managed_starter_notes:
+  - id: context-map
+    source: docs/context-map.md
+    target: context-map.md
+    required: true
+  - id: vocabulary
+    source: docs/vocabulary.md
+    target: vocabulary.md
+    required: true
   - id: workflow-schemas-hub
     source: docs/Main Hubs/Workflow Schemas Hub.md
     target: Main Hubs/Workflow Schemas Hub.md

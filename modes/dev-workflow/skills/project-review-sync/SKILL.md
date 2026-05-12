@@ -9,6 +9,9 @@ Compare implementation results to the approved plan and route implementation-bac
 
 Also analyze bounded maintenance review tasks and route stale-state, link, health, or artifact-cleanup findings through the local clarification and note-management path when durable note decisions are needed.
 
+Own closeout for settled workflow task lanes when the review task names `docs/In-flight/` or a specific in-flight lane as its scope.
+Closeout means inspect the settled lane, compare it to the approved packet and report when present, create or propose one distilled archive summary, and leave unsettled lanes untouched.
+
 Keep review scoped, make mismatches explicit, and preserve traceability between request, implementation, and docs.
 
 ## Modes
@@ -17,6 +20,7 @@ This skill handles two distinct review modes. Identify the correct mode at the s
 
 - **Implementation Review**: compare implementation against an approved task packet and route documentation-sync context forward.
 - **Maintenance Review**: analyze a bounded maintenance task and route stale-state, link, health, or artifact-cleanup findings.
+- **Task Lane Closeout**: review settled in-flight task lanes, produce distilled archive summaries, and route any cleanup or deletion decision through the local approval path.
 
 ## Review Scope Cap
 
@@ -36,6 +40,14 @@ If one of these inputs is missing and accurate comparison depends on it, flag th
 ### Maintenance Review
 - user-provided maintenance task
 - bounded scope named by that task (known note set, note type, folder, hub, artifact set, lint target, or health-check target)
+
+### Task Lane Closeout
+- user-provided closeout or review task
+- bounded scope naming `docs/In-flight/` or one or more specific in-flight task lanes
+- settled task lane artifacts with a shared `Task ID` when available
+
+If a lane lacks `Task Status: settled`, do not close it out by default.
+Report it as still active, blocked, or unclear unless the user explicitly asks for maintenance findings on unsettled lanes.
 
 ## Implementation Review Workflow
 
@@ -107,6 +119,60 @@ The report may be returned in conversation as a structured artifact; it does not
 
 `sync-needed` | `follow-up-needed` | `no-action`
 
+## Task Lane Closeout Workflow
+
+Use this mode when the task is to review or close workflow artifacts in `docs/In-flight/`.
+
+### Steps
+
+1. Read only the named in-flight artifact set or task lane scope.
+2. Group artifacts by `Task ID` when present; if task ids are missing, group only when filenames and artifact links make the lane unambiguous.
+3. Select lanes with `Task Status: settled` for closeout.
+4. Leave unsettled lanes in `in-flight/` unless they conflict with the requested work or the user explicitly asks for a maintenance finding on them.
+5. For each settled lane, compare the handoff, packet, implementation report, review notes, and touched files or diff when available.
+6. Produce one distilled archive summary per reviewed lane using the archive summary shape below.
+7. Recommend whether consumed in-flight artifacts should be deleted, moved to a raw archive, or retained as evidence.
+8. Do not delete or move in-flight artifacts unless the user has explicitly approved that cleanup.
+9. Route durable documentation changes through `dw-clarify-intent -> dw-note-manager` when needed.
+
+### Archive Summary Shape
+
+Archive summaries should be compact and useful for future project learning:
+
+```md
+# <Task Title>
+
+- Type: task-archive-summary
+- Status: closed
+- Task ID: <stable-task-slug>
+- Date: YYYY-MM-DD
+
+## Original Intent
+
+## Work Done
+
+## Important Decisions
+
+## Final Files
+
+## Verification
+
+## Reusable Pattern
+
+## Remaining Risk Or Follow-up
+```
+
+Raw handoffs, packets, and reports should be preserved only when they contain important evidence that the distilled archive summary cannot adequately capture.
+The first closeout pass should write distilled task closeout summaries under `docs/Archieved/Tasks/`; raw archive handling remains a deferred design decision.
+
+### Disposition
+
+`keep` | `revise` | `reject` for implementation conformance, plus one closeout recommendation:
+
+- `archive-ready`: settled lane can be summarized and closed after cleanup approval
+- `retain-in-flight`: lane is not settled or still affects current work
+- `follow-up-needed`: closeout found a missing decision, stale durable note, or implementation gap
+
 ## Interpretation Fidelity Check
 
 When reviewing durable note changes that came from a clarified context handoff:
@@ -121,7 +187,7 @@ All three are interpretation drift. Do not normalize them — surface each as an
 
 You may:
 - identify factual gaps in implementation reports when missing information affects review or synchronization,
-- propose synchronization context for active-context, feature, task, architecture, design, or decision notes,
+- propose synchronization context for feature, task, architecture, design, decision, or in-flight workflow-state artifacts,
 - create or propose context proposal artifacts when the local workflow routes note mutation through `dw-clarify-intent`,
 - create or propose follow-up task context,
 - route follow-up note subjects through the local clarification path when they need to become durable notes,
@@ -195,6 +261,14 @@ Do not replace these bundled references with local packet or report schemas. Rea
 - routing recommendation
 - disposition: `sync-needed`, `follow-up-needed`, or `no-action`
 
+### Task Lane Closeout Output
+- lanes inspected and their task status
+- lanes selected for closeout
+- archive summary draft or written archive summary path, depending on user authorization
+- consumed in-flight artifacts and recommended cleanup action
+- durable documentation sync context, if needed
+- closeout recommendation: `archive-ready`, `retain-in-flight`, or `follow-up-needed`
+
 If no issues are found, say that explicitly and note any residual verification or documentation gaps.
 
 ## Final Check
@@ -212,5 +286,11 @@ If no issues are found, say that explicitly and note any residual verification o
 - Was the scope bounded to the task named by the user?
 - Are all findings routed through clarification before note mutation?
 - Is the maintenance review report complete?
+
+### Task Lane Closeout
+- Were only settled task lanes selected for closeout?
+- Were unsettled lanes left in place or reported without being silently closed?
+- Was one distilled archive summary produced or drafted for each closed lane?
+- Did any deletion or movement of in-flight artifacts receive explicit approval?
 
 If any answer is no, continue review or escalate.

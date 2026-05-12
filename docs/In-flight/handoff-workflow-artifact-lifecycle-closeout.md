@@ -24,13 +24,13 @@ The workflow idea gives review/sync a stronger operational role: it should own c
 
 Review/sync should:
 
-- inspect `docs/Reports/in-flight/`
+- inspect `docs/In-flight/`
 - decide what is still active
 - check whether downstream docs need sync
 - archive or distill completed artifacts
 - leave `in-flight/` clean
 
-In this model, `docs/Reports/in-flight/` becomes a hard workflow signal. If it is non-empty, agents should not start unrelated important work until the current work is continued or reviewed and closed out.
+In this model, `docs/In-flight/` becomes a hard workflow signal. If it is non-empty, agents should not start unrelated important work until the current work is continued or reviewed and closed out.
 
 ### Subject 3: Distilled Archive Instead Of Raw Artifact Accumulation
 
@@ -38,7 +38,7 @@ The workflow idea is that completed handoffs, packets, and reports should not au
 
 Instead, review closeout should usually create one distilled archive summary per task, such as:
 
-`docs/Reports/archive/2026-05/context-map-active-context-simplification.md`
+`docs/Archieved/Tasks/2026-05/context-map-active-context-simplification.md`
 
 The archive summary should preserve the useful learning and traceability:
 
@@ -67,13 +67,13 @@ Raw handoffs, packets, and reports are likely too verbose and duplicated for thi
 
 ### Subject 5: Replacing Manually Maintained Active Context With In-Flight State
 
-The workflow idea proposes that `docs/Reports/in-flight/` should become the current state mechanism.
+The workflow idea proposes that `docs/In-flight/` should become the current state mechanism.
 
 The best current model is:
 
 - `docs/context-map.md`: stable project structure
-- `docs/Reports/in-flight/`: current active workflow state
-- `docs/Reports/archive/`: distilled task history and reusable learning
+- `docs/In-flight/`: current active workflow state
+- `docs/Archieved/Tasks/`: distilled task history and reusable learning
 
 Under this model, `active-context.md` becomes unnecessary or generated from `in-flight/`, rather than maintained by hand as a separate state file.
 
@@ -134,7 +134,7 @@ The core shift is:
 
   Then in-flight/ becomes a hard workflow signal:
 
-  if docs/Reports/in-flight/ is non-empty:
+  if docs/In-flight/ is non-empty:
     do not start unrelated important work
     first continue or review/close out current work
 
@@ -146,7 +146,7 @@ The core shift is:
 
   A better closeout product is a single distilled archive record per task:
 
-  docs/Reports/archive/2026-05/context-map-active-context-simplification.md
+  docs/Archieved/Tasks/2026-05/context-map-active-context-simplification.md
 
   Shape:
 
@@ -188,8 +188,8 @@ The core shift is:
 
   You could even have two archive levels:
 
-  docs/Reports/archive/summaries/
-  docs/Reports/archive/raw/
+  docs/Archieved/Tasks/summaries/
+  docs/Archieved/Tasks/raw/
 
   But I’d start with just the distilled summary. Keep raw files only when they contain important evidence.
 
@@ -210,7 +210,7 @@ The core shift is:
   Recommended Lifecycle
 
   1. Important request arrives
-  2. Create handoff in `docs/Reports/in-flight/`
+  2. Create handoff in `docs/In-flight/`
   3. Route handoff to note-manager / planner / implementer
   4. Create packet/report in `in-flight/` as needed
   5. Work completes
@@ -226,10 +226,10 @@ The core shift is:
   docs/context-map.md
     stable project structure
 
-  docs/Reports/in-flight/
+  docs/In-flight/
     current active workflow state
 
-  docs/Reports/archive/
+  docs/Archieved/Tasks/
     distilled task history and reusable learning
 
   Then active-context.md becomes unnecessary or generated from in-flight/.
@@ -242,10 +242,10 @@ The core shift is:
 Relevant context used:
 
 - The local `AGENTS.md` bridge treats markdown workflow artifacts as operational state.
-- The local `AGENTS.md` bridge requires hard-gate artifacts to be persisted under `docs/Reports/in-flight/`.
-- Existing related in-flight handoff: `docs/Reports/in-flight/handoff-context-map-active-context-templates.md`.
+- The local `AGENTS.md` bridge requires hard-gate artifacts to be persisted under `docs/In-flight/`.
+- Existing related in-flight handoff: `docs/In-flight/handoff-context-map-active-context-templates.md`.
 - Existing related idea note: `docs/Idea Backlog/Task and Report Artifact Lifecycle.md`.
-- Existing local context map already lists `docs/Reports/in-flight/` as active workflow artifacts, not durable project knowledge.
+- Existing local context map already lists `docs/In-flight/` as active workflow artifacts, not durable project knowledge.
 - Atlas skill sync was checked before this workflow work and reported no changes needed.
 
 Intent to preserve:
@@ -268,7 +268,7 @@ Open ambiguity and downstream cautions:
 - Whether this should update an existing idea note or become a new idea note is for Note Manager.
 - Whether `active-context.md` should be removed, generated, or retained as a thin pointer is not finally decided.
 - Whether raw artifacts should ever be retained by default is not finally decided beyond the current preference to keep raw files only when they contain important evidence.
-- Whether `docs/Reports/archive/` should have only summaries or separate `summaries/` and `raw/` subfolders is proposed, with a current preference to start with distilled summaries only.
+- Whether `docs/Archieved/Tasks/` should have only summaries or separate `summaries/` and `raw/` subfolders is proposed, with a current preference to start with distilled summaries only.
 
 Validation target:
 
@@ -289,7 +289,7 @@ The goal is to preserve the idea clearly enough that future note management or p
 - The supplied content should be preserved.
 - Important work should begin with a durable handoff intake artifact.
 - Review should become the closeout/archive gate for completed workflow artifacts.
-- `docs/Reports/in-flight/` should act as the visible signal for open workflow work.
+- `docs/In-flight/` should act as the visible signal for open workflow work.
 - Archive should preserve distilled learning rather than raw clutter by default.
 - Raw handoffs, packets, and reports should only be retained when they contain important evidence.
 - Handoffs should not be required for tiny mechanical edits or simple inspection.
@@ -299,8 +299,8 @@ The goal is to preserve the idea clearly enough that future note management or p
 
 - Create or update an idea note explaining the lifecycle model:
   `request -> handoff -> note-manager/planner/implementer -> report -> review closeout -> distilled archive -> clean in-flight`.
-- Treat non-empty `docs/Reports/in-flight/` as a blocker for unrelated important work until review or continuation resolves it.
-- Add `docs/Reports/archive/` as the place for distilled task history and reusable learning.
+- Treat non-empty `docs/In-flight/` as a blocker for unrelated important work until review or continuation resolves it.
+- Add `docs/Archieved/Tasks/` as the place for distilled task history and reusable learning.
 - Consider making `active-context.md` unnecessary or generated from `in-flight/`.
 - Start with one distilled archive level before adding separate `archive/summaries/` and `archive/raw/`.
 - Later evaluate changes to `AGENTS.md`, `modes/dev-workflow/agents-bridge.md`, project-review-sync behavior, and starter docs.
@@ -325,9 +325,9 @@ The goal is to preserve the idea clearly enough that future note management or p
 ## Relevant Context Already Known
 
 - `docs/Idea Backlog/Task and Report Artifact Lifecycle.md` already discusses whether completed task packets and reports should be archived or treated as transient working artifacts.
-- `docs/Reports/in-flight/handoff-context-map-active-context-templates.md` already captures related simplification thinking around `context-map.md` and `active-context.md`.
-- `docs/context-map.md` currently describes `docs/Reports/in-flight/` as active workflow artifacts, not durable project knowledge.
-- The local workflow contract requires persisted hard-gate artifacts under `docs/Reports/in-flight/`.
+- `docs/In-flight/handoff-context-map-active-context-templates.md` already captures related simplification thinking around `context-map.md` and `active-context.md`.
+- `docs/context-map.md` currently describes `docs/In-flight/` as active workflow artifacts, not durable project knowledge.
+- The local workflow contract requires persisted hard-gate artifacts under `docs/In-flight/`.
 
 ## Readiness For Note Manager
 

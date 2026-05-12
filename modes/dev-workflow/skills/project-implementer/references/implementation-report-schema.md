@@ -26,6 +26,8 @@ It should preserve clear traceability back to the approved execution artifact th
 - report title
 - report type: `implementation-report`
 - status
+- task id when the report continues a serialized task lane
+- task status when the report is stored in `docs/In-flight/`
 - implementation date
 - related approved task packet, direct request, or equivalent approved artifact
 - packet revision when known
@@ -104,6 +106,17 @@ Use these labels when helpful:
 
 Use them especially for assumptions, unresolved issues, and review/sync follow-up.
 
+## Task Lane Fields
+
+When an implementation report is written to `docs/In-flight/`, include:
+
+- `Task ID`: the stable slug shared with the originating handoff and packet
+- `Task Status`: one of the task lane status labels from `modes/dev-workflow/docs/vocabulary.md`
+
+Use `Task Status: settled` when implementation has reached a stable checkpoint and is ready for review/sync closeout.
+Use `Task Status: blocked` when implementation cannot complete without a decision or follow-up task.
+Use `Task Status: in_progress` only for an interim report that does not yet represent a review-ready checkpoint.
+
 ---
 
 ## Report Quality Bar
@@ -127,6 +140,8 @@ If any answer is no, refine the report before handoff to review.
 
 - Type: implementation-report
 - Status: <completed | partial | blocked>
+- Task ID: <stable-task-slug>
+- Task Status: <in_progress | settled | blocked>
 - Related artifact: <link or identifier>
 - Packet revision: <v1>
 - Date: YYYY-MM-DD

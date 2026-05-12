@@ -23,7 +23,7 @@ These summaries are intentionally compact. Add project-specific packet, report, 
 
 ## Storage
 
-- Put task packets in `docs/Tasks/`.
-- Put implementation and review reports in `docs/Reports/`.
+- Put active handoffs, packets, implementation reports, and review artifacts in `docs/In-flight/` while they still affect workflow state.
+- Put distilled closeout summaries and archived workflow task artifacts in `docs/Archieved/Tasks/`.
 - Put reusable project knowledge in `docs/Durable Notes/`.
 - Put early ideas in `docs/Idea Backlog/` until they are clarified.

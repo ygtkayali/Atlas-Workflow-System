@@ -37,6 +37,8 @@ It is not:
 - handoff title
 - artifact type: `clarified-context-handoff`
 - status: `draft`, `needs_clarification`, or `ready_for_note_manager`
+- task id when the handoff opens or continues a serialized task lane
+- task status when the handoff is stored in `docs/In-flight/`
 - created date
 - related idea, request, feature, or note if known
 
@@ -94,6 +96,17 @@ Important uncertainty, contradiction, or missing decisions would force `Note Man
 ### `ready_for_note_manager`
 The clarified subject is stable enough that `Note Manager` can decide a bounded create or update action from the handoff and the user-supplied note context.
 
+## Task Lane Fields
+
+When a handoff is written to `docs/In-flight/`, include:
+
+- `Task ID`: a stable slug shared by the handoff, packet, report, review summary, and archive summary for the same lane
+- `Task Status`: one of the task lane status labels from `modes/dev-workflow/docs/vocabulary.md`
+
+Use `Task Status: intake` when the handoff opens important work and no downstream execution artifact exists yet.
+Use `Task Status: settled` only when the handoff itself is the stable artifact being sent to review or closeout.
+Do not use durable note status tags as a substitute for task lane status.
+
 ## Role Boundary
 
 The clarified context handoff must not:
@@ -139,6 +152,8 @@ If any answer is no, refine the handoff or mark it `needs_clarification`.
 
 - Type: clarified-context-handoff
 - Status: <draft | needs_clarification | ready_for_note_manager>
+- Task ID: <stable-task-slug>
+- Task Status: <intake | planned | in_progress | settled | closed | blocked>
 - Related to: <idea / request / feature / note>
 - Created: YYYY-MM-DD
 

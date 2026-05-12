@@ -48,7 +48,7 @@ For now, `review/sync` may make these proposals from the implementation context 
 Later, the same review step may use a search tool to retrieve stronger note context before proposing handoffs.
 That future retrieval support should improve proposal quality, but it does not change the current authority split.
 
-This does not mean every implementation result should create a new durable note. In many cases the right action will be to update an existing architecture, design, feature, active-context, or decision note.
+This does not mean every implementation result should create a new durable note. In many cases the right action will be to update an existing architecture, design, feature, decision note, or in-flight workflow-state artifact.
 
 Idea-stage notes may later be merged into existing durable notes or relinked from idea context into architecture, design, or feature context. That merge behavior is part of the larger note lifecycle, but this note does not define all of those rules.
 

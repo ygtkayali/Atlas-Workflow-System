@@ -23,7 +23,7 @@ If any answer is no, the request needs planning before implementation begins.
 
 Assume the project uses a linked note system rather than a single monolithic spec.
 
-Relevant notes may include note-ready handoffs, context-map.md, feature subject notes, task notes, active-context.md, implementation packets, implementation reports, and follow-up notes. Projects may also have optional hub notes, decision notes, or priority metadata. Notes may also carry type metadata, status metadata, backlinks, hub links, and traceability references.
+Relevant notes may include note-ready handoffs, context-map.md, feature subject notes, task notes, in-flight task lane artifacts, implementation packets, implementation reports, and follow-up notes. Projects may also have optional hub notes, decision notes, or priority metadata. Notes may also carry type metadata, status metadata, backlinks, hub links, and traceability references.
 
 Treat those structures as operational signals. If conventions are defined, follow them. If conventions are missing or partial, fall back to explicit links and note content rather than inventing structure.
 
@@ -84,7 +84,7 @@ This is the canonical planning sequence. Context loading is embedded within it.
 
 1. **Assess the request.** Apply the four-question test from **When Planning Is Needed**. If all four pass, surface this and let the user decide whether to proceed with planning or route directly to implementation.
 2. **Read local authority.** Read `AGENTS.md` if it exists.
-3. **Load note context in layers.** Start from the triggering request, note-ready handoff, or seed note. Use `note-search` when a known seed note or semantic query can retrieve a smaller relevant context set than manual discovery — process `read_first` notes before `graph_expansion` notes. Read context-map.md if project structure context is needed. Follow direct links to feature subject notes or any hub notes the project provides. Read active-context.md for current workflow state, then read relevant decisions, constraints, and recent implementation reports. Follow backlinks or metadata only when they materially improve planning quality. **Stop at ~5–8 notes.** If the context is still insufficient, route the remaining gap through `dw-clarify-intent`.
+3. **Load note context in layers.** Start from the triggering request, note-ready handoff, or seed note. Use `note-search` when a known seed note or semantic query can retrieve a smaller relevant context set than manual discovery — process `read_first` notes before `graph_expansion` notes. Read context-map.md if project structure context is needed. Follow direct links to feature subject notes or any hub notes the project provides. Inspect `docs/In-flight/` for current workflow state when the task may relate to an open lane, then read relevant decisions, constraints, and recent implementation reports. Follow backlinks or metadata only when they materially improve planning quality. **Stop at ~5–8 notes.** If the context is still insufficient, route the remaining gap through `dw-clarify-intent`.
 4. **Extract planning elements.** Identify constraints, assumptions, dependencies, open questions, and conflicts.
 5. **Compare against existing notes and decisions.** Detect missing decisions, unclear ownership, or scope contradictions.
 6. **Assess confidence.** Apply the **Confidence Rubric**. Mark each key planning element with an uncertainty label: `decided`, `proposed`, `unclear`, or `blocked`.

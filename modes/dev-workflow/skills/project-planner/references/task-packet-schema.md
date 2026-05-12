@@ -30,6 +30,8 @@ Implementation must not begin until the current packet revision is explicitly ap
 - packet title
 - artifact type: `task-packet`
 - status: `draft`, `approval_pending`, `approved`, or `blocked`
+- task id when the packet continues a serialized task lane
+- task status when the packet is stored in `docs/In-flight/`
 - created date
 - related feature, task, request, or note if known
 - packet revision if revisions are being tracked
@@ -109,6 +111,17 @@ The human has explicitly approved this exact packet revision for implementation.
 ### `blocked`
 The packet cannot proceed because an unresolved issue, missing note, or required decision still prevents safe implementation.
 
+## Task Lane Fields
+
+When a packet is written to `docs/In-flight/`, include:
+
+- `Task ID`: a stable slug shared by all workflow artifacts for the same task lane
+- `Task Status`: one of the task lane status labels from `modes/dev-workflow/docs/vocabulary.md`
+
+Use `Task Status: planned` for an approved or approval-pending packet that is ready to drive implementation.
+Use `Task Status: blocked` when the packet cannot proceed safely.
+Do not mark a packet `settled` until the work has reached a stable checkpoint and is eligible for review/sync closeout.
+
 ---
 
 ## Approval Rules
@@ -146,6 +159,8 @@ If any answer is no, refine the packet or escalate.
 
 - Type: task-packet
 - Status: <draft | approval_pending | approved | blocked>
+- Task ID: <stable-task-slug>
+- Task Status: <intake | planned | in_progress | settled | closed | blocked>
 - Related to: <feature / task / request / note>
 - Revision: <v1>
 - Created: YYYY-MM-DD

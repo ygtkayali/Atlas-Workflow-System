@@ -41,6 +41,31 @@ Used by `project-planner` for implementation packet approval state.
 | `approved` | Human has explicitly approved this exact revision |
 | `blocked` | An unresolved issue prevents safe implementation |
 
+## Task Lane Status Labels
+
+Used by workflow artifacts in `docs/In-flight/` to show where a serialized task lane sits in the artifact lifecycle.
+
+These labels are artifact status values, not durable note status tags.
+
+| Label | Meaning |
+|---|---|
+| `intake` | A handoff exists, but downstream planning, note management, or implementation has not settled the next execution step |
+| `planned` | An implementation packet or equivalent execution artifact exists, but implementation has not completed |
+| `in_progress` | Implementation or review work is actively underway |
+| `settled` | Work has reached a stable checkpoint and is eligible for review/sync closeout |
+| `closed` | Review/sync has completed closeout and produced the required archive or disposition |
+| `blocked` | The lane cannot continue without a human decision, missing input, or follow-up task |
+
+## Task Lane Closeout Recommendation Labels
+
+Used by `project-review-sync` when reviewing settled workflow task lanes.
+
+| Label | Meaning |
+|---|---|
+| `archive-ready` | A settled lane can be summarized and closed after any required cleanup approval |
+| `retain-in-flight` | A lane should remain in `docs/In-flight/` because it is unsettled, blocked, or still affects current work |
+| `follow-up-needed` | Closeout found a missing decision, stale durable note, implementation gap, or other issue requiring follow-up |
+
 ## Verification Outcome Labels
 
 Used by `implementation-verifier` for commit recommendations.

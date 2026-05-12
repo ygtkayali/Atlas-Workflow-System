@@ -11,7 +11,7 @@
 
 The workflow idea is that review should only run for tasks that have reached a settled status.
 
-In the serialized multi-task model, `docs/Reports/in-flight/` may contain multiple task lanes at the same time. Review should not treat every in-flight artifact as immediately reviewable or blocking.
+In the serialized multi-task model, `docs/In-flight/` may contain multiple task lanes at the same time. Review should not treat every in-flight artifact as immediately reviewable or blocking.
 
 Instead, each task lane should carry enough state to distinguish:
 
@@ -72,8 +72,8 @@ Interpreted user intent:
 
 Relevant context used:
 
-- `docs/Reports/in-flight/handoff-workflow-artifact-lifecycle-closeout.md` introduced the lifecycle model where handoff opens work, review closes work, in-flight shows open state, and archive stores distilled learning.
-- `docs/Idea Backlog/Workflow Artifact Lifecycle and Closeout.md` replaced the older task/report lifecycle note and preserves that broader model.
+- `docs/In-flight/handoff-workflow-artifact-lifecycle-closeout.md` introduced the lifecycle model where handoff opens work, review closes work, in-flight shows open state, and archive stores distilled learning.
+- `docs/Durable Notes/Workflow Artifact Lifecycle and Closeout.md` replaced the older task/report lifecycle note and preserves that broader model.
 - The immediately preceding user idea introduced serialization so more than one task can be active at the same time, making review a soft gate and batchable reminder rather than a hard interruption.
 
 User intent versus agent inference:
@@ -112,7 +112,7 @@ Preserve a refinement to the workflow artifact lifecycle model: review should op
 
 - Add task-lane serialization so handoff, packet, report, review, and archive artifacts can share a task ID.
 - Add or clarify a task-lane status field that can mark a lane as settled.
-- Let review/sync scan `docs/Reports/in-flight/` and select only settled task lanes for review.
+- Let review/sync scan `docs/In-flight/` and select only settled task lanes for review.
 - Let bulk review summarize multiple settled tasks at once.
 - Keep active or unsettled task lanes in `in-flight/` without forcing immediate closeout.
 
@@ -133,12 +133,12 @@ Preserve a refinement to the workflow artifact lifecycle model: review should op
 
 ## Relevant Context Already Known
 
-- Related handoff: `docs/Reports/in-flight/handoff-workflow-artifact-lifecycle-closeout.md`.
-- Related idea note: `docs/Idea Backlog/Workflow Artifact Lifecycle and Closeout.md`.
+- Related handoff: `docs/In-flight/handoff-workflow-artifact-lifecycle-closeout.md`.
+- Related design note: `docs/Durable Notes/Workflow Artifact Lifecycle and Closeout.md`.
 - Current workflow status vocabulary includes `[[status-settled]]`, but task-lane status semantics may need a separate design decision.
 
 ## Readiness For Note Manager
 
 Ready for Note Manager.
 
-This handoff is narrow and stable enough for Note Manager to decide whether to update `docs/Idea Backlog/Workflow Artifact Lifecycle and Closeout.md` or create a separate linked idea note for serialized task review eligibility.
+This handoff is narrow and stable enough for Note Manager to decide whether to update `docs/Durable Notes/Workflow Artifact Lifecycle and Closeout.md` or create a separate linked design note for serialized task review eligibility.

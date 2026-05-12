@@ -73,7 +73,7 @@ The planner agent may begin from any of the following:
 - a feature subject note or feature hub,
 - an architecture note,
 - a task note,
-- active-context.md (current workflow state),
+- `docs/In-flight/` task lane artifacts (current workflow state),
 - a decision note (optional, project-specific),
 - a prior implementation packet,
 - or a prior implementation report.
