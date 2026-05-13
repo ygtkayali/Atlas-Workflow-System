@@ -184,6 +184,8 @@ The shared semantic helper source is intentional; keep it synchronized with the 
 
 Atlas mode assets use lowercase hyphenated skill IDs such as `dw-clarify-intent`, `dw-note-manager`, `project-planner`, and shared `note-search`. Run `./atlas health check .` to inspect local drift and `./atlas skills sync --mode dev-workflow` to review the global skill sync plan.
 
+To see current deamons running:   pgrep -af local_note_semantic_search.py
+
 ## Operating Rules
 
 - Humans own intent, architecture, priority, and irreversible decisions.

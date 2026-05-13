@@ -2,7 +2,7 @@
 
 Status: [[Tags/status-draft]]
 Type: [[idea-note]]
-Related: [[Main Vault Fleeting Notes and Source Material Workflow]], [[Local Note Search Script]]
+Related: [[Local Note Search Script]]
 Created: 06-05-2026
 Priority: [[priority-high]] 
 

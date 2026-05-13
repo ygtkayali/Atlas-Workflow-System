@@ -5,7 +5,7 @@ Type: [[idea-note]]
 Related: [[Workflow Mode Skill Governance]]
 Created: 2026-05-06
 Last Reviewed: 2026-05-07
-Priority:[[priority-high]] 
+Priority:[[priority-mid]] 
 
 ---
 

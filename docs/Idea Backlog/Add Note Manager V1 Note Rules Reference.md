@@ -15,6 +15,7 @@ Do not add a separate bundled `references/v1-note-rules.md` file for `dw-note-ma
 `dw-note-manager` only owns one core job: bounded note mutation.
 The rules for note splitting, grouping, note type choice, hub role selection, and folder handling are part of that core skill behavior, so they can live directly in `SKILL.md` for now.
 
+Create a better documentation rules for tech stack so things are not that random. Setup paths like design note promotion, architecture extraction etc. So the actual documentation part evolves naturally without forgetting things. 
 ## Decision
 
 The separate reference file is deferred.
