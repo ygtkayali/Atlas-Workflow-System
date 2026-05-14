@@ -2,9 +2,9 @@
 
 Status: [[Tags/status-settled]]
 Parent:
-Related: [[Local Note Search Script]], [[Semantic Search Model Reload Delay]]
+Related: [[Local Note Search Script]], [[Semantic Search Model Reload Delay]], [[Tag Retrieval Model]]
 Created: 18-04-2026
-Last Reviewed: 2026-05-12
+Last Reviewed: 2026-05-14
 Source:
 Decisions:
 Dependencies:
@@ -19,6 +19,8 @@ Tasks:
 Its current role is to provide one stable skill entry point for:
 - graph search from a known seed note
 - semantic search from a concept, question, or rough description
+- hybrid search that combines tag-based candidate filtering with semantic, BM25-style keyword, and graph signals
+- keyword-only search when model loading should be avoided
 - bounded context capsules that reduce broad manual note reads
 
 ## Details
@@ -33,7 +35,8 @@ Instead, it wraps local retrieval scripts:
 Current expectations:
 - accept the retrieval need from another skill
 - choose graph search when a known seed note path or title is supplied
-- choose semantic search when the prompt asks whether something exists, asks for similar notes, or provides only a concept without a seed note
+- choose hybrid search when the prompt asks whether something exists, asks for similar notes, or provides only a concept without a seed note
+- choose keyword search when exact-term retrieval should avoid model loading
 - use the semantic auto-start socket path by default so repeated semantic queries reuse the loaded model
 - call the appropriate local script
 - return candidate note paths or a semantic context capsule from the script result
@@ -51,7 +54,7 @@ That separation supports:
 
 The current version of `Note Search Skill` should not:
 - own ranking or graph traversal logic directly
-- own embedding or semantic-ranking logic directly
+- own embedding, BM25, tag, or semantic-ranking logic directly
 - broaden into a general autonomous context-selection system
 - modify notes automatically
 - let caller skills bypass it with ad hoc manual note discovery when semantic search is the better fit
@@ -66,8 +69,11 @@ The current skill depends on:
 - `~/.codex/tools/local_note_semantic_search.py`
 
 Graph search is path or title seeded.
-Semantic search uses `sentence-transformers/all-MiniLM-L6-v2` through the `base-ml` conda environment and stores a vault-local cache at `.codex-note-search/`.
+Hybrid and semantic search use `sentence-transformers/all-MiniLM-L6-v2` through the `base-ml` conda environment and store a vault-local cache at `.codex-note-search/`.
 The semantic helper also supports a vault/model-specific Unix socket service so the model can stay warm across repeated queries.
+Keyword-only mode uses local markdown parsing and BM25-style scoring without loading the embedding model.
+Tags are treated as note-based filters and facets before ranking, not as plain keyword matches.
+For tag semantics, see [[Tag Retrieval Model]].
 
 If the script interface changes later, the skill should absorb that change so other skills can continue using one stable search entry point.
 
@@ -92,41 +98,55 @@ Use graph search when:
 - a specific seed note title is known
 - nearby direct links or backlinks are the target
 
-Use semantic search when:
+Use hybrid search when:
 - the user asks whether a topic already exists in the vault
 - the user asks what similar notes exist
 - the prompt gives only a concept, question, or rough subject
 - a role needs a bounded context capsule before deciding which notes to read
 
-Prefer semantic search over manual `rg` or broad file scanning for concept-level note discovery.
 Manual text search remains acceptable for exact strings, filenames, or implementation code checks.
 
-## Semantic Usage
+## Hybrid And Semantic Usage
 
-Use this command pattern for semantic discovery:
+Use this command pattern for normal hybrid discovery:
 
 ```bash
-conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --expand-graph --auto-socket --format json
+conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --search-mode hybrid --expand-graph --auto-socket --format json
 ```
 
 Use `--no-refresh` only when the caller explicitly wants to avoid checking changed files:
 
 ```bash
-conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --no-refresh --auto-socket --format json
+conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --search-mode hybrid --no-refresh --auto-socket --format json
 ```
 
 Use `--no-socket` only when the caller explicitly wants a cold one-off query:
 
 ```bash
-conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --expand-graph --no-socket --format json
+conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --search-mode hybrid --expand-graph --no-socket --format json
 ```
 
-Semantic output may include:
+Use semantic-only mode when the caller wants the earlier semantic scoring behavior:
+
+```bash
+conda run --no-capture-output -n base-ml python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --search-mode semantic --expand-graph --auto-socket --format json
+```
+
+Use keyword mode when the caller wants BM25-style retrieval without model loading:
+
+```bash
+python ~/.codex/tools/local_note_semantic_search.py --vault-root "<vault-root>" --query "<query>" --search-mode keyword --expand-graph --format json
+```
+
+Hybrid output may include:
 - `read_first`
 - `graph_expansion`
 - `index_status`
 - `score`
 - `semantic_score`
+- `keyword_score`
+- `graph_score`
+- `tag_score`
 - `why`
 
 Calling skills should treat `read_first` as the primary bounded context set and `graph_expansion` as optional adjacent context.
@@ -136,3 +156,4 @@ Calling skills should treat `read_first` as the primary bounded context set and 
 - Should the semantic script gain explicit idle timeout or stop controls for auto-started socket services?
 - Should semantic results be benchmarked against a fixed set of real vault queries?
 - Should query routing eventually support multi-vault search through a registry while keeping per-vault indexes as the default?
+- What benchmark queries should tune the first hybrid scoring weights?

@@ -88,6 +88,7 @@ Use it to choose the first workflow phase, then follow the selected skill's `SKI
 
 - Choose the smallest valid skill sequence and stop at the first unresolved gate.
 - Use `note-search` for note-related retrieval instead of broad manual vault discovery.
+- Prefer hybrid `note-search` over manual `rg` or broad file scanning for concept-level note discovery.
 - A sufficiently specific direct coding request may route directly to `project-implementer` when objective, scope, constraints, and intended behavior are clear enough.
 - Directive phrasing such as "I need to", "the goal is", "implement", or "make it" is not enough to skip `dw-clarify-intent`; skip clarification only for clear, narrow, low-impact changes.
 - Clarification may be lightweight and conversational; require a handoff only when downstream workflow state needs it.

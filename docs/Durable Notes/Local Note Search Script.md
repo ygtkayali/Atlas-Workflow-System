@@ -11,7 +11,7 @@ Last Reviewed: 2026-05-07
 Create a reusable local script that agents can call with a known seed note to retrieve candidate related note paths without reading the entire vault.
 
 The Atlas source repository includes the graph script source at `shared/tools/local_note_search.py`.
-The semantic-search companion lives at `~/.codex/tools/local_note_semantic_search.py` when installed and is routed through [[note-search-skill]] rather than replacing this graph script.
+The semantic and hybrid-search companion lives at `~/.codex/tools/local_note_semantic_search.py` when installed and is routed through [[note-search-skill]] rather than replacing this graph script.
 
 ## Current V1 Intent
 
@@ -89,11 +89,10 @@ Initial evaluation:
 - semantic/content tag support
 - tag-role separation such as operational tags vs semantic tags
 - strict mode in addition to expanded mode
-- BM25-based retrieval
 - richer ranking or explanation layers
 
 The script should support the documentation-centered workflow by reducing unnecessary vault-wide reading while still giving agents enough nearby context to make linking decisions.
-Semantic and embedding-based query discovery is handled by the separate semantic script through [[note-search-skill]].
+Semantic, BM25-style keyword, tag-aware, and hybrid query discovery is handled by the separate semantic/hybrid script through [[note-search-skill]].
 Keep this graph script focused on known-seed graph neighborhoods.
 
 ## Open Questions

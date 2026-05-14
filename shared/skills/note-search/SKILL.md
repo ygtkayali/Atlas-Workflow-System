@@ -10,6 +10,8 @@ Use this skill when you need a bounded, reusable note-retrieval step from a loca
 Use it for:
 - graph search from a known seed note,
 - semantic search from a concept, question, or rough description,
+- hybrid search that combines semantic, BM25-style keyword, graph, and tag signals,
+- keyword-only search when model loading should be avoided,
 - and context capsules that reduce broad manual note reads.
 
 This skill is the stable interface layer for note retrieval.
@@ -41,7 +43,9 @@ When `vault_root` is not supplied by the caller:
 Do:
 - use this skill as the single retrieval interface,
 - choose graph search when a known seed note path or title is supplied,
-- choose semantic search when the prompt asks whether something exists, asks for similar notes, or provides only a concept without a seed note,
+- choose hybrid search for normal concept-level discovery when semantic dependencies are available,
+- choose semantic-only search when the caller explicitly needs the earlier semantic scoring behavior,
+- choose keyword search when an exact-term query should avoid model loading,
 - request JSON output for automation or follow-on reasoning,
 - return candidate note paths or a semantic context capsule from the script result,
 - let calling skills consume retrieval results rather than reimplementing separate context search behavior,
@@ -69,6 +73,7 @@ Optional controls:
 - `debug`
 - `expand_graph`
 - `no_refresh`
+- `search_mode` (`hybrid`, `semantic`, or `keyword`)
 
 ## Routing Rules
 
@@ -77,7 +82,7 @@ Use graph search when:
 - a specific seed note title is known,
 - nearby direct links or backlinks are the target.
 
-Use semantic search when:
+Use hybrid search when:
 - the user asks whether a topic already exists in the vault,
 - the user asks what similar notes exist,
 - the prompt gives only a concept, question, or rough subject,
@@ -85,8 +90,8 @@ Use semantic search when:
 
 Fallback rule: if graph search by title returns no match, fall back to a semantic query using that title as the query string rather than failing.
 
-Prefer semantic search over manual `rg` or broad file scanning for concept-level note discovery.
 Manual text search remains acceptable for exact strings, filenames, or implementation code checks.
+Prefer keyword mode when the caller needs local BM25-style results without loading the embedding model.
 
 ## Graph Call Pattern
 
@@ -116,9 +121,10 @@ python3 <tools_root>/local_note_search.py \
   --debug
 ```
 
-## Semantic Call Pattern
+## Hybrid And Semantic Call Pattern
 
-Default to the auto-start warm socket path for semantic search.
+Default to the auto-start warm socket path for normal hybrid or semantic search.
+Hybrid mode is the default and combines tag-based candidate filtering with semantic, BM25-style keyword, and graph scoring.
 
 **Warm auto-start (default):** use this for normal semantic discovery. It reuses an existing vault/model socket service, or starts one on demand before running the query.
 
@@ -127,6 +133,7 @@ conda run --no-capture-output -n base-ml \
   python <tools_root>/local_note_semantic_search.py \
   --vault-root "<vault-root>" \
   --query "<query>" \
+  --search-mode hybrid \
   --expand-graph \
   --auto-socket \
   --format json
@@ -139,8 +146,33 @@ conda run --no-capture-output -n base-ml \
   python <tools_root>/local_note_semantic_search.py \
   --vault-root "<vault-root>" \
   --query "<query>" \
+  --search-mode hybrid \
   --expand-graph \
   --no-socket \
+  --format json
+```
+
+Use semantic-only mode when the caller wants the earlier semantic scoring behavior with lexical title/path boosts:
+
+```bash
+conda run --no-capture-output -n base-ml \
+  python <tools_root>/local_note_semantic_search.py \
+  --vault-root "<vault-root>" \
+  --query "<query>" \
+  --search-mode semantic \
+  --expand-graph \
+  --auto-socket \
+  --format json
+```
+
+Use keyword mode when the caller wants BM25-style local retrieval without loading the embedding model:
+
+```bash
+python <tools_root>/local_note_semantic_search.py \
+  --vault-root "<vault-root>" \
+  --query "<query>" \
+  --search-mode keyword \
+  --expand-graph \
   --format json
 ```
 
@@ -153,7 +185,8 @@ conda run --no-capture-output -n base-ml \
   --serve-socket
 ```
 
-Semantic search uses `sentence-transformers/all-MiniLM-L6-v2` and stores a vault-local cache at `.codex-note-search/`.
+Hybrid and semantic search use `sentence-transformers/all-MiniLM-L6-v2` and store a vault-local cache at `.codex-note-search/`.
+Keyword mode uses markdown parsing and BM25-style scoring only.
 
 ### Refresh behavior
 
@@ -167,7 +200,19 @@ Default limit is 10 results. If results would exceed roughly 4 000 tokens of con
 ## Output Handling
 
 Graph search returns `seed_path` and `candidates`.
-Semantic search returns `read_first` (primary bounded context set) and optionally `graph_expansion` (adjacent context).
+Hybrid, semantic, and keyword search return `read_first` (primary bounded context set) and optionally `graph_expansion` (adjacent context).
+
+Hybrid and keyword results include separate score components when available:
+
+- `semantic_score`
+- `keyword_score`
+- `graph_score`
+- `tag_score`
+- final `score`
+- `why`
+
+Treat tags as note-based filters and facets before ranking, not as plain keyword matches.
+Status and type tags may reduce the candidate set or explain retrieval evidence without becoming broad content relevance.
 
 Treat `read_first` as the primary set. `graph_expansion` is optional.
 
@@ -175,11 +220,7 @@ If the script returns an `error`, treat retrieval as failed and surface the reas
 
 ## Current Boundary
 
-This skill wraps only the local graph and semantic scripts.
+This skill wraps only the local graph and semantic/hybrid scripts.
 
-It should not claim support for:
-- tag-based retrieval
-- BM25
-- autonomous context selection beyond the script output
-
-If those are added later, update this skill so callers can keep using the same interface.
+It should not claim support for autonomous context selection beyond the script output.
+Tag and BM25 signals are retrieval guidance only; callers remain responsible for deciding which returned notes to read or use.
