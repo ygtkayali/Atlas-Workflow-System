@@ -92,6 +92,18 @@ managed_tags:
     source: docs/Tags/idea-note.md
     target: Tags/idea-note.md
     required: true
+  - id: priority-high
+    source: docs/Tags/priority-high.md
+    target: Tags/priority-high.md
+    required: true
+  - id: priority-mid
+    source: docs/Tags/priority-mid.md
+    target: Tags/priority-mid.md
+    required: true
+  - id: priority-low
+    source: docs/Tags/priority-low.md
+    target: Tags/priority-low.md
+    required: true
   - id: status-active
     source: docs/Tags/status-active.md
     target: Tags/status-active.md

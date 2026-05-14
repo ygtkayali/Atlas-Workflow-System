@@ -3,7 +3,6 @@ atlas:
   version: 0.1.0
   platforms:
   - codex
-  - claude
 vault:
   name: docs
   path: docs
@@ -13,6 +12,9 @@ managed_tags:
 - design-note
 - feature-subject-note
 - idea-note
+- priority-high
+- priority-mid
+- priority-low
 - status-active
 - status-draft
 - status-pending
