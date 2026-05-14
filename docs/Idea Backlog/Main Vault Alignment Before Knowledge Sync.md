@@ -4,7 +4,7 @@ Status: [[Tags/status-draft]]
 Type: [[idea-note]]
 Related: [[note-manager]]
 Created: 05-05-2026
-Priority: [[priority-low]] 
+Priority: [[docs/Tags/priority-high|priority-high]] 
 
 ---
 

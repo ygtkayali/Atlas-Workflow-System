@@ -4,7 +4,7 @@ Status: [[Tags/status-pending]]
 Type: [[idea-note]]
 Related: [[Workflow Mode Skill Governance]], [[note-manager]], [[clarify-intent]], [[planner-agent]], [[implementer-agent]], [[review-agent]], [[implementation-verifier]]
 Created: 2026-05-08
-Priority:[[priority-high]] 
+Priority:[[docs/Tags/priority-high|priority-high]]  
 
 ---
 

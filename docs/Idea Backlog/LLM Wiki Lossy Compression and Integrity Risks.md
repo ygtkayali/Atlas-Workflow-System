@@ -4,7 +4,7 @@ Status: [[Tags/status-draft]]
 Type: [[idea-note]]
 Related: [[Local Note Search Script]]
 Created: 06-05-2026
-Priority: [[priority-high]] 
+Priority: [[docs/Tags/priority-high|priority-high]] 
 
 ---
 

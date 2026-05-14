@@ -5,7 +5,7 @@ Type: [[idea-note]]
 Related: [[Workflow CLI Mode System|Workflow CLI Tooling System]]
 Created: 2026-05-06
 Last Reviewed: 2026-05-07
-Priority:[[priority-mid]] 
+Priority: [[docs/Tags/priority-mid|priority-mid]] 
 
 ---
 

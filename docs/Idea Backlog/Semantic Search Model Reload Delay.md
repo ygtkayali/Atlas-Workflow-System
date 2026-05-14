@@ -5,7 +5,7 @@ Type: [[idea-note]]
 Related: [[note-search-skill]]
 Created: 05-05-2026
 Last Reviewed: 2026-05-12
-Priority: [[priority-low]]
+Priority: [[docs/Tags/priority-low|priority-low]] 
 
 ---
 

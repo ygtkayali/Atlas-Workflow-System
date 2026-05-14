@@ -5,7 +5,7 @@ Type: [[idea-note]]
 Related: [[Dev Workflow Documentation Model]], [[note-manager]], [[review-agent]], [[Workflow Artifact Lifecycle and Closeout]], [[Two-Phase Workflow Boundary]], [[Durable Notes Follow Accepted Implementation]]
 Created: 2026-05-13
 Last Reviewed: 2026-05-14
-Priority:
+Priority:[[docs/Tags/priority-high|priority-high]]
 
 ---
 
