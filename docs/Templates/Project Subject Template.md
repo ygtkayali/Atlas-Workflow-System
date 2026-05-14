@@ -14,6 +14,8 @@ Reports:
 
 ## Subject
 
+Define one active technical area: a feature, workflow behavior, module, tool, integration, or implementation concept.
+Use this note for local project state and technical detail. Do not turn every accepted idea into a design note.
 
 ## Why This Exists
 
@@ -23,6 +25,7 @@ Reports:
 
 ## Design Choices
 
+Record local choices for this subject. Move only cross-cutting constraints or reusable behavior into a design note.
 
 ## Technical Shape
 

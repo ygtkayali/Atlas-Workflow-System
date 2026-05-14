@@ -4,10 +4,10 @@ Status: [[Tags/status-settled]]
 Type: [[design-note]]
 Related: [[Workflow Mode Skill Governance]], [[Two-Phase Workflow Boundary]], [[clarify-intent]], [[note-manager]], [[review-agent]], [[Dev Workflow Documentation Model]]
 Created: 2026-05-11
-Last Reviewed: 2026-05-12
+Last Reviewed: 2026-05-14
 Source: promoted from `docs/Idea Backlog/Workflow Artifact Lifecycle and Closeout.md`; created from `docs/In-flight/handoff-workflow-artifact-lifecycle-closeout.md` and updated from `docs/In-flight/handoff-settled-task-review-queue.md`
 Project Subjects: workflow artifact lifecycle, in-flight task lanes, review closeout, archive summaries
-Tasks:
+Tasks: `docs/In-flight/report-technical-project-documentation-governance.md`
 Reports: `docs/In-flight/report-workflow-artifact-lifecycle-closeout.md`
 
 ---
@@ -90,6 +90,10 @@ Review/sync should inspect `docs/In-flight/`, group artifacts by `Task ID` when 
 
 Review/sync must not delete or move in-flight artifacts without explicit approval.
 
+Closeout is gated by documentation synchronization. If implementation-backed durable knowledge may need sync, review/sync should complete documentation sync analysis, explicitly defer it, or judge it unnecessary before recommending artifact cleanup that would remove review evidence.
+
+Implementation review, documentation sync analysis, and task-lane closeout should not run as one automatic process.
+
 ## Archive Usage
 
 Completed task lanes should close into distilled archive summaries under:
@@ -124,6 +128,8 @@ Distilled archive summaries are better long-term learning sources than raw artif
 - Do not treat every non-empty in-flight folder as a blocker for unrelated work.
 - Review/sync should operate on settled lanes for closeout.
 - High-impact settled tasks still need normal review rigor.
+- Task-lane closeout should wait until documentation sync is complete, explicitly deferred, or judged unnecessary.
+- Cleanup, deletion, movement, or archive decisions require explicit approval.
 
 ## Technical Shape
 

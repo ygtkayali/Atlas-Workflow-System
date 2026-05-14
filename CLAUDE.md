@@ -95,6 +95,8 @@ Use it to choose the first workflow phase, then follow the selected skill's `SKI
 - When a role produces a reviewable artifact such as a handoff, note proposal, note draft, task packet, or context proposal, write it first as an approval-pending artifact under `docs/In-flight/`.
 - If confidence is not high enough to choose a durable note action, target, note type, or durable meaning safely, route to `dw-clarify-intent` before `dw-note-manager`.
 - Durable note mutations must route through `dw-note-manager`. File-edit tools may apply an approved note-manager decision, but they do not replace that gate.
+- `project-review-sync` phase changes are gated. Implementation review, documentation sync analysis, Note Manager handoff, durable write, and task-lane closeout must be proposed separately and must not run as one automatic chain.
+- Documentation sync should use the smallest sufficient decision surface. A compact review/sync proposal table may route clear rows directly to `dw-note-manager`; only uncertain rows should route through `dw-clarify-intent`.
 
 ### Guardrails
 Agents should not:

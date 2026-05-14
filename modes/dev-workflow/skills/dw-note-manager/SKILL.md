@@ -33,8 +33,9 @@ Do:
 - preserve local design-choice trails inside `[[feature-subject-note]]` notes instead of moving every decision into a separate design note,
 - use the minimum useful links needed for the provided context,
 - prefer intentional related links over default parent placement,
-- produce a subject-to-note action manifest before drafting when the clarified context contains multiple durable subjects,
+- handle multiple bounded note actions in one approved batch when the upstream proposal table is clear,
 - use managed hub or index files only when explicitly requested or supplied by local context,
+- require action/write confirmation before turning review/sync findings or proposal-table rows into durable writes,
 - and wait for confirmation before writing unless the prompt and current workflow state clearly authorize direct writes.
 
 Do not:
@@ -45,6 +46,7 @@ Do not:
 - rename, move, or reorganize notes,
 - invent a richer metadata or linking system,
 - act when decision confidence is not high enough to choose the note action, target, note type, or durable meaning safely,
+- write broad note changes directly from raw review/sync output before the user has approved the proposed note action or proposal-table rows,
 - create notes from weak clarification state,
 - convert unresolved ideas into recommendations, policy, decisions, or settled direction unless the handoff explicitly marks those points as decided,
 - default new notes into a hub or index file,
@@ -88,40 +90,48 @@ Avoid broad repository scans. This skill should shape a bounded note action, not
 
 When `dw-clarify-intent` produces a visible `ready_for_note_manager` handoff for a required note change and the relevant note context is supplied, proceed into this workflow by default without waiting for separate phase-switch approval. The approval gate applies to the resulting draft or durable-write decision.
 
+Raw review/sync output or documentation-sync analysis is not the same thing as Note Manager write approval. A compact review/sync proposal table may go directly to Note Manager when each routed row has clear target, action, evidence, proposed change, uncertainty, constraints, and route. If the user approves those rows for writing, Note Manager may apply the bounded updates directly without creating a separate manifest or draft artifact.
+
 ## Workflow
 
 Follow this sequence:
 
 1. Identify the durable subject from the direct request or clarified context handoff.
-2. Confirm that the direct request or clarified handoff gives high enough decision confidence to act.
+2. Confirm that the direct request, clarified handoff, or approved proposal-table row gives high enough decision confidence to act.
 3. Confirm the candidate action: `create` or `update`.
 4. Choose and justify the note type, preferring local note-type tags such as `[[idea-note]]`, `[[feature-subject-note]]`, or `[[design-note]]` when they exist.
 5. Read only the provided notes needed for the action.
 6. Decide whether the subject belongs in one note or a small obvious set of notes.
    If the handoff contains provisional subject bundles, use them as input evidence rather than final note structure.
 7. Refresh dynamic metadata fields for the current note state instead of preserving stale template or previously copied values.
-8. Draft the exact note content or exact update content.
+8. If write approval is explicit, apply the bounded note update directly. If approval is not explicit or the user asks to review first, draft the exact note content or exact update content.
 9. Make the minimum useful related links from the provided context and use parent placement only when explicitly justified.
-10. Present the draft and wait for confirmation before writing.
+10. When drafting, present the draft and wait for confirmation before writing.
 
 If any step depends on unprovided context or unclear structure, stop and escalate instead of improvising.
 If decision confidence is not high enough, route the input to `dw-clarify-intent` and wait for a clarified context handoff before drafting note content.
 
 ## Bundled Intake
 
-`Note Manager` may receive a bundle of clarified durable subjects from upstream context.
+`Note Manager` may receive a bundle of clarified durable subjects or approved review/sync proposal-table rows from upstream context.
 
 A bundle is allowed for intake efficiency, but it must not collapse note-action approval.
 
 For **single-subject handoffs**, the action header (note action + type + target/title) serves as the manifest. A separate manifest document is not required.
 
-For **multi-subject handoffs**, produce a subject-to-note action manifest before drafting any note content.
+For **multi-subject handoffs or proposal tables**, do not create a separate manifest by default. Use the upstream proposal table as the reviewable decision surface when each row already includes target, action, evidence, proposed change, uncertainty, constraints, and route.
+
+Create a separate manifest only when:
+- upstream rows are mixed or ambiguous,
+- one subject may map to several note actions and the mapping is not explicit,
+- multiple subjects might collapse into one note action,
+- or the user asks for a manifest before drafting or writing.
 
 If the upstream artifact contains provisional subject bundles from complex-prompt intake, treat them as input evidence rather than final note structure.
 Each bundle should contain one domain or area; branching ideas should remain together only when they are closely related.
 If a branch can become its own durable subject, split it and preserve the connection instead of blending it into a broader note action.
 
-The manifest should include one row per proposed note action:
+When a separate manifest is needed, it should include one row per proposed note action:
 - subject id or subject label,
 - target note, if known,
 - action: `create`, `update`, `defer`, or `return-to-clarification`,
@@ -142,11 +152,13 @@ The relationship between clarified subjects and note actions is not one-to-one:
 When a handoff includes `Interpretation Basis`, use it as source basis for the note action and preserve the parts needed to validate intent later.
 Do not discard original input, tone or stance, user-intent versus agent-inference boundaries, open ambiguity, or things not to imply when those fields affect the durable note's meaning.
 
-Only manifest rows marked `ready` may become note drafts.
-Each resulting note draft must be presented and approved separately before writing.
-Approval for one note action does not approve any other note action in the same bundle.
+Only proposal-table or manifest rows marked `ready` or routed to `note-manager` may become note updates.
+Each row may be approved, revised, deferred, or rejected independently.
+Approval for one note action does not approve any other note action in the same bundle unless the user explicitly approves the batch.
 
-If `Note Manager` cannot map a clarified subject to note actions without mixing unrelated context, guessing target notes, or relying on raw implementation evidence, return that subject to clarification instead of drafting.
+When the user explicitly approves a clear proposal-table batch for writing, Note Manager may apply all approved rows in one pass. It must still preserve row boundaries in its report and must not include rows routed to `clarify-intent`, `defer`, or `reject`.
+
+If `Note Manager` cannot map a clarified subject or proposal row to note actions without mixing unrelated context, guessing target notes, or relying on raw implementation evidence, return that subject to clarification instead of drafting or writing.
 
 ## Dynamic Metadata Rules
 
@@ -208,12 +220,32 @@ Domain grouping belongs in links, tags, hubs, and backlinks unless the user or l
 
 ## Output Contract
 
-Default output is draft-first. A durable write requires one of these three explicit authorization signals:
+Note Manager has two gate shapes: proposal approval and durable-write approval. For compact proposal tables, the user may approve both together by explicitly asking Note Manager to apply or write the approved rows.
+
+Action confirmation approves preparing or applying specific note actions. It should be requested when the incoming request proposes note work but does not clearly authorize drafting or writing.
+
+Action confirmation prompt:
+
+```text
+Proposed action: <create, update, defer, return to clarification, or promotion candidate review>
+Reason: <why this action follows from the supplied handoff or review evidence>
+Expected output: <direct writes, draft note, patch, manifest only if needed, or clarification return>
+Planned behavior: <what Note Manager will apply or prepare and what it will not write without later approval>
+
+Approve this action?
+```
+
+Durable-write confirmation approves applying a prepared note draft, patch, or approved proposal-table row.
+
+Default output is draft-first unless write approval is explicit. A durable write requires one of these four explicit authorization signals:
 1. The user message contains a direct write directive ("apply", "write", "commit", or equivalent).
 2. The upstream handoff contains `direct_write: true`.
 3. An approved execution packet explicitly authorizes the write.
+4. The user approves a review/sync proposal table for Note Manager writing.
 
-Anything outside these three signals → draft-only output.
+Anything outside these four signals -> draft-only output.
+
+Action approval does not imply durable-write approval unless the approval explicitly says to apply or write. Durable-write approval for one note action does not approve any other note action in the same bundle unless the user explicitly approves the batch.
 
 ### Small-Edit Mode
 
@@ -247,6 +279,19 @@ Dynamic metadata must still be evaluated and the `Last Reviewed` field updated e
 - refreshed dynamic metadata for the updated note state,
 - and the exact proposed updated content or patch-shaped replacement text.
 
+### Direct Batch Write Mode
+
+When a proposal table or user request clearly approves multiple bounded writes, apply only the approved rows and report:
+- row or subject id,
+- target note,
+- action applied,
+- metadata refreshed,
+- evidence basis,
+- skipped rows and why,
+- checks run.
+
+Do not create a manifest or draft artifact unless needed for ambiguity or requested by the user.
+
 ### Return to Clarification
 
 If the request should return to clarification, state:
@@ -272,7 +317,7 @@ Before finishing, verify the four things the workflow does not automatically enf
 1. **Subject durability** — Is this worth a note at all, or does it belong only in the conversation?
 2. **Idea-note fidelity** — If the type is `[[idea-note]]`, are unresolved questions still questions rather than conclusions?
 3. **Scope** — Should this be one note or a small obvious set? Did I resist the pull toward a hub or index file?
-4. **Write authorization** — Is a durable write clearly authorized by one of the three signals in the Output Contract, or must the output remain draft-only?
+4. **Write authorization** — Is a durable write clearly authorized by one of the four signals in the Output Contract, or must the output remain draft-only?
 
 For everything else (note type, metadata freshness, link minimalism, format preservation, status transitions), the workflow steps above are the check. If you reached this point following them, those are satisfied.
 

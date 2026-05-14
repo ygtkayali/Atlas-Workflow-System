@@ -4,16 +4,16 @@ Status: [[Tags/status-settled]]
 Parent:
 Related: [[planner-agent]], [[implementer-agent]], [[clarify-intent]], [[clarified-context-handoff]], [[note-manager]], [[Durable Notes Follow Accepted Implementation]]
 Created:
-Last Reviewed: 2026-05-06
+Last Reviewed: 2026-05-14
 Source: [[LLM Wiki Lossy Compression and Integrity Risks]]
-Decisions: Review/sync should validate durable note output against the handoff's `Interpretation Basis`.
+Decisions: Review/sync should validate durable note output against the handoff's `Interpretation Basis`. Review/sync phase changes are gated; implementation review, documentation sync analysis, Note Manager handoff, durable write, and task-lane closeout must not run as one automatic chain. Documentation sync should use compact proposal tables; clear rows can route directly to Note Manager and uncertain rows to clarify-intent.
 Dependencies:
-Tasks:
+Tasks: `docs/In-flight/report-technical-project-documentation-governance.md`, `docs/In-flight/report-review-sync-note-manager-compression-path.md`
 
 ---
 
 ## Purpose
-The review / sync agent compares implementation results against the approved plan and routes implementation-backed documentation synchronization through the clarification and note-management path.
+The review / sync agent compares implementation results against the approved plan and routes implementation-backed documentation synchronization through compact proposal tables, clarification for uncertain rows, and note management for clear approved rows.
 
 It is also the analysis layer for bounded maintenance review tasks. A maintenance review task may ask the agent to inspect a scoped part of the vault or workflow state for stale notes, missing links, outdated implementation state, obsolete workflow artifacts, lint or health issues, or documentation consistency problems.
 
@@ -52,14 +52,22 @@ Do not assume:
 
 ## Role Boundaries
 
+### Phase Gates
+
+Review/sync is an umbrella role with hard phase gates.
+
+Implementation review, documentation sync analysis, Note Manager handoff, durable write, and task-lane closeout are distinct phases. Review/sync may identify or propose the next phase, but it should stop unless the user explicitly approves continuing.
+
+Review/sync should not silently combine implementation conformance review, documentation sync analysis, and artifact closeout into one automatic process.
+
 ### The review / sync agent owns
 - comparing implementation output to the approved packet,
 - identifying plan drift, missing verification, and stale docs,
 - analyzing bounded maintenance tasks from the user-provided scope,
-- deciding what documentation-sync context should be handed to `clarify-intent` after accepted implementation,
+- deciding what documentation-sync context can go directly to `Note Manager` after accepted implementation and what uncertainty still needs `clarify-intent`,
 - deciding what maintenance-review context should be handed to `clarify-intent` when durable note decisions are needed,
-- creating one review-sync context handoff per proposed documentation-sync subject,
-- proposing documentation synchronization through `clarify-intent -> Note Manager`,
+- creating one compact sync proposal table for documentation-sync subjects,
+- proposing documentation synchronization through `Note Manager` directly for clear rows and through `clarify-intent` only for uncertain rows,
 - producing maintenance review reports for stale-state, consistency, lint, health, or artifact-cleanup tasks,
 - creating or proposing follow-up task context,
 - and surfacing decision gaps discovered during implementation.
@@ -81,9 +89,9 @@ Do not assume:
 - read the bounded note or artifact scope named by a maintenance review task,
 - compare implementation against the approved plan,
 - identify factual gaps in workflow artifacts such as implementation reports,
-- create or propose review-sync context handoffs for `clarify-intent`,
+- create or propose compact sync proposal tables,
 - create maintenance review reports for downstream clarification,
-- propose documentation synchronization through `clarify-intent -> Note Manager`,
+- propose documentation synchronization through compact proposal tables, direct Note Manager routing for clear rows, and `clarify-intent -> Note Manager` for uncertain rows,
 - create or propose follow-up task context,
 - and flag mismatches, stale notes, and decision gaps.
 
@@ -134,12 +142,13 @@ Follow this sequence:
 2. Read the implementation report and verification notes.
 3. Compare the implementation against the approved work.
 4. Identify matches, mismatches, missing checks, and newly introduced assumptions.
-5. Decide whether durable documentation context should be clarified after accepted implementation.
-6. Create one review-sync context handoff per proposed documentation-sync subject.
-7. Send or propose those context handoffs to `clarify-intent`, which produces a [[clarified-context-handoff]] for `Note Manager`.
-8. Create or propose follow-up tasks for unresolved issues.
-9. Recommend `keep`, `revise`, or `reject` for human closeout.
-10. Surface decision needs instead of silently normalizing them.
+5. Decide whether documentation sync analysis should be proposed.
+6. Recommend `keep`, `revise`, or `reject` for human closeout.
+7. If documentation sync may be needed, propose Documentation Sync Analysis and stop for approval.
+
+For Documentation Sync Analysis, review/sync inspects accepted implementation evidence and produces one compact sync proposal table. Clear rows can route directly to `Note Manager` after approval. Rows with mixed subjects, unclear target ownership, weak evidence, unresolved durable meaning, or any decision that would force Note Manager to guess should route to `clarify-intent`.
+
+Task-lane closeout is also a separate phase. It should not delete, move, archive, or clean up workflow artifacts without explicit approval.
 
 For maintenance review tasks:
 
@@ -204,12 +213,13 @@ The review / sync agent may:
 - and propose documentation synchronization when direct edits would overstep authority.
 
 For durable note synchronization, the review / sync agent should identify the implementation-backed context that may need to become durable note state.
-`clarify-intent` turns that review-sync context into a [[clarified-context-handoff]].
-`Note Manager` remains responsible for choosing and drafting the bounded note mutation after the clarified context handoff is available.
+The default output is a compact proposal table with subject, target or uncertainty, action, evidence, proposed change, uncertainty, constraints, and route.
+Clear rows route directly to `Note Manager` after approval. Unclear rows route to `clarify-intent`, which turns that review-sync context into a [[clarified-context-handoff]].
+`Note Manager` remains responsible for choosing and applying the bounded note mutation.
 The review / sync agent should not create or update durable notes directly.
 The review / sync agent should not directly create, update, archive, delete, or relink durable notes.
 
-For stale durable notes, missing links, outdated implementation state, or design-state drift, review should produce findings and route the review or maintenance report through `clarify-intent -> Note Manager`.
+For stale durable notes, missing links, outdated implementation state, or design-state drift, review should produce findings as a compact proposal table. Clear rows can route directly to Note Manager after approval; uncertain rows should route through `clarify-intent -> Note Manager`.
 
 The review / sync agent should prefer small, traceable updates over broad rewrites.
 Implementation conformance review should remain possible from the packet, report, and resulting changes even when note context is not supplied.

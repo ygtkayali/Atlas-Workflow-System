@@ -5,11 +5,11 @@ Type: [[design-note]]
 Parent:
 Related: [[note-manager]], [[clarify-intent]], [[Main Vault Note Structure and Agent Context]], [[Workflow CLI Mode System]]
 Created: 2026-05-08
-Last Reviewed: 2026-05-08
+Last Reviewed: 2026-05-14
 Source: clarified context handoff from documentation model discussion
 Project Subjects:
 Tasks:
-Reports:
+Reports: `docs/In-flight/report-technical-project-documentation-governance.md`
 
 ---
 
@@ -106,3 +106,5 @@ For example, documentation for a CLI feature should explain what the command is 
 ## Review Notes
 
 This note was created from a clarified conversation handoff after the documentation model had already been discussed and narrowed.
+
+2026-05-14: `docs/In-flight/report-technical-project-documentation-governance.md` sharpened the reusable and synced Project Subject and Design Note templates to reflect this model. No new note type was introduced, and accepted ideas still should not automatically become design notes.

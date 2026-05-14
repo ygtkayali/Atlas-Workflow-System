@@ -14,13 +14,41 @@ Closeout means inspect the settled lane, compare it to the approved packet and r
 
 Keep review scoped, make mismatches explicit, and preserve traceability between request, implementation, and docs.
 
+Review/sync is an umbrella skill with hard phase gates. It may identify the next review, documentation-sync, Note Manager handoff, or closeout action, but each phase produces a proposal and stops unless the user explicitly approves continuing.
+
 ## Modes
 
-This skill handles two distinct review modes. Identify the correct mode at the start and follow only that mode's workflow.
+This skill handles distinct review modes. Identify the correct mode at the start and follow only that mode's workflow.
 
-- **Implementation Review**: compare implementation against an approved task packet and route documentation-sync context forward.
+- **Implementation Review**: compare implementation against an approved task packet and decide whether documentation-sync analysis should be proposed.
+- **Documentation Sync Analysis**: inspect accepted implementation evidence for durable-knowledge impact and produce a compact sync proposal table that routes clear rows to `dw-note-manager` and uncertain rows to `dw-clarify-intent`.
 - **Maintenance Review**: analyze a bounded maintenance task and route stale-state, link, health, or artifact-cleanup findings.
 - **Task Lane Closeout**: review settled in-flight task lanes, produce distilled archive summaries, and route any cleanup or deletion decision through the local approval path.
+
+## Phase Gates
+
+Do not run multiple modes as one continuous process.
+
+At each boundary, output the proposed next action, reason, expected output, planned behavior, and required approval. Stop there unless the user explicitly approves the next phase.
+
+Hard gates:
+
+- after implementation conformance review, before documentation sync analysis
+- after documentation sync analysis, before sending proposal-table rows to Note Manager or clarification
+- after Note Manager draft or manifest output, before any durable write
+- after durable documentation sync is complete, explicitly deferred, or judged unnecessary, before task-lane closeout
+- before deleting, moving, archiving, or otherwise cleaning up workflow artifacts
+
+Confirmation shape:
+
+```text
+Proposed action: <next phase or action>
+Reason: <why this follows from the reviewed evidence>
+Expected output: <artifact, report, handoff, draft, archive summary, or cleanup proposal>
+Planned behavior: <what this skill will do and what it will not do without later approval>
+
+Approve this action?
+```
 
 ## Review Scope Cap
 
@@ -36,6 +64,15 @@ For maintenance review, start from the explicit task scope named by the user. If
 - touched files, diff, or verification output when needed
 
 If one of these inputs is missing and accurate comparison depends on it, flag the gap explicitly instead of improvising. Project notes are optional and become necessary only when documentation synchronization is part of the work.
+
+### Documentation Sync Analysis
+- accepted implementation review disposition, or explicit user approval to analyze documentation sync
+- approved task packet
+- implementation report
+- touched files, diff, or verification output when needed
+- specific note paths, note-search results, or implementation evidence that make the durable-sync subject bounded
+
+If implementation has not been accepted or the sync subject is not bounded, propose the missing gate or clarification instead of producing Note Manager routing.
 
 ### Maintenance Review
 - user-provided maintenance task
@@ -58,11 +95,10 @@ Report it as still active, blocked, or unclear unless the user explicitly asks f
 3. Compare implementation against the approved packet.
 4. Identify matches, mismatches, missing checks, and newly introduced assumptions.
 5. For each durable note change that came from a clarified context handoff, run the **Interpretation Fidelity Check** (see below).
-6. Decide whether implementation-backed documentation-sync context should be routed.
-7. If the local workflow routes durable note mutation through `dw-clarify-intent`, create one context proposal artifact per documentation-sync subject (schema: `references/context-proposal-artifact.md`).
-8. Present or return those artifacts in the format required by the local workflow.
-9. Create or propose follow-up task context for unresolved issues.
-10. Recommend `keep`, `revise`, or `reject`. If `reject`, produce a follow-up task or re-clarification context — never a silent revert.
+6. Decide whether documentation-sync analysis should be proposed.
+7. Create or propose follow-up task context for unresolved issues.
+8. Recommend `keep`, `revise`, or `reject`. If `reject`, produce a follow-up task or re-clarification context — never a silent revert.
+9. If documentation sync may be needed, output a confirmation prompt for **Documentation Sync Analysis** and stop.
 
 ### Checklist
 
@@ -80,6 +116,56 @@ Check for:
 `keep` | `revise` | `reject`
 
 `reject` produces a follow-up task or re-clarification context. It does not produce a silent revert or a normalized state change.
+
+## Documentation Sync Analysis Workflow
+
+Use this mode only after accepted implementation evidence exists and the user has approved moving from implementation review into documentation-sync analysis, or when the user directly requests this mode for a bounded accepted implementation.
+
+### Steps
+
+1. Read the accepted implementation review disposition, approved packet, implementation report, and touched files or diff needed to understand durable knowledge impact.
+2. Identify implementation-backed facts, decisions, behavior changes, or settled ideas that may need durable documentation.
+3. Separate each proposed documentation-sync subject. Use one row per documentation-sync subject; do not bundle unrelated note changes.
+4. For each subject, distinguish `decided`, `proposed`, `unclear`, and `blocked` points.
+5. Run the **Interpretation Fidelity Check** when the subject came from a clarified context handoff or idea note.
+6. Produce a compact **Documentation Sync Proposal Table** using the table shape below.
+7. Route clear rows directly to `dw-note-manager` after user approval. Route only uncertain rows to `dw-clarify-intent`.
+8. If no durable documentation sync is needed, say that explicitly and propose whether task-lane closeout should be considered next.
+
+### Checklist
+
+Check for:
+- accepted implementation facts that changed durable project knowledge
+- idea notes that became promotion candidates without treating promotion as automatic
+- stale or missing project subject, design, decision, or workflow-state documentation
+- multiple subjects that should remain separate
+- unclear note target ownership that should go through clarification
+- any proposed action that would require Note Manager rather than review/sync
+
+### Documentation Sync Proposal Table
+
+Use one compact table as the default reviewable decision surface. Do not create separate context proposal artifacts or clarified handoffs unless a row is routed to `dw-clarify-intent`.
+
+| subject | target note or uncertainty | action | evidence | proposed change | uncertainty | constraints | route |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| <durable subject> | <note path or unclear target> | `create` / `update` / `defer` / `reject` | <packet/report/diff/note evidence> | <small description of note change> | `decided` / `proposed` / `unclear` / `blocked` | <what must not happen> | `note-manager` / `clarify-intent` / `defer` / `reject` |
+
+Route rules:
+
+- `note-manager`: use when the target, action, evidence, durable meaning, and constraints are clear enough for Note Manager to apply or draft the update without guessing.
+- `clarify-intent`: use only when subject boundaries are mixed, target ownership is unclear, evidence is weak, durable meaning is unresolved, or the row would force Note Manager to guess.
+- `defer`: use when the subject is valid but should not be handled in the current pass.
+- `reject`: use when the proposed sync would be misleading, out of scope, or not durable knowledge.
+
+The approval prompt should let the user approve, revise, defer, or reject rows individually or as a batch.
+
+### Disposition
+
+`sync-needed` | `no-sync-needed` | `clarification-needed`
+
+`sync-needed` produces a compact Documentation Sync Proposal Table and waits for approval before routing rows.
+`no-sync-needed` may propose task-lane closeout as a next phase, but must stop before closeout.
+`clarification-needed` routes the uncertainty through `dw-clarify-intent` before Note Manager.
 
 ## Maintenance Review Workflow
 
@@ -134,6 +220,7 @@ Use this mode when the task is to review or close workflow artifacts in `docs/In
 7. Recommend whether consumed in-flight artifacts should be deleted, moved to a raw archive, or retained as evidence.
 8. Do not delete or move in-flight artifacts unless the user has explicitly approved that cleanup.
 9. Route durable documentation changes through `dw-clarify-intent -> dw-note-manager` when needed.
+10. If documentation sync has not been completed, explicitly deferred, or judged unnecessary, report that closeout is gated and stop before cleanup recommendations that would remove evidence.
 
 ### Archive Summary Shape
 
@@ -187,14 +274,15 @@ All three are interpretation drift. Do not normalize them — surface each as an
 
 You may:
 - identify factual gaps in implementation reports when missing information affects review or synchronization,
-- propose synchronization context for feature, task, architecture, design, decision, or in-flight workflow-state artifacts,
-- create or propose context proposal artifacts when the local workflow routes note mutation through `dw-clarify-intent`,
+- propose synchronization context for feature, task, architecture, design, decision, or in-flight workflow-state artifacts after the documentation-sync phase is approved,
+- create compact proposal-table rows that route clear items to `dw-note-manager` and uncertain items to `dw-clarify-intent`,
 - create or propose follow-up task context,
 - route follow-up note subjects through the local clarification path when they need to become durable notes,
 - and flag stale hubs or decision logs.
 
 You may not:
 - create, update, archive, delete, or relink durable notes directly when a separate note-management gate exists,
+- treat context proposals as durable note actions or durable note approval,
 - use documentation updates to mask an implementation mismatch,
 - or silently remove stale notes or artifacts.
 
@@ -207,13 +295,18 @@ Prefer small, traceable updates over broad rewrites.
 - read the bounded note or artifact scope named by a maintenance review task,
 - compare implementation against the approved plan,
 - identify factual gaps in workflow artifacts such as implementation reports,
-- create or propose context proposal artifacts and maintenance review reports,
+- create or propose compact proposal-table rows inside an approved Documentation Sync Analysis phase,
+- route clear proposal-table rows directly to `dw-note-manager` after approval,
+- create maintenance review reports,
 - create or propose follow-up task context,
 - and flag mismatches, stale notes, and decision gaps.
 
 ### Not allowed without explicit human approval
 - rewriting implementation scope after the fact,
 - silently changing the accepted plan,
+- moving from implementation review into documentation-sync analysis,
+- moving from documentation-sync analysis into Note Manager routing,
+- moving from documentation sync into task-lane closeout,
 - deleting task packets, implementation reports, or other workflow artifacts,
 - or using documentation updates to mask an implementation mismatch.
 
@@ -250,10 +343,18 @@ Do not replace these bundled references with local packet or report schemas. Rea
 ### Implementation Review Output
 - matches and mismatches against the approved packet
 - missing or weak verification findings
-- context proposal artifacts for each documentation-sync subject (when applicable)
+- proposed next action for documentation-sync analysis when durable knowledge may need sync
 - follow-up tasks
 - decision candidates
 - disposition: `keep`, `revise`, or `reject`
+
+### Documentation Sync Analysis Output
+- accepted implementation evidence inspected
+- documentation-sync subjects identified
+- one compact Documentation Sync Proposal Table
+- uncertainty labels for each subject
+- proposed next action for each row: `note-manager`, `clarify-intent`, `defer`, or `reject`
+- disposition: `sync-needed`, `no-sync-needed`, or `clarification-needed`
 
 ### Maintenance Review Output
 - maintenance review report
@@ -276,11 +377,17 @@ If no issues are found, say that explicitly and note any residual verification o
 ### Implementation Review
 - Was implementation compared to the approved packet?
 - Are mismatches explicit?
-- Was the Interpretation Fidelity Check run for any clarified context handoff?
-- Are documentation-sync recommendations traceable?
+- Was documentation-sync analysis only proposed, not run automatically?
 - Are follow-up tasks separated from completed work?
 - Has any unapproved change been escalated instead of normalized?
 - If `reject`, is there a follow-up task or re-clarification context?
+
+### Documentation Sync Analysis
+- Was the phase explicitly approved or directly requested for bounded accepted implementation evidence?
+- Was the Interpretation Fidelity Check run for any clarified context handoff?
+- Are documentation-sync recommendations traceable?
+- Does the proposal table route only uncertain rows to `dw-clarify-intent`?
+- Did the output stop before Note Manager routing or durable write unless separately approved?
 
 ### Maintenance Review
 - Was the scope bounded to the task named by the user?

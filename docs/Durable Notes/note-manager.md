@@ -4,11 +4,11 @@ Status: [[Tags/status-settled]]
 Parent:
 Related: [[clarify-intent]], [[clarified-context-handoff]], [[Two-Phase Workflow Boundary]], [[Durable Notes Follow Accepted Implementation]], [[Main Vault Note Structure and Agent Context]], [[Tags/idea-note]], [[Tags/feature-subject-note]], [[Tags/design-note]]
 Created: 2026-04-14
-Last Reviewed: 2026-05-08
+Last Reviewed: 2026-05-14
 Source: [[LLM Wiki Lossy Compression and Integrity Risks]]
-Decisions: `Note Manager` must consume and preserve the handoff's `Interpretation Basis`, especially original input, when drafting or updating durable notes. It must prefer the local note-type tag model when creating or updating dev-workflow notes.
+Decisions: `Note Manager` must consume and preserve the handoff's `Interpretation Basis`, especially original input, when drafting or updating durable notes. It must prefer the local note-type tag model when creating or updating dev-workflow notes. Note Manager action confirmation and durable-write confirmation are separate gates. Approved compact proposal tables can authorize direct bounded batch writes.
 Dependencies:
-Tasks:
+Tasks: `docs/In-flight/report-technical-project-documentation-governance.md`, `docs/In-flight/report-review-sync-note-manager-compression-path.md`
 
 ---
 
@@ -54,6 +54,8 @@ It should remain narrow in authority:
 - avoid silently broadening note scope beyond the supplied context
 - return work to clarification or review when the note mutation target is still unclear
 - default to draft-only output when durable-write authorization is ambiguous in the prompt and workflow state
+- require action or write confirmation before turning review/sync findings, proposal-table rows, or maintenance reports into note drafts or durable writes when those upstream artifacts propose rather than authorize note work
+- treat durable-write confirmation as separate from action confirmation
 
 ## Current Upstream Owners
 
@@ -63,7 +65,7 @@ For the current workflow, `Note Manager` should support these owners:
   uses a [[clarified-context-handoff]] as the upstream artifact for ideation-stage note creation or note updates
 
 - `review-sync`
-  routes accepted implementation context through `clarify-intent` first, then uses the resulting [[clarified-context-handoff]] for durable note updates
+  sends approved compact proposal-table rows directly to `Note Manager` when target, action, evidence, durable meaning, and constraints are clear; uncertain rows route through `clarify-intent` first
 
 Additional owners may be introduced later, but this note should describe only the owners that are part of the current workflow.
 
@@ -133,9 +135,10 @@ It should not guess through missing upstream context.
 
 Examples:
 - from `clarify-intent`: a [[clarified-context-handoff]]
-- from `review-sync`: a [[clarified-context-handoff]] produced by `clarify-intent` from implementation-backed review context
+- from `review-sync`: an approved compact sync proposal table for clear rows, or a [[clarified-context-handoff]] for uncertain rows that went through `clarify-intent`
 
-If the owner sends raw implementation context, review output, or a note-change proposal that has not passed through `clarify-intent`, `Note Manager` should route that input to `clarify-intent` first.
+If the owner sends raw implementation context, review output, or a note-change proposal with unclear target, action, evidence, durable meaning, or constraints, `Note Manager` should route that input to `clarify-intent` first.
+Raw review/sync output is not automatically Note Manager write approval. An approved review/sync proposal table may go directly to `Note Manager` when each row has clear target, action, evidence, proposed change, uncertainty, constraints, and route.
 If the owner, target note, or intended note mutation is still unclear after clarification, `Note Manager` should stop and return the work to the upstream role rather than improvising structure.
 
 For `clarify-intent` input, the upstream artifact should preserve clarified context, not prescribe final note structure.
@@ -150,16 +153,18 @@ It should not allow the agent to bypass this role by describing the change as a 
 
 ## Bundled Intake
 
-`Note Manager` may receive a bundle of clarified durable subjects from upstream context.
+`Note Manager` may receive a bundle of clarified durable subjects or approved review/sync proposal-table rows from upstream context.
 
 A bundle is allowed for intake efficiency, but it must not collapse note-action approval.
-Before drafting note content from a bundle, `Note Manager` must produce a subject-to-note action manifest.
+The proposal table can be the reviewable action surface; `Note Manager` does not need to create a separate manifest when rows are already clear.
 
 If the upstream artifact contains provisional subject bundles from complex-prompt intake, `Note Manager` should treat them as input evidence rather than final note structure.
 Each bundle should contain one domain or area; branching ideas should remain together only when they are closely related.
 If a branch can become its own durable subject, split it and preserve the connection instead of blending it into a broader note action.
 
-The manifest should include one row per proposed note action:
+Create a separate manifest only when upstream rows are mixed or ambiguous, one subject may map to several note actions, multiple subjects might collapse into one note action, or the user asks for a manifest.
+
+When a separate manifest is needed, it should include one row per proposed note action:
 - subject id or subject label
 - target note, if known
 - action: `create`, `update`, `defer`, or `return-to-clarification`
@@ -178,11 +183,13 @@ The relationship between clarified subjects and note actions is not one-to-one:
 `clarify-intent` owns semantic subject separation.
 `Note Manager` owns subject-to-note mapping, note action choice, target note choice, note type, metadata, links, and final draft structure.
 
-Only manifest rows marked `ready` may become note drafts.
-Each resulting note draft must be presented and approved separately before writing.
-Approval for one note action does not approve any other note action in the same bundle.
+Only proposal-table or manifest rows marked `ready` or routed to `note-manager` may become note updates.
+Each row may be approved, revised, deferred, or rejected independently.
+Approval for one note action does not approve any other note action in the same bundle unless the user explicitly approves the batch.
 
-If `Note Manager` cannot map a clarified subject to note actions without mixing unrelated context, guessing target notes, or relying on raw implementation evidence, it must return that subject to clarification instead of drafting.
+When the user explicitly approves a clear proposal-table batch for writing, Note Manager may apply all approved rows in one pass. It must preserve row boundaries in its report and must not include rows routed to `clarify-intent`, `defer`, or `reject`.
+
+If `Note Manager` cannot map a clarified subject or proposal row to note actions without mixing unrelated context, guessing target notes, or relying on raw implementation evidence, it must return that subject to clarification instead of drafting or writing.
 
 ## Dynamic Metadata Rules
 
@@ -220,7 +227,13 @@ The final check for any note update must include:
 
 ## Output
 
-The default output is a draft-first note action.
+The default output is a draft-first note action unless write approval is explicit.
+Note Manager has two gate shapes:
+- proposal approval approves preparing or applying specific note actions
+- durable-write confirmation approves applying a prepared note draft, patch, or approved proposal-table row
+
+Action approval does not imply durable-write approval unless the approval explicitly says to apply or write. Durable-write approval for one note action does not approve any other note action in a bundle unless the user explicitly approves the batch.
+
 Direct durable writes require satisfied upstream gates and clear authorization from the full prompt and current workflow state.
 Durable writes should not be inferred from isolated wording.
 If authorization is ambiguous, remain draft-only.
