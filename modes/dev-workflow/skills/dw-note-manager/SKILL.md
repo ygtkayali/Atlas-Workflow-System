@@ -43,7 +43,7 @@ Do not:
 - run semantic search as its own discovery step,
 - silently choose unrelated notes to edit,
 - allow raw direct durable note updates outside this role,
-- rename, move, or reorganize notes,
+- rename, move, or reorganize notes outside of an explicit promotion context,
 - invent a richer metadata or linking system,
 - act when decision confidence is not high enough to choose the note action, target, note type, or durable meaning safely,
 - write broad note changes directly from raw review/sync output before the user has approved the proposed note action or proposal-table rows,
@@ -204,6 +204,24 @@ Prefer the local dev-workflow note-type tags when they exist. Full tag semantics
 - `[[design-note]]` — spans multiple feature subjects or constrains future work from one place. Use after the feature set is active; it does not replace per-subject design trails inside `[[feature-subject-note]]` notes.
 
 Use managed hub or index files only when explicitly requested or supplied by local context. Do not promote a note into a hub just because it is high-level; escalate if a new hub-like note is genuinely needed.
+
+## Promotion Rules
+
+Promotion is a lifecycle transition, not a metadata-only status flip.
+
+Promotion requires one of two conditions:
+- **Explicit user direction**: the user says to promote, settle, or advance the note.
+- **Implementation evidence**: an archived task, completed implementation, or confirmed review output shows the subject is fully worked through.
+
+Do not promote speculatively or because a note seems ready. If neither condition is met, flag the status as `[[status-pending]]` or leave it at `[[status-draft]]`.
+
+When promotion is confirmed, evaluate all three together — not just status:
+
+1. **Status** — transition to the appropriate target (usually `[[status-active]]` or `[[status-settled]]`).
+2. **Type** — re-evaluate whether the current type still fits the note's new role. A note that was exploratory or provisional may now belong to a different type.
+3. **Folder placement** — if the note's current folder reflects its pre-promotion state, move it to the appropriate folder using `git mv` to preserve history.
+
+Treating promotion as a status-only patch is incorrect. All three must be evaluated and updated together in a single proposal.
 
 ## Vault Folder Handling
 

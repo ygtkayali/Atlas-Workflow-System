@@ -54,3 +54,14 @@ Labels defined in `docs/vocabulary.md`. Skills define logic on top of labels; th
 - Add project-specific instructions below the `atlas-dev-workflow-bridge:end` marker so Atlas sync preserves them.
 - Local project instructions below the managed Atlas block override reusable `dev-workflow` guidance when they conflict.
 <!-- atlas-dev-workflow-bridge:end -->
+
+## Claude Code: Workflow State Gate
+
+Hooks in `.claude/hooks/` gate writes and turn-end via `.claude/workflow-state.json`. Set required fields before acting; reset to defaults after the skill's work is done.
+
+- **`docs/` writes** (`dw-note-manager`): set `active_skill: "dw-note-manager"`
+- **Implementation writes** (`project-implementer`): set `active_skill: "project-implementer"`, `gate_status: "approved"`, `approved_scope: ["<paths>"]`
+- **Verification** (`implementation-verifier`): set `verification_required: true`; set `verification_done: true` when checks pass
+- **Review-sync** (`project-review-sync`): set `phase: "review-sync"`, `review_subphase: "<current>"`; set `review_subphase: "complete"` to release stop-gate
+
+Defaults: `phase: "none"`, `active_skill: "none"`, `gate_status: "none"`, `approved_scope: []`, `verification_required: false`, `verification_done: false`
