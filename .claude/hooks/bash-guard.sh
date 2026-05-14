@@ -22,13 +22,21 @@ fi
 
 # Inject git status before any commit
 if echo "$COMMAND" | grep -qE 'git\s+commit'; then
-  # If chained with git add, run the add portion first to get accurate staged state
+  # If chained with git add, stage files temporarily to get accurate pre-commit diff
   if echo "$COMMAND" | grep -qE 'git\s+add'; then
+    # Record which files were already staged before we touch anything
+    PRESTAGED=$(git diff --cached --name-only 2>/dev/null)
     ADD_CMD=$(echo "$COMMAND" | sed 's/ &&.*$//')
     eval "$ADD_CMD" 2>/dev/null || true
     GIT_STATUS=$(git status --porcelain 2>/dev/null | head -20)
     STAGED=$(git diff --cached --stat 2>/dev/null)
-    git reset HEAD 2>/dev/null || true
+    # Unstage only the files we just added (leave pre-existing staged files alone)
+    NEWLY_STAGED=$(git diff --cached --name-only 2>/dev/null)
+    while IFS= read -r f; do
+      if [ -n "$f" ] && ! echo "$PRESTAGED" | grep -qxF "$f"; then
+        git restore --staged -- "$f" 2>/dev/null || true
+      fi
+    done <<< "$NEWLY_STAGED"
   else
     GIT_STATUS=$(git status --porcelain 2>/dev/null | head -20)
     STAGED=$(git diff --cached --stat 2>/dev/null)
