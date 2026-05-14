@@ -1,0 +1,9 @@
+{
+  "phase": "none",
+  "active_skill": "none",
+  "active_task": "none",
+  "gate_status": "none",
+  "approved_scope": [],
+  "verification_required": false,
+  "verification_done": false
+}
