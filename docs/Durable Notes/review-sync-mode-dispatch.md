@@ -26,7 +26,7 @@ Mode determines what inputs are required, what phase gates apply, and what outpu
 | implementation, approved packet, does it match, post-merge review | Implementation Review |
 | doc sync, documentation update, approved to sync | Documentation Sync Analysis |
 | stale notes, bloated notes, note refactor, note split, design notes, feature subject notes, health check, maintenance, link check, artifact cleanup | Maintenance Review |
-| closeout, archive, In-flight cleanup, settled lane | Task Lane Closeout |
+| closeout, archive, idea note closeout, promote idea, In-flight cleanup, settled lane | Task Lane Closeout |
 
 When signals are mixed or absent, the skill asks before proceeding: "Which mode — implementation review / doc sync / maintenance / closeout?"
 

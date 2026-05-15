@@ -1,6 +1,6 @@
 # Repurpose Skill Notes Into Design Notes
 
-Status: [[Tags/status-settled]]
+Status: [[Tags/status-archived]]
 Type: [[idea-note]]
 Related: [[Workflow Mode Skill Governance]], [[note-manager]], [[clarify-intent]], [[planner-agent]], [[implementer-agent]], [[review-agent]], [[implementation-verifier]]
 Created: 2026-05-08
@@ -68,4 +68,4 @@ For each skill-related durable note:
 
 ## Resolution
 
-Closed for the accepted batch covering `clarify-intent`, `note-manager`, `project-planner`, `project-implementer`, and `project-review-sync`. Each reviewed skill now has a short design hub with extracted design notes linked to the authoritative runtime source. Follow-up coverage for `implementation-verifier` or `note-search` should be reopened as a separate task if needed.
+Archived for the accepted batch covering `clarify-intent`, `note-manager`, `project-planner`, `project-implementer`, and `project-review-sync`. This note was a reminder/task seed, not durable design knowledge. Each reviewed skill now has a short design hub with extracted design notes linked to the authoritative runtime source. Follow-up coverage for `implementation-verifier` or `note-search` should be reopened as a separate task if needed.

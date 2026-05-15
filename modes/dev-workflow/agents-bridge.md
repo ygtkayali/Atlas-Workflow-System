@@ -77,11 +77,11 @@ Use it to choose the first workflow phase, then follow the selected skill's `SKI
 | Situation | Skill |
 | --- | --- |
 | Ambiguous, overloaded, early-stage, or solution-led request | `dw-clarify-intent` |
-| Read docs. create/update notes, metadata edit, status/link/archive/schema/governance change, or correction.  | `dw-note-manager` |
+| Approved durable note write, bounded metadata edit, status/link/schema/governance correction, or applying an approved note-action row. | `dw-note-manager` |
 | Note-backed implementation planning | `project-planner` |
 | Approved packet or clear direct coding request | `project-implementer` |
 | Verification before closeout | `implementation-verifier` |
-| Completed implementation review, documentation-sync routing, or bounded maintenance review | `project-review-sync` |
+| Completed implementation review, documentation-sync routing, idea-note closeout, task-lane closeout, archive/promotion disposition, or bounded maintenance review | `project-review-sync` |
 | Note retrieval needed by any workflow role | shared `note-search` helper |
 
 ### Routing Rules
@@ -95,6 +95,7 @@ Use it to choose the first workflow phase, then follow the selected skill's `SKI
 - If `dw-clarify-intent` is called, its output should be an explicit handoff or clarification result, not implicit permission to continue into implementation in the same turn.
 - When a role produces a reviewable artifact such as a handoff, note proposal, note draft, task packet, or context proposal, write it first as an approval-pending artifact under `docs/In-flight/`.
 - If confidence is not high enough to choose a durable note action, target, note type, or durable meaning safely, route to `dw-clarify-intent` before `dw-note-manager`.
+- Closing an `[[idea-note]]` starts in `project-review-sync` Task Lane Closeout, not `dw-note-manager`. Review-sync must decide whether the idea was promoted into durable note output or should be archived; only approved resulting note-action rows route to `dw-note-manager` for writing.
 - Durable note mutations must route through `dw-note-manager`. File-edit tools may apply an approved note-manager decision, but they do not replace that gate.
 - `project-review-sync` phase changes are gated. Implementation review, documentation sync analysis, Note Manager handoff, durable write, and task-lane closeout must be proposed separately and must not run as one automatic chain.
 - Documentation sync should use the smallest sufficient decision surface. A compact review/sync proposal table may route clear rows directly to `dw-note-manager`; only uncertain rows should route through `dw-clarify-intent`.

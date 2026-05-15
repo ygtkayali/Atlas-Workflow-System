@@ -1,6 +1,6 @@
 ---
 name: project-review-sync
-description: "Use for any post-implementation or maintenance workflow that requires a review, sync, or closeout. Call this skill when the user asks to review implementation against an approved plan, analyze documentation sync after accepted work, run a maintenance or health check on notes or artifacts, check whether a durable note is stale, bloated, mis-scoped, or should be split into clearer design/feature subject notes, close out or archive settled task lanes, clean up docs/In-flight/, or check whether work matches what was planned. Triggers on: review, sync, closeout, archive, stale docs, bloated notes, note refactor, note split, design notes, feature subject notes, health check, in-flight cleanup, implementation check."
+description: "Use for any post-implementation or maintenance workflow that requires a review, sync, or closeout. Call this skill when the user asks to review implementation against an approved plan, analyze documentation sync after accepted work, run a maintenance or health check on notes or artifacts, check whether a durable note is stale, bloated, mis-scoped, or should be split into clearer design/feature subject notes, close out an idea note by deciding promotion vs archive, close out or archive settled task lanes, clean up docs/In-flight/, or check whether work matches what was planned. Triggers on: review, sync, closeout, archive, idea note closeout, promote idea, stale docs, bloated notes, note refactor, note split, design notes, feature subject notes, health check, in-flight cleanup, implementation check."
 ---
 ---
 # Project Review / Sync
@@ -12,7 +12,7 @@ Umbrella skill for post-implementation and maintenance workflows. Routes review,
 - **Implementation Review** — compare implementation against an approved task packet.
 - **Documentation Sync Analysis** — inspect accepted implementation evidence for durable-knowledge impact.
 - **Maintenance Review** — analyze a bounded maintenance task, including stale or structurally weak durable notes, and route findings.
-- **Task Lane Closeout** — review settled in-flight lanes, produce archive summaries, route cleanup.
+- **Task Lane Closeout** — review settled in-flight lanes or idea-note task reminders after work has passed through implementation/review, decide promotion vs archive for closed idea notes, produce archive summaries, route cleanup.
 
 ## Mode Detection
 
@@ -21,7 +21,7 @@ Umbrella skill for post-implementation and maintenance workflows. Routes review,
 |implementation, approved packet, does it match, post-merge review|Implementation Review|
 |doc sync, documentation update, approved to sync|Documentation Sync Analysis|
 |stale notes, bloated notes, note refactor, note split, design notes, feature subject notes, health check, maintenance, link check, artifact cleanup|Maintenance Review|
-|closeout, archive, In-flight cleanup, settled lane|Task Lane Closeout|
+|closeout, archive, idea note closeout, promote idea, In-flight cleanup, settled lane|Task Lane Closeout|
 
 If signals are mixed or absent, ask before starting:
 
@@ -58,7 +58,7 @@ Approve?
 
 - Implementation: packet + report + diff only. Load note context only when a specific note is named in findings.
 - Maintenance: named scope from the task only. Escalate if scope is too broad or unclear before beginning.
-- Closeout: named in-flight artifacts only. Never begin with a broad sweep.
+- Closeout: named in-flight artifacts, task lanes, or idea notes only. Never begin with a broad sweep.
 
 ## Required Inputs
 
@@ -79,8 +79,9 @@ Approve?
 
 ### Task Lane Closeout
 
-- user-provided closeout task naming `docs/In-flight/` or specific lanes
-- settled task lane artifacts (`Task Status: settled`)
+- user-provided closeout task naming `docs/In-flight/`, specific lanes, or a specific `[[idea-note]]`
+- settled task lane artifacts (`Task Status: settled`) when lane artifacts exist
+- for idea-note closeout: evidence that the idea's work has passed through implementation/review or that the idea has been superseded by changed durable notes
 
 Flag missing required inputs explicitly. Do not improvise around them.
 
