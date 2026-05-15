@@ -227,6 +227,8 @@ def approve_or_cancel(prompt: str) -> bool:
 
 def copy_file(source: Path, target: Path) -> None:
     target.parent.mkdir(parents=True, exist_ok=True)
+    if target.is_dir():
+        shutil.rmtree(target)
     shutil.copy2(source, target)
 
 
@@ -295,7 +297,40 @@ def clean_marked_block(target: Path) -> None:
         target.write_text(content, encoding="utf-8")
 
 
+def payload_files(root: Path) -> set[Path]:
+    if not root.exists():
+        return set()
+    return {
+        path.relative_to(root)
+        for path in root.rglob("*")
+        if path.is_file() and path.name != ".gitkeep"
+    }
+
+
+def remove_empty_dirs(root: Path) -> None:
+    if not root.exists():
+        return
+    dirs = sorted(
+        (path for path in root.rglob("*") if path.is_dir()),
+        key=lambda path: len(path.parts),
+        reverse=True,
+    )
+    for path in dirs:
+        try:
+            path.rmdir()
+        except OSError:
+            pass
+
+
+def remove_stale_tree_payload_files(source: Path, target: Path) -> None:
+    source_payload = payload_files(source)
+    for relative in payload_files(target) - source_payload:
+        (target / relative).unlink()
+    remove_empty_dirs(target)
+
+
 def copy_tree_payload(source: Path, target: Path) -> None:
+    remove_stale_tree_payload_files(source, target)
     for source_file in source.rglob("*"):
         if not source_file.is_file() or source_file.name == ".gitkeep":
             continue
@@ -304,11 +339,13 @@ def copy_tree_payload(source: Path, target: Path) -> None:
 
 
 def source_files_differ(source: Path, target: Path) -> bool:
+    if payload_files(target) - payload_files(source):
+        return True
     for source_file in source.rglob("*"):
         if not source_file.is_file() or source_file.name == ".gitkeep":
             continue
         target_file = target / source_file.relative_to(source)
-        if not target_file.exists():
+        if not target_file.is_file():
             return True
         if source_file.read_bytes() != target_file.read_bytes():
             return True
