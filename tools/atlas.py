@@ -970,6 +970,9 @@ def project_sync_plan(project_root: Path, mode: str, manifest_path: Path, manife
                 continue
             source = mode_root / str(item["source"])
             target = base_target / str(item["target"])
+            sync_mode = str(item.get("sync") or "")
+            if target.exists() and sync_mode == "create_if_missing":
+                continue
             if source.is_file() and has_payload(source):
                 if target.exists():
                     if source.read_bytes() != target.read_bytes():

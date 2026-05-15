@@ -70,6 +70,7 @@ managed_starter_notes:
     source: docs/context-map.md
     target: context-map.md
     required: true
+    sync: create_if_missing
   - id: vocabulary
     source: docs/vocabulary.md
     target: vocabulary.md

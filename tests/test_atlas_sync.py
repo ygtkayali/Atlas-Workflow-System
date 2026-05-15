@@ -84,6 +84,42 @@ class AtlasSyncTests(unittest.TestCase):
         self.assertTrue((target / ".gitkeep").exists())
         self.assertFalse(atlas.source_files_differ(source, target))
 
+    def test_project_sync_plan_keeps_existing_create_if_missing_starter_note(self) -> None:
+        project = self.root / "project"
+        mode_root = self.root / "mode"
+        project.mkdir()
+        write_file(
+            project,
+            "atlas.yaml",
+            "atlas:\n  mode: example\n  version: 0.1.0\nvault:\n  path: docs\n",
+        )
+        write_file(mode_root, "docs/context-map.md", "starter template\n")
+        write_file(project, "docs/context-map.md", "project-specific map\n")
+        manifest = {
+            "mode": {"name": "example", "version": "0.1.0"},
+            "source_assets": {"root": str(mode_root)},
+            "vault": {"default_path": "docs"},
+            "managed_starter_notes": [
+                {
+                    "id": "context-map",
+                    "source": "docs/context-map.md",
+                    "target": "context-map.md",
+                    "sync": "create_if_missing",
+                }
+            ],
+        }
+
+        actions, skipped = atlas.project_sync_plan(project, "example", mode_root / "manifest.yaml", manifest)
+
+        self.assertEqual(skipped, [])
+        self.assertFalse(
+            any(
+                action["kind"] == "copy_file"
+                and action["target"] == str(project / "docs/context-map.md")
+                for action in actions
+            )
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
