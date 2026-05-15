@@ -1,9 +1,10 @@
 # Repurpose Skill Notes Into Design Notes
 
-Status: [[Tags/status-pending]]
+Status: [[Tags/status-settled]]
 Type: [[idea-note]]
 Related: [[Workflow Mode Skill Governance]], [[note-manager]], [[clarify-intent]], [[planner-agent]], [[implementer-agent]], [[review-agent]], [[implementation-verifier]]
 Created: 2026-05-08
+Last Reviewed: 2026-05-15
 Priority:[[docs/Tags/priority-high|priority-high]]  
 
 ---
@@ -64,3 +65,7 @@ For each skill-related durable note:
 - Preserve current decisions before deleting or compressing old contract text.
 - Update mode skill sources or references when the design review exposes missing runtime behavior.
 - Use the normal note-management gate for each durable note rewrite.
+
+## Resolution
+
+Closed for the accepted batch covering `clarify-intent`, `note-manager`, `project-planner`, `project-implementer`, and `project-review-sync`. Each reviewed skill now has a short design hub with extracted design notes linked to the authoritative runtime source. Follow-up coverage for `implementation-verifier` or `note-search` should be reopened as a separate task if needed.

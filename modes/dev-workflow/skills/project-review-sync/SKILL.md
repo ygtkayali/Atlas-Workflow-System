@@ -1,6 +1,6 @@
 ---
 name: project-review-sync
-description: "Use for any post-implementation or maintenance workflow that requires a review, sync, or closeout. Call this skill when the user asks to review implementation against an approved plan, analyze documentation sync after accepted work, run a maintenance or health check on notes or artifacts, close out or archive settled task lanes, clean up docs/In-flight/, or check whether work matches what was planned. Triggers on: review, sync, closeout, archive, stale docs, health check, in-flight cleanup, implementation check."
+description: "Use for any post-implementation or maintenance workflow that requires a review, sync, or closeout. Call this skill when the user asks to review implementation against an approved plan, analyze documentation sync after accepted work, run a maintenance or health check on notes or artifacts, check whether a durable note is stale, bloated, mis-scoped, or should be split into clearer design/feature subject notes, close out or archive settled task lanes, clean up docs/In-flight/, or check whether work matches what was planned. Triggers on: review, sync, closeout, archive, stale docs, bloated notes, note refactor, note split, design notes, feature subject notes, health check, in-flight cleanup, implementation check."
 ---
 ---
 # Project Review / Sync
@@ -11,7 +11,7 @@ Umbrella skill for post-implementation and maintenance workflows. Routes review,
 
 - **Implementation Review** — compare implementation against an approved task packet.
 - **Documentation Sync Analysis** — inspect accepted implementation evidence for durable-knowledge impact.
-- **Maintenance Review** — analyze a bounded maintenance task and route findings.
+- **Maintenance Review** — analyze a bounded maintenance task, including stale or structurally weak durable notes, and route findings.
 - **Task Lane Closeout** — review settled in-flight lanes, produce archive summaries, route cleanup.
 
 ## Mode Detection
@@ -20,7 +20,7 @@ Umbrella skill for post-implementation and maintenance workflows. Routes review,
 |---|---|
 |implementation, approved packet, does it match, post-merge review|Implementation Review|
 |doc sync, documentation update, approved to sync|Documentation Sync Analysis|
-|stale notes, health check, maintenance, link check, artifact cleanup|Maintenance Review|
+|stale notes, bloated notes, note refactor, note split, design notes, feature subject notes, health check, maintenance, link check, artifact cleanup|Maintenance Review|
 |closeout, archive, In-flight cleanup, settled lane|Task Lane Closeout|
 
 If signals are mixed or absent, ask before starting:
@@ -75,6 +75,7 @@ Approve?
 ### Maintenance Review
 
 - user-provided maintenance task with bounded scope
+- named note, artifact, task lane, folder, or health check target when the request is about existing workflow state
 
 ### Task Lane Closeout
 
