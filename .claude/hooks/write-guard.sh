@@ -10,10 +10,14 @@ FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // .tool_input.filePath
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 STATE_FILE="$PROJECT_ROOT/.claude/workflow-state.json"
 
+# Strip PROJECT_ROOT prefix so all pattern checks work on relative paths
+# (Edit/Write tools pass absolute paths; all guards below use ^-anchored relative patterns)
+REL_PATH="${FILE_PATH#${PROJECT_ROOT}/}"
+
 # Durable note mutation gate
 # Block writes to docs/ unless active skill is dw-note-manager
 # Exception: docs/In-flight/ is always writable
-if echo "$FILE_PATH" | grep -qE '^docs/' && ! echo "$FILE_PATH" | grep -qE '^docs/In-flight/'; then
+if echo "$REL_PATH" | grep -qE '^docs/' && ! echo "$REL_PATH" | grep -qE '^docs/In-flight/'; then
   ACTIVE_SKILL="none"
   if [[ -f "$STATE_FILE" ]]; then
     ACTIVE_SKILL=$(jq -r '.active_skill // "none"' "$STATE_FILE" 2>/dev/null || echo "none")
@@ -28,7 +32,7 @@ if echo "$FILE_PATH" | grep -qE '^docs/' && ! echo "$FILE_PATH" | grep -qE '^doc
 fi
 
 # Implementation approval gate
-if echo "$FILE_PATH" | grep -qE '\.(ts|tsx|js|jsx|py|go|rs|java|rb|css|scss|html|sql)$'; then
+if echo "$REL_PATH" | grep -qE '\.(ts|tsx|js|jsx|py|go|rs|java|rb|css|scss|html|sql)$'; then
   GATE="none"
   SKILL="none"
   SCOPE=""
@@ -44,7 +48,7 @@ if echo "$FILE_PATH" | grep -qE '\.(ts|tsx|js|jsx|py|go|rs|java|rb|css|scss|html
       IN_SCOPE=false
       IFS=',' read -ra SCOPE_PATHS <<< "$SCOPE"
       for sp in "${SCOPE_PATHS[@]}"; do
-        if echo "$FILE_PATH" | grep -q "^${sp}"; then
+        if echo "$REL_PATH" | grep -q "^${sp}"; then
           IN_SCOPE=true
           break
         fi

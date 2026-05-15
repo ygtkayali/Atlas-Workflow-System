@@ -13,11 +13,9 @@ if [[ -f "$STATE_FILE" ]]; then
   SKILL=$(jq -r '.active_skill // "none"' "$STATE_FILE" 2>/dev/null || echo "none")
   PHASE=$(jq -r '.phase // "none"' "$STATE_FILE" 2>/dev/null || echo "none")
   GATE=$(jq -r '.gate_status // "none"' "$STATE_FILE" 2>/dev/null || echo "none")
-  TASK=$(jq -r '.active_task // "none"' "$STATE_FILE" 2>/dev/null || echo "none")
 
   if [[ "$SKILL" != "none" ]]; then
     output+="ACTIVE SKILL: ${SKILL} | Phase: ${PHASE} | Gate: ${GATE}"$'\n'
-    output+="Active task: ${TASK}"$'\n'
     output+="Do not switch skills without explicit handoff or user direction."$'\n'$'\n'
   fi
 fi

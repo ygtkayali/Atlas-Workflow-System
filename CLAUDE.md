@@ -62,6 +62,10 @@ Hooks in `.claude/hooks/` gate writes and turn-end via `.claude/workflow-state.j
 - **`docs/` writes** (`dw-note-manager`): set `active_skill: "dw-note-manager"`
 - **Implementation writes** (`project-implementer`): set `active_skill: "project-implementer"`, `gate_status: "approved"`, `approved_scope: ["<paths>"]`
 - **Verification** (`implementation-verifier`): set `verification_required: true`; set `verification_done: true` when checks pass
-- **Review-sync** (`project-review-sync`): set `phase: "review-sync"`, `review_subphase: "<current>"`; set `review_subphase: "complete"` to release stop-gate
+- **Review-sync** (`project-review-sync`): set `phase: "review-sync"`, `review_subphase: "<current subphase name>"`; before stopping to show a proposal and await user input, set `review_subphase: "awaiting_approval"`; set `review_subphase: "complete"` when the full review is done. The stop-gate allows exit only on `awaiting_approval` or `complete` — any other named subphase is treated as abandoned in-progress work and is blocked.
 
-Defaults: `phase: "none"`, `active_skill: "none"`, `gate_status: "none"`, `approved_scope: []`, `verification_required: false`, `verification_done: false`
+**Timestamp requirement**: whenever writing non-default state, include `"state_set_at": "<ISO-8601 UTC timestamp>"` (e.g. `2026-05-15T14:32:00Z`). session-start.sh uses this to detect stale state from previous sessions. Without it, the hook falls back to file mtime, which is less reliable.
+
+Defaults: `phase: "none"`, `active_skill: "none"`, `gate_status: "none"`, `approved_scope: []`, `verification_required: false`, `verification_done: false`, `state_set_at: null`
+
+Active in-flight work items are tracked via `docs/In-flight/` artifacts, not a field in workflow-state.json.

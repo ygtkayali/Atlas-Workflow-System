@@ -23,11 +23,15 @@ if [[ "$PHASE" == "implementation" && "$VERIFICATION_REQUIRED" == "true" && "$VE
 fi
 
 # Phase transition gate for review-sync
+# Allow stop when: review is fully complete, or Claude has explicitly handed a proposal
+# to the user (awaiting_approval). Block when any named subphase is still in progress —
+# that means the skill abandoned work mid-subphase without surfacing a proposal.
 if [[ "$PHASE" == "review-sync" ]]; then
   SUBPHASE=$(jq -r '.review_subphase // "none"' "$STATE_FILE" 2>/dev/null || echo "none")
-  if [[ "$SUBPHASE" != "complete" ]]; then
-    echo "BLOCKED: Review-sync phases are gated." >&2
-    echo "Current subphase: ${SUBPHASE}. Each subphase must be proposed and approved separately." >&2
+  if [[ "$SUBPHASE" != "complete" && "$SUBPHASE" != "awaiting_approval" ]]; then
+    echo "BLOCKED: Review-sync subphase '${SUBPHASE}' is still in progress." >&2
+    echo "Before stopping, either set review_subphase: \"awaiting_approval\" (proposal shown, waiting for user)" >&2
+    echo "or set review_subphase: \"complete\" (full review done)." >&2
     exit 2
   fi
 fi
