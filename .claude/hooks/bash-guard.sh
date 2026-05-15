@@ -20,6 +20,12 @@ if echo "$COMMAND" | grep -qE 'git\s+add\s+(-A|--all|\.\s*$)'; then
   exit 0
 fi
 
+# ls on docs/ directories (note discovery should use note-search instead)
+if echo "$COMMAND" | grep -qE '^\s*ls\s+.*docs/'; then
+  echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"ls on docs/ detected. Use note-search (hybrid or keyword mode) for note discovery. Only proceed with ls if checking file existence, not browsing for notes."}}'
+  exit 0
+fi
+
 # Inject git status before any commit
 if echo "$COMMAND" | grep -qE 'git\s+commit'; then
   # If chained with git add, stage files temporarily to get accurate pre-commit diff

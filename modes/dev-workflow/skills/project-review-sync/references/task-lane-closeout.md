@@ -11,14 +11,14 @@ Review settled in-flight task lanes. Produce distilled archive summaries. Route 
 5. Produce one distilled archive summary per reviewed lane (see shape below).
 6. Recommend whether consumed in-flight artifacts should be deleted, moved to a raw archive, or retained as evidence.
 7. Do not delete or move in-flight artifacts unless the user has explicitly approved.
-8. Route durable documentation changes through `dw-clarify-intent → dw-note-manager` when needed.
+8. Route durable documentation changes through documentation sync first when needed. Clear approved rows may go directly to `dw-note-manager`; uncertain rows should route through `dw-clarify-intent -> dw-note-manager`.
 9. If documentation sync has not been completed, explicitly deferred, or judged unnecessary, report that closeout is gated and stop before cleanup recommendations.
 
 If a lane lacks `Task Status: settled`, report it as still active, blocked, or unclear. Do not close it unless the user explicitly asks.
 
 ## Archive Summary Shape
 
-Write archive summaries under `docs/Archived/Tasks/`.
+Write archive summaries under `docs/Archieved/Tasks/`.
 
 ```
 # <Task Title>

@@ -1,99 +1,73 @@
 ---
 name: note-search
-description: Use when bounded note retrieval is needed — graph search from a known seed note, or semantic search from a concept — without broad vault reads.
+description: >
+  MANDATORY retrieval interface for any markdown vault note lookup.
+  Use this skill — never grep, ls, find, or manual directory listing — whenever:
+  a note path, title, or topic is mentioned; the user asks what notes exist on a subject;
+  a role needs context before reading or editing notes; a concept needs to be discovered
+  in the vault; backlinks or linked notes are needed; or any search over the vault is required.
+  Skipping this skill and using grep/ls/find instead causes catastrophic context bloat in
+  large vaults. Even a simple "do I have notes on X?" MUST go through this skill.
 ---
 
 # Note Search
 
-Use this skill when you need a bounded, reusable note-retrieval step from a local markdown vault.
+## STOP
 
-Use it for:
-- graph search from a known seed note,
-- semantic search from a concept, question, or rough description,
-- hybrid search that combines semantic, BM25-style keyword, graph, and tag signals,
-- keyword-only search when model loading should be avoided,
-- and context capsules that reduce broad manual note reads.
+Never use `ls`, `find`, `grep`, or manual directory listing to discover or retrieve notes.
 
-This skill is the stable interface layer for note retrieval.
-It does not implement graph traversal, embedding, or ranking itself.
-It calls the local retrieval scripts resolved from platform config.
+These commands return raw filesystem output. In a large vault they can return hundreds of file paths and bloat context.
+This skill exists to replace them.
 
-## Tool Path Resolution
+The only acceptable exceptions:
+- checking whether a specific known file path exists with `test -f`
+- searching for an exact code string or implementation detail inside a file that is already open
 
-Before calling either script, resolve `tools_root` from `platforms.yaml`:
+Everything else goes through this skill.
 
-1. Read `platforms.yaml` from the atlas source checkout.
-2. Identify the current platform: `codex` when running under Codex, `claude` when running under Claude Code.
-3. Read `tools_root` for that platform entry.
-4. Use `<tools_root>/local_note_search.py` for graph search and `<tools_root>/local_note_semantic_search.py` for semantic search.
+## Quick-Start Decision Table
 
-Never hardcode `~/.codex/tools/` or any platform-specific prefix directly in calls.
+| Situation | Mode | Script |
+| --- | --- | --- |
+| You have a seed note path or title | graph | `local_note_search.py` |
+| You have a concept, topic, or question | hybrid | `local_note_semantic_search.py --search-mode hybrid` |
+| You want BM25-style keyword match without model load | keyword | `local_note_semantic_search.py --search-mode keyword` |
+| Caller explicitly needs pure semantic scoring | semantic | `local_note_semantic_search.py --search-mode semantic` |
+| Graph search by title returned nothing | fallback to hybrid using that title as the query | |
 
-In an Atlas workflow source checkout, skill-related tool sources live under `shared/tools/`; those sources should stay synchronized with the installed helpers when behavior changes.
+Default to hybrid for concept-level discovery.
+Use graph only when a concrete seed note is known.
 
-## vault_root Resolution
+## Step 1: Resolve Paths Before Every Call
 
-When `vault_root` is not supplied by the caller:
+### `vault_root`
+
+If `vault_root` is not supplied by the caller:
 
 1. Read `atlas.yaml` from the repository root.
-2. Use `vault.path` as the vault root, resolved relative to the repository root.
+2. Use `vault.path`, resolved relative to the repository root.
 
-## Responsibilities
+### `tools_root`
 
-Do:
-- use this skill as the single retrieval interface,
-- choose graph search when a known seed note path or title is supplied,
-- choose hybrid search for normal concept-level discovery when semantic dependencies are available,
-- choose semantic-only search when the caller explicitly needs the earlier semantic scoring behavior,
-- choose keyword search when an exact-term query should avoid model loading,
-- request JSON output for automation or follow-on reasoning,
-- return candidate note paths or a semantic context capsule from the script result,
-- let calling skills consume retrieval results rather than reimplementing separate context search behavior,
-- keep the calling surface stable even if the scripts evolve later.
+Resolve installed tool paths from both project config and Atlas platform config:
 
-Do not:
-- reimplement note-graph traversal in the skill,
-- reimplement semantic ranking or embedding in the skill,
-- silently broaden retrieval beyond the script contracts,
-- modify notes automatically,
-- treat debug output as normal retrieval output unless diagnostics are needed,
-- let caller skills bypass this skill with ad hoc manual note discovery when semantic search is the better fit.
+1. Read `atlas.yaml` from the repository root.
+2. Read `atlas.platforms`.
+3. Determine the target platform:
+   - if `atlas.platforms` has exactly one entry, use that platform
+   - if `atlas.platforms` has multiple entries and the current runtime platform is one of them, use the current runtime platform
+   - if the current runtime platform is not listed, or the target platform cannot be determined safely, stop and surface the mismatch instead of guessing
+4. Read `platforms.yaml` from the Atlas source checkout.
+5. Read `tools_root` for the chosen platform entry.
+6. Use `<tools_root>/local_note_search.py` for graph search and `<tools_root>/local_note_semantic_search.py` for hybrid, semantic, and keyword search.
 
-## Required Inputs
+Never hardcode `~/.codex/tools/`, `~/.claude/tools/`, `shared/tools/`, or any other platform-specific prefix directly in skill calls.
 
-Provide:
-- either `seed_path`, `seed_title`, or `query`
+## Step 2: Call The Right Script
 
-`vault_root` is optional; resolve from `atlas.yaml` when not supplied.
+### Graph Search
 
-Optional controls:
-- `limit` (default: 10)
-- `max_hops`
-- `sparse_threshold`
-- `debug`
-- `expand_graph`
-- `no_refresh`
-- `search_mode` (`hybrid`, `semantic`, or `keyword`)
-
-## Routing Rules
-
-Use graph search when:
-- a specific seed note path is known,
-- a specific seed note title is known,
-- nearby direct links or backlinks are the target.
-
-Use hybrid search when:
-- the user asks whether a topic already exists in the vault,
-- the user asks what similar notes exist,
-- the prompt gives only a concept, question, or rough subject,
-- a role needs a bounded context capsule before deciding which notes to read.
-
-Fallback rule: if graph search by title returns no match, fall back to a semantic query using that title as the query string rather than failing.
-
-Manual text search remains acceptable for exact strings, filenames, or implementation code checks.
-Prefer keyword mode when the caller needs local BM25-style results without loading the embedding model.
-
-## Graph Call Pattern
+Use when a seed note path or title is known.
 
 ```bash
 python3 <tools_root>/local_note_search.py \
@@ -111,22 +85,17 @@ python3 <tools_root>/local_note_search.py \
   --format json
 ```
 
-Use debug mode only when scoring, hop reasons, or unresolved-link diagnostics are needed:
+Optional graph controls:
+- `--limit`
+- `--max-hops`
+- `--sparse-threshold`
+- `--debug`
 
-```bash
-python3 <tools_root>/local_note_search.py \
-  --vault-root "<vault-root>" \
-  --seed-path "<note-path>" \
-  --format json \
-  --debug
-```
+### Hybrid Search
 
-## Hybrid And Semantic Call Pattern
+Default for concept discovery.
 
-Default to the auto-start warm socket path for normal hybrid or semantic search.
-Hybrid mode is the default and combines tag-based candidate filtering with semantic, BM25-style keyword, and graph scoring.
-
-**Warm auto-start (default):** use this for normal semantic discovery. It reuses an existing vault/model socket service, or starts one on demand before running the query.
+Warm auto-start path:
 
 ```bash
 conda run --no-capture-output -n base-ml \
@@ -139,7 +108,7 @@ conda run --no-capture-output -n base-ml \
   --format json
 ```
 
-**Cold fallback:** use when auto-start fails and the caller explicitly accepts model-load latency for a one-off query.
+Cold fallback when one-off latency is acceptable:
 
 ```bash
 conda run --no-capture-output -n base-ml \
@@ -152,7 +121,22 @@ conda run --no-capture-output -n base-ml \
   --format json
 ```
 
-Use semantic-only mode when the caller wants the earlier semantic scoring behavior with lexical title/path boosts:
+### Keyword Search
+
+Use when the caller wants local BM25-style retrieval without model load.
+
+```bash
+python <tools_root>/local_note_semantic_search.py \
+  --vault-root "<vault-root>" \
+  --query "<query>" \
+  --search-mode keyword \
+  --expand-graph \
+  --format json
+```
+
+### Semantic-Only Search
+
+Use only when the caller explicitly wants pure semantic scoring behavior.
 
 ```bash
 conda run --no-capture-output -n base-ml \
@@ -165,62 +149,71 @@ conda run --no-capture-output -n base-ml \
   --format json
 ```
 
-Use keyword mode when the caller wants BM25-style local retrieval without loading the embedding model:
+Optional semantic-script controls:
+- `--limit`
+- `--context-limit`
+- `--no-refresh`
+- `--socket`
+- `--socket-timeout`
+- `--socket-start-timeout`
+- `--max-body-chars`
 
-```bash
-python <tools_root>/local_note_semantic_search.py \
-  --vault-root "<vault-root>" \
-  --query "<query>" \
-  --search-mode keyword \
-  --expand-graph \
-  --format json
-```
+Manual `--serve-socket` is for debugging only.
+Normal callers should use `--auto-socket`.
 
-Manual service startup remains available for debugging or explicit long-lived sessions, but normal callers should not require it:
+## Step 3: Handle The Output
 
-```bash
-conda run --no-capture-output -n base-ml \
-  python <tools_root>/local_note_semantic_search.py \
-  --vault-root "<vault-root>" \
-  --serve-socket
-```
+### Graph Results
 
-Hybrid and semantic search use `sentence-transformers/all-MiniLM-L6-v2` and store a vault-local cache at `.codex-note-search/`.
-Keyword mode uses markdown parsing and BM25-style scoring only.
+Fields:
+- `seed_path`
+- `candidates`
 
-### Refresh behavior
+### Hybrid, Semantic, And Keyword Results
 
-Refresh is the default: each query checks for changed files and updates the index before searching.
-Use `--no-refresh` only when the caller explicitly wants to skip index updates for speed.
+Primary fields:
+- `read_first`
+- `graph_expansion`
 
-### Result size
-
-Default limit is 10 results. If results would exceed roughly 4 000 tokens of context, truncate to the top results that fit rather than returning the full set. Surface the truncation count to the caller.
-
-## Output Handling
-
-Graph search returns `seed_path` and `candidates`.
-Hybrid, semantic, and keyword search return `read_first` (primary bounded context set) and optionally `graph_expansion` (adjacent context).
-
-Hybrid and keyword results include separate score components when available:
-
+Score components when available:
 - `semantic_score`
 - `keyword_score`
 - `graph_score`
 - `tag_score`
-- final `score`
+- `score`
 - `why`
 
-Treat tags as note-based filters and facets before ranking, not as plain keyword matches.
-Status and type tags may reduce the candidate set or explain retrieval evidence without becoming broad content relevance.
+Rules:
+- treat `read_first` as the primary candidate set
+- treat `graph_expansion` as supplemental adjacent context
+- if results would exceed roughly 4,000 tokens of context, truncate to the top-fitting results and surface that truncation
+- if the script returns an `error`, surface it directly and do not guess
+- treat tags as filters and facets rather than plain keyword matches
 
-Treat `read_first` as the primary set. `graph_expansion` is optional.
+### Fallback Rule
 
-If the script returns an `error`, treat retrieval as failed and surface the reason directly rather than guessing.
+If graph search by title returns no match, rerun as a hybrid query using that title as the query string.
+Do not fail at the graph step.
 
-## Current Boundary
+## Operational Notes
 
-This skill wraps only the local graph and semantic/hybrid scripts.
+- Refresh is on by default. Use `--no-refresh` only when the caller explicitly wants speed over freshness.
+- Result limits come from the script defaults unless the caller passes `--limit`.
+- Hybrid and semantic search use `sentence-transformers/all-MiniLM-L6-v2` and a vault-local cache at `.codex-note-search/`.
+- Keyword mode uses local markdown parsing and BM25-style scoring only.
+- This skill does not modify notes. It returns candidate paths and bounded context for the caller to use.
 
-It should not claim support for autonomous context selection beyond the script output.
-Tag and BM25 signals are retrieval guidance only; callers remain responsible for deciding which returned notes to read or use.
+## Boundaries
+
+This skill is the stable retrieval interface.
+It does not implement graph traversal, embedding, or ranking itself.
+
+Caller skills should:
+- use this skill as the single note-retrieval interface
+- consume returned candidate paths or context capsules
+- avoid reimplementing separate discovery logic
+
+Caller skills should not:
+- bypass this skill with ad hoc manual vault discovery
+- broaden retrieval beyond the script contracts
+- treat retrieval output as permission to mutate notes

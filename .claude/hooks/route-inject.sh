@@ -37,6 +37,7 @@ output+="- dw-clarify-intent output must be explicit handoff, not implicit conti
 output+="- Durable note mutations route through dw-note-manager only."$'\n'
 output+="- Choose smallest valid skill sequence. Stop at first unresolved gate."$'\n'
 output+="- If confidence is insufficient to choose skill safely, route to dw-clarify-intent."$'\n'
-output+="- Use note-search over broad manual scanning for concept-level discovery."$'\n'
+output+="- Note discovery (type lookup, exemplar finding, existence check, concept search) → note-search, not ls/grep on docs/."$'\n'
+output+="- ls and grep on docs/ are only acceptable for exact-string matches, filename checks, or implementation code — not note discovery."$'\n'
 
 echo "{\"additionalContext\": $(echo "$output" | jq -Rsa .)}"
