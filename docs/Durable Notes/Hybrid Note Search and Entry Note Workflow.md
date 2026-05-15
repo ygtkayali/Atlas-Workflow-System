@@ -1,10 +1,10 @@
 # Hybrid Note Search and Entry Note Workflow
 
-Status: [[Tags/status-draft]]
-Type: [[idea-note]]
-Related: [[note-search-skill]], [[Local Note Search Script]], [[Main Vault Note Structure and Agent Context]], [[context-map]], [[Tag Retrieval Model]]
+Status: [[Tags/status-settled]]
+Type: [[feature-subject-note]]
+Related: [[note-search-skill]], [[Local Note Search Script]], [[Main Vault Note Structure and Agent Context]], [[context-map]], [[Tag Retrieval Model]] [[hybrid-note-search-v2]] [[Note Search Benchmark Set]]
 Created: 14-05-2026
-Last Reviewed: 2026-05-14
+Last Reviewed: 2026-05-15
 Priority: [[docs/Tags/priority-high|priority-high]] 
 
 ---

@@ -1,10 +1,11 @@
 # Note Search Test Set
 
-Status: [[Tags/status-active]]
+Status: [[Tags/status-archived]]
 Type: [[feature-subject-note]]
 Related: [[note-search-skill]], [[Hybrid Note Search and Entry Note Workflow]], [[Tag Retrieval Model]]
+Successor: [[Note Search Benchmark Set]]
 Created: 14-05-2026
-Last Reviewed: 2026-05-14
+Last Reviewed: 2026-05-15
 Priority: [[docs/Tags/priority-high|priority-high]] 
 Source: [[report-note-search-benchmark-expansion]]
 Tasks: [[packet-note-search-benchmark-expansion]]
