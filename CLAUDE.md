@@ -59,9 +59,9 @@ Labels defined in `docs/vocabulary.md`. Skills define logic on top of labels; th
 
 Hooks in `.claude/hooks/` gate writes and turn-end via `.claude/workflow-state.json`. Set required fields before acting; reset to defaults after the skill's work is done.
 
-- **`docs/` writes** (`dw-note-manager`): set `active_skill: "dw-note-manager"`
-- **Implementation writes** (`project-implementer`): set `active_skill: "project-implementer"`, `gate_status: "approved"`, `approved_scope: ["<paths>"]`
-- **Verification** (`implementation-verifier`): set `verification_required: true`; set `verification_done: true` when checks pass
+- **`docs/` writes** (`dw-note-manager`): set `active_skill: "dw-note-manager"`, then invoke the skill
+- **Implementation writes** (`project-implementer`): set `active_skill: "project-implementer"`, `gate_status: "approved"`, `approved_scope: ["<paths>"]`, then invoke the skill
+- **Verification** (`implementation-verifier`): set `active_skill: "implementation-verifier"`, `verification_required: true`, then invoke the skill; set `verification_done: true` when checks pass
 - **Review-sync** (`project-review-sync`): set `phase: "review-sync"`, `review_subphase: "<current subphase name>"`; before stopping to show a proposal and await user input, set `review_subphase: "awaiting_approval"`; set `review_subphase: "complete"` when the full review is done. The stop-gate allows exit only on `awaiting_approval` or `complete` — any other named subphase is treated as abandoned in-progress work and is blocked.
 
 **Timestamp requirement**: whenever writing non-default state, include `"state_set_at": "<ISO-8601 UTC timestamp>"` (e.g. `2026-05-15T14:32:00Z`). session-start.sh uses this to detect stale state from previous sessions. Without it, the hook falls back to file mtime, which is less reliable.

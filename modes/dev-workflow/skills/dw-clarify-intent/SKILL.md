@@ -1,28 +1,57 @@
 ---
 name: dw-clarify-intent
-description: Use when a request is vague, overloaded, solution-led, or touches a high-impact area and intent must be solidified before durable note creation or planning begins.
+description: Default initial intake for non-trivial workflow requests; use relentlessly when intent, scope, risk, verification, or downstream routing could otherwise be guessed.
 ---
 
 # Clarify Intent
 
 Strengthen an idea-shaped request or upstream workflow context until the human has enough clarity, confidence, and control for durable note creation or planning to begin safely.
 
+Use this skill as the default initial intake for non-trivial workflow, note, planning, implementation, review, maintenance, or synchronization requests.
 Use this skill before durable note creation or planner work when the request is still vague, overloaded, solution-led, missing key fields, or uncertain in ways that would force a downstream note or planning step to guess through important decisions.
 Also use it when a review/sync step has implementation-backed documentation-sync context that must be clarified before `Note Manager` decides concrete note mutation.
 
-This skill is not a fast pre-planner handoff.
+This skill is not a fast pre-planner handoff and not a bureaucratic form.
 Its primary job is to make the entry point into a project or feature as solid as practical without getting stuck on every low-impact detail.
-It preserves clarified context for downstream note work; it does not design the durable note structure itself.
+It preserves clarified context for downstream work; it does not design durable note structure, implementation architecture, or final task packets itself.
 It has two distinct phases: first clarify through simple interaction, then synthesize the clarified state into a handoff only when downstream workflow state needs it.
+
+## Default Intake Policy
+
+Begin here unless the request is trivial, self-contained, low-impact, and already contains enough objective, scope, constraints, intended behavior, verification, and rollback context for the next role to act without inventing decisions.
+
+Clarify intent should be relentless about weak inputs:
+
+- If the user provides a vague diagnosis, turn it into an observed failure and a testable hypothesis before implementation.
+- If the user provides a solution without the failure it solves, separate the goal from the proposed fix before routing.
+- If the request would let the agent choose architecture, note placement, workflow policy, verification criteria, or rollback scope, keep the work in clarification.
+- If the request is clear enough to proceed, still provide a short visible clarification result or micro-handoff before action.
+
+## Micro-Handoff Before Action
+
+Before any non-trivial file, note, sync, workflow-state, benchmark-sensitive, or implementation action, produce a visible micro-handoff:
+
+- current interpretation,
+- next move,
+- boundary or non-goal,
+- check or verification,
+- open questions or decisions that gate action.
+
+Micro-handoffs are conversational only. They have no title, id, status, or template, and they are not written to disk.
+Use them often to build the idea gradually, expose weak assumptions early, and give the human a chance to redirect before the workflow hardens.
+For low-risk clear work, the micro-handoff can be one to four sentences and does not need to wait unless the user redirects.
+For ambiguous, risky, architecture, workflow-governance, benchmark-sensitive, or durable-note work, the micro-handoff is an approval gate and downstream action must wait.
 
 ## Clarification Depth
 
 Choose depth before starting the loop:
 
-- `light` — low-impact, narrow, or already mostly-clear requests. Restate goal in 2-4 lines, ask at most 2 high-value questions, and either end clarification or produce a compact handoff. The full `Interpretation Basis` may be omitted when the origin is the direct user prompt with no hidden context, source material, or upstream artifact being interpreted.
-- `full` — ideas that touch any high-impact area (see below) or multi-domain bundles. Use the full guided loop and full `Interpretation Basis`.
+- `micro` — clear, low-risk, mostly-actionable requests. State the interpreted goal, next action, boundary, and verification in one to four sentences. Use this to create the steering pause before action.
+- `light` — low-impact, narrow, or already mostly-clear requests with some uncertainty. Restate goal in 2-4 lines, ask at most 2 high-value questions, and either end clarification or produce a compact same-session handoff.
+- `full` — ideas that touch any high-impact area (see below), multi-domain bundles, durable note changes with uncertain meaning, or work where downstream roles need auditable context. Use the full guided loop and the richest necessary `Interpretation Basis`.
 
 If unsure, start `light` and escalate to `full` the moment a high-impact area surfaces.
+Use the smallest depth that preserves the decision boundary; do not expand output just to satisfy a template.
 
 ## High-Impact Uncertainty
 
@@ -45,10 +74,10 @@ Do:
 - surface hidden inconsistencies, missing decisions, and weak assumptions,
 - ask the highest-value clarification questions first,
 - challenge premature solution framing with concrete tradeoffs,
-- preserve an `Interpretation Basis` for `note_ready_handoff` output in `full` depth,
+- preserve an `Interpretation Basis` for stored `note_ready_handoff` output in `full` depth,
 - separate `decided`, `proposed`, `unclear`, and `blocked` points,
 - use `note-search` for bounded retrieval when a seed note or semantic query materially improves clarification quality,
-- choose the right output mode: `continue_clarification`, `end_clarification`, `note_ready_handoff`, or `partial_clarification`.
+- choose the right output mode: `continue_clarification`, `end_clarification`, `compact_handoff`, `note_ready_handoff`, or `partial_clarification`.
 
 Do not:
 - act as planner, note-manager, or implementer (the router owns those gates),
@@ -126,11 +155,12 @@ Produce a `partial_clarification` summary that lists what *is* settled, what is 
 ## Phase 2: Handoff Creation
 
 Create a handoff only after Phase 1 has produced enough settled context for downstream workflow state.
-This phase synthesizes the conversation, source context, decisions, unresolved uncertainty, and boundaries into the `references/clarified-context-handoff.md` shape.
-It should not introduce new decisions; it records what has been clarified, what remains proposed, what is unclear, and what is blocked.
+This phase synthesizes the conversation, source context, decisions, explicitly deferred items, and boundaries using the adaptive shape in `references/clarified-context-handoff.md`.
+It should not introduce new decisions; it records what has been clarified and what is explicitly deferred.
 
-When creating a reviewable handoff artifact, write it first as an approval-pending artifact under `docs/In-flight/` and report the path and next gate.
-Do not use the handoff as implicit permission to continue into implementation or durable note mutation in the same turn.
+Compact handoffs are for same-session routing to another skill. They must be resolved enough that the receiving skill does not need to guess intent, scope, or decisions, and they are not written as files.
+Full handoffs are the only clarified-context handoffs written as approval-pending artifacts under `docs/In-flight/`; report the path and next gate.
+Do not use any handoff as implicit permission to continue into implementation or durable note mutation in the same turn.
 
 ## Status Rules
 
@@ -138,23 +168,26 @@ Clarification state labels are defined in `vocabulary.md`. Use them exactly as d
 
 `ready_for_note_manager` does not imply approval for implementation. It only authorizes the next workflow step.
 
-For idea capture, confidence may mean unresolved uncertainty is clearly *preserved* rather than resolved.
+For idea capture, confidence may mean unresolved uncertainty is clearly preserved in micro clarification rather than resolved immediately.
+Compact and full handoffs require unresolved uncertainty to be resolved or explicitly deferred outside the next gate.
 For high-impact areas, confidence requires stronger resolution before downstream handoff.
 
 ## Output Modes
 
 - `continue_clarification` — provide the current state plus the next highest-value questions. Do not repeat a full handoff every turn unless the state has materially changed or the user asks.
 - `end_clarification` — state the clarified result and recommend the next relevant action (note creation, planning, review, no durable action, or a user decision). Use when the idea is clear enough for the current purpose but the next step is not necessarily `Note Manager`.
-- `note_ready_handoff` — enter Phase 2 and produce the `references/clarified-context-handoff.md` artifact as approval-pending workflow state under `docs/In-flight/`.
+- `compact_handoff` — provide a more detailed same-session handoff to another skill when the objective, scope, constraints, decisions, and deferred items are settled enough for that skill to act without guessing. Do not write it to disk.
+- `note_ready_handoff` — enter Phase 2 and produce a full clarified-context handoff as approval-pending workflow state under `docs/In-flight/`.
 - `partial_clarification` — iteration cap reached; structured pause requesting user direction.
 
 Private reasoning does not satisfy a gate. The clarification state or handoff must be visible in the conversation or in an approved workflow artifact before downstream work begins.
 
 ## Interpretation Basis
 
-Use the full structure defined in `references/clarified-context-handoff.md` for `note_ready_handoff` output.
+Use the full structure defined in `references/clarified-context-handoff.md` for stored `note_ready_handoff` output.
 
-In `light` depth, `Interpretation Basis` may be omitted when the origin is the direct user prompt and no hidden context, source material, or upstream artifact is being interpreted. Otherwise it is required.
+In `micro` or `light` depth, `Interpretation Basis` may be omitted or compressed when the origin is the direct user prompt and no hidden context, source material, or upstream artifact is being interpreted.
+Otherwise preserve the basis at the smallest useful size.
 
 When clarifying implementation-backed review/sync context, separate implementation facts from review proposals inside the basis.
 
@@ -194,8 +227,9 @@ Before finishing, verify:
 - Multi-domain prompts were split into bundles using the bundle shape above.
 - High-impact uncertainty is preserved or resolved, not normalized.
 - Status (`draft` / `needs_clarification` / `ready_for_note_manager` / `partial_clarification`) is accurate.
-- For `note_ready_handoff`: handoff is visible, schema-shaped, and supplied with enough note context.
+- For compact or full handoffs: no open questions or vague decisions remain; unresolved areas are either handled in micro clarification first or explicitly marked deferred and out of scope.
+- For `note_ready_handoff`: full handoff is visible, schema-shaped, and supplied with enough note context.
 - For long sessions: handoff still matches the original triggering input.
-- The next step (continue / end / handoff / partial) is explicit and matches the actual state.
+- The next step (continue / end / compact handoff / full handoff / partial) is explicit and matches the actual state.
 
 If any answer is no, refine the state or mark it `needs_clarification`.

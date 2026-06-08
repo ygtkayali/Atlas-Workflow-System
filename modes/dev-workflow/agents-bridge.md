@@ -76,7 +76,7 @@ Use it to choose the first workflow phase, then follow the selected skill's `SKI
 
 | Situation | Skill |
 | --- | --- |
-| Ambiguous, overloaded, early-stage, or solution-led request | `dw-clarify-intent` |
+| Default initial intake for workflow, note, planning, implementation, review, or maintenance requests | `dw-clarify-intent` |
 | Approved durable note write, bounded metadata edit, status/link/schema/governance correction, or applying an approved note-action row. | `dw-note-manager` |
 | Note-backed implementation planning | `project-planner` |
 | Approved packet or clear direct coding request | `project-implementer` |
@@ -87,11 +87,15 @@ Use it to choose the first workflow phase, then follow the selected skill's `SKI
 ### Routing Rules
 
 - Choose the smallest valid skill sequence and stop at the first unresolved gate.
+- Treat `dw-clarify-intent` as the default initial skill for non-trivial workflow requests. It may exit quickly, but it should first expose intent, uncertainty, next action, and the reason for that action.
+- Skip initial clarification only for trivial, self-contained, low-impact requests where objective, scope, constraints, intended behavior, verification, and rollback risk are already obvious.
 - Use `note-search` for note-related retrieval instead of broad manual vault discovery.
 - Prefer hybrid `note-search` over manual `rg` or broad file scanning for concept-level note discovery.
-- A sufficiently specific direct coding request may route directly to `project-implementer` when objective, scope, constraints, and intended behavior are clear enough.
-- Directive phrasing such as "I need to", "the goal is", "implement", or "make it" is not enough to skip `dw-clarify-intent`; skip clarification only for clear, narrow, low-impact changes.
-- Clarification may be lightweight and conversational; require a handoff only when downstream workflow state needs it.
+- A sufficiently specific direct coding request may route directly to `project-implementer` only when objective, scope, constraints, intended behavior, verification, and rollback boundary are clear enough that the implementer does not need to invent them.
+- Directive phrasing such as "I need to", "the goal is", "implement", or "make it" is not enough to skip `dw-clarify-intent`.
+- Clarification may be lightweight and conversational. Use micro-handoffs frequently to build shared understanding before any larger compact or full handoff is produced.
+- Before non-trivial file, note, sync, or workflow-state changes, provide a brief conversational micro-handoff that states the current interpretation, next move, boundary, check, and any open questions or decisions. For ambiguous, risky, workflow-governance, architecture, benchmark-sensitive, or durable-note work, that micro-handoff is an approval gate.
+- Compact handoffs are for same-session routing to another skill and must not be written as artifacts. Full handoffs are the only clarified-context handoffs written under `docs/In-flight/`.
 - If `dw-clarify-intent` is called, its output should be an explicit handoff or clarification result, not implicit permission to continue into implementation in the same turn.
 - When a role produces a reviewable artifact such as a handoff, note proposal, note draft, task packet, or context proposal, write it first as an approval-pending artifact under `docs/In-flight/`.
 - If confidence is not high enough to choose a durable note action, target, note type, or durable meaning safely, route to `dw-clarify-intent` before `dw-note-manager`.

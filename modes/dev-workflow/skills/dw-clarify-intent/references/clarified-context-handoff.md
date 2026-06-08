@@ -1,4 +1,4 @@
-# Clarified Context Handoff Schema
+# Adaptive Clarified Context Handoff Schema
 
 Status: [[Tags/status-settled]]
 Parent: [[Main Hubs/Workflow Schemas Hub]]
@@ -6,7 +6,7 @@ Related: [[clarify-intent]], [[note-manager]], [[note-ready-handoff]]
 Created: 2026-04-24
 Last Reviewed: 2026-05-06
 Source: [[LLM Wiki Lossy Compression and Integrity Risks]]
-Decisions: Rename `Source Context` to `Interpretation Basis` so handoffs preserve origin, interpretation, tone, inference boundaries, and validation targets.
+Decisions: Rename `Source Context` to `Interpretation Basis` so handoffs preserve origin, interpretation, tone, inference boundaries, and validation targets. Micro-handoffs are conversational only; compact handoffs are same-session skill handoffs; full handoffs are the only clarified-context artifacts written to disk.
 Dependencies:
 Tasks:
 
@@ -14,7 +14,7 @@ Tasks:
 
 ## Purpose
 
-This schema defines the minimum structure for the clarified context artifact produced by `clarify-intent`.
+This schema defines clarified context handoffs produced by `clarify-intent`.
 
 The clarified context handoff preserves the result of clarification without designing the durable note.
 It exists to give `Note Manager` enough settled context to decide whether to create or update notes, which note type to use, which target note should change, and what exact content should be drafted.
@@ -31,7 +31,51 @@ It is not:
 - an implementation packet,
 - or approval to implement.
 
-## Required Sections
+## Handoff Size Rule
+
+Use the smallest handoff that makes the next role safe, but do not turn every steering pause into an artifact.
+
+### Micro Handoff
+
+Micro-handoffs are conversational steering pauses, not schema artifacts.
+Use them frequently while the idea is still forming and before any non-trivial action.
+They should be brief, usually one to four sentences, and should expose:
+
+- current interpretation,
+- next move,
+- boundary or non-goal,
+- check or verification,
+- open questions or decisions that gate action.
+
+Micro-handoffs must not have a title, id, status, or template.
+Open questions, unresolved design choices, and vague parts belong here until they are resolved or explicitly deferred.
+
+### Compact Handoff
+
+Compact handoffs are for giving another skill enough resolved context to continue in the same session.
+They are more detailed than a micro-handoff, but they are not persisted to `docs/In-flight/`.
+Use a compact handoff only when the receiving skill can act without guessing objective, scope, constraints, or decisions.
+
+Required fields:
+- clarified subject
+- goal and scope
+- decided points
+- explicitly deferred items
+- boundaries
+- readiness / next gate
+
+A compact handoff must not contain open questions or vague decision points.
+If open questions remain, stay in micro clarification. If a question is intentionally not part of the next step, mark it as deferred and out of scope.
+Include `Interpretation Basis` only as a compact paragraph or bullet list when origin, tone, inference boundary, or validation target matters for the same-session handoff.
+
+### Full Handoff
+
+Use when the work is high-impact, multi-subject, implementation-backed, note-governance sensitive, source-material dependent, or likely to be reviewed later for interpretation fidelity.
+Full handoffs are the only clarified-context handoffs written under `docs/In-flight/`.
+The full handoff should preserve enough basis for downstream review to detect drift, polarity flips, and silent inference.
+Like compact handoffs, full handoffs must not contain open questions or vague decision points unless they are explicitly deferred and outside the next gate.
+
+## Field Menu
 
 ### 1. Header
 - handoff title
@@ -65,13 +109,13 @@ It is not:
 - decisions worth preserving from clarification
 - narrowed scope or direction that should not be silently broadened later
 
-### 6. Proposed
-- optional direction that seems plausible but is not yet durable fact
-- options that `Note Manager` may consider without treating them as binding structure
+### 6. Deferred / Out of Scope
+- questions, options, or adjacent decisions that were intentionally deferred
+- enough boundary context to keep downstream roles from treating deferred material as part of the next gate
 
-### 7. Unclear / Blocked
-- unresolved questions that may remain visible in the downstream note action
-- missing information that should return the work to clarification if it would force note-structure guesswork
+### 7. Blocked
+- blocking information that prevents compact or full handoff readiness
+- if this section contains active blockers, status should not be `ready_for_note_manager`
 
 ### 8. Boundaries / Non-goals
 - adjacent areas that should not be folded into `Note Manager` by default
@@ -95,6 +139,7 @@ Important uncertainty, contradiction, or missing decisions would force `Note Man
 
 ### `ready_for_note_manager`
 The clarified subject is stable enough that `Note Manager` can decide a bounded create or update action from the handoff and the user-supplied note context.
+Any unresolved questions are explicitly deferred and outside the bounded note action.
 
 ## Task Lane Fields
 
@@ -133,19 +178,34 @@ The clarified context handoff may:
 
 Before handoff, check:
 - Is the clarified subject clear?
-- Is the interpretation basis explicit enough to validate the handoff against its origin?
-- Is the original input or upstream artifact preserved, linked, excerpted, or redacted intentionally?
+- Is the handoff type appropriate for the risk and downstream role?
+- If this is compact or full, are open questions resolved or explicitly deferred outside the next gate?
+- If interpretation fidelity matters, is the basis explicit enough to validate the handoff against its origin?
+- If an original input or upstream artifact matters, is it preserved, linked, excerpted, summarized, or redacted intentionally?
 - Is the user goal distinct from the proposed solution shape?
 - Are decided points separate from proposed or unclear points?
 - Are boundaries or non-goals visible?
-- Is unresolved uncertainty separated from settled context?
+- Is uncertainty either resolved before handoff or explicitly deferred outside the next gate?
 - Is known relevant note context listed without designing the note action?
 - Is `Note Manager` happening only because the subject is actually durable enough?
 - Is status accurate?
 
 If any answer is no, refine the handoff or mark it `needs_clarification`.
 
-## Minimal Handoff Template
+## Compact Same-Session Handoff Shape
+
+```md
+Clarified subject:
+Goal and scope:
+Decided:
+Deferred / out of scope:
+Boundaries:
+Readiness / next gate:
+```
+
+Do not write compact handoffs to disk.
+
+## Full Artifact Template
 
 ```md
 # <Handoff Title>
@@ -165,9 +225,7 @@ If any answer is no, refine the handoff or mark it `needs_clarification`.
 
 ## Decided
 
-## Proposed
-
-## Unclear / Blocked
+## Deferred / Out of Scope
 
 ## Boundaries / Non-goals
 

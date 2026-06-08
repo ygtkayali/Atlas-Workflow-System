@@ -10,18 +10,30 @@ FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // .tool_input.filePath
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 STATE_FILE="$PROJECT_ROOT/.claude/workflow-state.json"
 
-# Strip PROJECT_ROOT prefix so all pattern checks work on relative paths
-# (Edit/Write tools pass absolute paths; all guards below use ^-anchored relative patterns)
 REL_PATH="${FILE_PATH#${PROJECT_ROOT}/}"
+
+# Always allow writes to workflow-state.json itself
+if [[ "$REL_PATH" == ".claude/workflow-state.json" ]]; then
+  exit 0
+fi
+
+read_state() {
+  if [[ -f "$STATE_FILE" ]]; then
+    ACTIVE_SKILL=$(jq -r '.active_skill // "none"' "$STATE_FILE" 2>/dev/null || echo "none")
+    GATE=$(jq -r '.gate_status // "none"' "$STATE_FILE" 2>/dev/null || echo "none")
+    SCOPE=$(jq -r '.approved_scope // [] | join(",")' "$STATE_FILE" 2>/dev/null || echo "")
+  else
+    ACTIVE_SKILL="none"
+    GATE="none"
+    SCOPE=""
+  fi
+}
 
 # Durable note mutation gate
 # Block writes to docs/ unless active skill is dw-note-manager
 # Exception: docs/In-flight/ is always writable
 if echo "$REL_PATH" | grep -qE '^docs/' && ! echo "$REL_PATH" | grep -qE '^docs/In-flight/'; then
-  ACTIVE_SKILL="none"
-  if [[ -f "$STATE_FILE" ]]; then
-    ACTIVE_SKILL=$(jq -r '.active_skill // "none"' "$STATE_FILE" 2>/dev/null || echo "none")
-  fi
+  read_state
 
   if [[ "$ACTIVE_SKILL" != "dw-note-manager" ]]; then
     echo "BLOCKED: Write to durable note path (${FILE_PATH}) outside dw-note-manager." >&2
@@ -33,17 +45,9 @@ fi
 
 # Implementation approval gate
 if echo "$REL_PATH" | grep -qE '\.(ts|tsx|js|jsx|py|go|rs|java|rb|css|scss|html|sql)$'; then
-  GATE="none"
-  SKILL="none"
-  SCOPE=""
+  read_state
 
-  if [[ -f "$STATE_FILE" ]]; then
-    GATE=$(jq -r '.gate_status // "none"' "$STATE_FILE" 2>/dev/null || echo "none")
-    SKILL=$(jq -r '.active_skill // "none"' "$STATE_FILE" 2>/dev/null || echo "none")
-    SCOPE=$(jq -r '.approved_scope // [] | join(",")' "$STATE_FILE" 2>/dev/null || echo "")
-  fi
-
-  if [[ "$GATE" == "approved" && "$SKILL" == "project-implementer" ]]; then
+  if [[ "$GATE" == "approved" && "$ACTIVE_SKILL" == "project-implementer" ]]; then
     if [[ -n "$SCOPE" ]]; then
       IN_SCOPE=false
       IFS=',' read -ra SCOPE_PATHS <<< "$SCOPE"

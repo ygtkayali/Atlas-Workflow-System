@@ -53,8 +53,8 @@ managed_templates:
     target: Templates/Idea Note Template.md
     required: true
   - id: project-subject-template
-    source: docs/Templates/Project Subject Template.md
-    target: Templates/Project Subject Template.md
+    source: docs/Templates/Feature Subject Template.md
+    target: Templates/Feature Subject Template.md
     required: true
   - id: design-note-template
     source: docs/Templates/Design Note Template.md
